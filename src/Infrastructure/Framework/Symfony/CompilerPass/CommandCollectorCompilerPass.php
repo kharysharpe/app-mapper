@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of my Symfony boilerplate,
+ * This file is part of the Context Mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
