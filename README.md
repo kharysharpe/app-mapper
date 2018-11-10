@@ -1,8 +1,8 @@
-# Symfony boilerplate
-[![build status](https://gitlab.com/hgraca/symfony-boilerplate/badges/master/build.svg)](https://gitlab.com/hgraca/symfony-boilerplate/commits/master)
-[![coverage report](https://gitlab.com/hgraca/symfony-boilerplate/badges/master/coverage.svg)](https://gitlab.com/hgraca/symfony-boilerplate/commits/master)
+# Context Mapper
+[![build status](https://gitlab.com/hgraca/context-mapper/badges/master/build.svg)](https://gitlab.com/hgraca/context-mapper/commits/master)
+[![coverage report](https://gitlab.com/hgraca/context-mapper/badges/master/coverage.svg)](https://gitlab.com/hgraca/context-mapper/commits/master)
 
-A Symfony boilerplate with cumulative and isolated git commits, so it's easy to change or remove what we don't want to use.
+This is a CLI tool to gather information about a codebase which can help draw the application context map.
 
 ## Container
 
