@@ -36,12 +36,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Acme\\App\\": "src/"
+            "Hgraca\\ContextMapper\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Acme\\App\\Test\\": "tests/"
+            "Hgraca\\ContextMapper\\Test\\": "tests/"
         }
     },
     "replace": {

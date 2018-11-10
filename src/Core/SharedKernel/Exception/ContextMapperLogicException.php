@@ -15,14 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Core\SharedKernel\Exception;
+namespace Hgraca\ContextMapper\Core\SharedKernel\Exception;
 
-use Hgraca\PhpExtension\Exception\RuntimeException;
+use Hgraca\PhpExtension\Exception\LogicException;
 
 /**
- * This is the application RuntimeException, its the runtime exception that should used in our project code.
+ * This is the application LogicException, its the logic exception that should used in our project code.
  * This is useful so we can catch and customise this projects exceptions.
  */
-class AppRuntimeException extends RuntimeException
+class ContextMapperLogicException extends LogicException
 {
 }

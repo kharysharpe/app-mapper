@@ -15,9 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Infrastructure\Framework\Symfony\CompilerPass;
+namespace Hgraca\ContextMapper\Infrastructure\Framework\Symfony\CompilerPass;
 
-use Acme\App\Infrastructure\Framework\Symfony\CliApplication;
+use Hgraca\ContextMapper\Infrastructure\Framework\Symfony\CliApplication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

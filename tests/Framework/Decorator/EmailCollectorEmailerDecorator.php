@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework\Decorator;
+namespace Hgraca\ContextMapper\Test\Framework\Decorator;
 
-use Acme\App\Core\Port\Notification\Client\Email\Email;
-use Acme\App\Core\Port\Notification\Client\Email\EmailerInterface;
+use Hgraca\ContextMapper\Core\Port\Notification\Client\Email\Email;
+use Hgraca\ContextMapper\Core\Port\Notification\Client\Email\EmailerInterface;
 
 final class EmailCollectorEmailerDecorator implements EmailerInterface
 {

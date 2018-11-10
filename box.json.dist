@@ -16,5 +16,5 @@
     ],
     "force-autodiscovery": true,
     "main": "bin/console",
-    "output": "boilerplate.phar"
+    "output": "cmapper.phar"
 }

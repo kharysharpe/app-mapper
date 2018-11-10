@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Infrastructure\Framework\Symfony;
+namespace Hgraca\ContextMapper\Infrastructure\Framework\Symfony;
 
 use Symfony\Component\Console\Application as SymfonyConsoleApplication;
 

@@ -15,8 +15,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Core\SharedKernel\Exception;
+namespace Hgraca\ContextMapper\Core\SharedKernel\Exception;
 
-final class InvalidArgumentException extends AppLogicException
+final class InvalidArgumentException extends ContextMapperLogicException
 {
 }

@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework;
+namespace Hgraca\ContextMapper\Test\Framework;
 
-use Acme\App\Infrastructure\Framework\Symfony\CliApplication;
-use Acme\App\Infrastructure\Framework\Symfony\CliKernel;
+use Hgraca\ContextMapper\Infrastructure\Framework\Symfony\CliApplication;
+use Hgraca\ContextMapper\Infrastructure\Framework\Symfony\CliKernel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ResettableContainerInterface;

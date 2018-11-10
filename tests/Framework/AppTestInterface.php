@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework;
+namespace Hgraca\ContextMapper\Test\Framework;
 
 interface AppTestInterface
 {

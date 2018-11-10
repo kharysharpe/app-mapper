@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework\CompilerPass\CreateTestContainer;
+namespace Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer;
 
-use Acme\App\Core\SharedKernel\Exception\AppRuntimeException;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\ContextMapperRuntimeException;
 
-final class DuplicateServiceInTestContainerException extends AppRuntimeException
+final class DuplicateServiceInTestContainerException extends ContextMapperRuntimeException
 {
 }

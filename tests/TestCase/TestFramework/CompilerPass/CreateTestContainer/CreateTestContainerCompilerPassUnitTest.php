@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\TestCase\TestFramework\CompilerPass\CreateTestContainer;
+namespace Hgraca\ContextMapper\Test\TestCase\TestFramework\CompilerPass\CreateTestContainer;
 
-use Acme\App\Test\Framework\AbstractUnitTest;
-use Acme\App\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
+use Hgraca\ContextMapper\Test\Framework\AbstractUnitTest;
+use Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -69,7 +69,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Acme\App\Test\Framework\CompilerPass\CreateTestContainer\DuplicateServiceInTestContainerException
+     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\DuplicateServiceInTestContainerException
      */
     public function process_throws_exception_if_duplicated_service_in_test_container(): void
     {
@@ -81,7 +81,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Acme\App\Test\Framework\CompilerPass\CreateTestContainer\AbstractServiceInTestContainerException
+     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\AbstractServiceInTestContainerException
      */
     public function process_throws_exception_if_abstract_service_in_test_container(): void
     {
@@ -96,7 +96,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Acme\App\Test\Framework\CompilerPass\CreateTestContainer\ServiceInTestContainerNotFoundInProductionContainerException
+     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\ServiceInTestContainerNotFoundInProductionContainerException
      */
     public function process_throws_exception_if_inexistent_service_in_test_container(): void
     {

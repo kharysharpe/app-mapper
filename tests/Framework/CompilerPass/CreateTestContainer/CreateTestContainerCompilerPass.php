@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework\CompilerPass\CreateTestContainer;
+namespace Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

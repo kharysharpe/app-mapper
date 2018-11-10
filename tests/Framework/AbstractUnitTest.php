@@ -15,9 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework;
+namespace Hgraca\ContextMapper\Test\Framework;
 
-use Acme\App\Test\Framework\Mock\MockTrait;
+use Hgraca\ContextMapper\Test\Framework\Mock\MockTrait;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
 

@@ -15,9 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Acme\App\Test\Framework\Container;
+namespace Hgraca\ContextMapper\Test\Framework\Container;
 
-use Acme\App\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
+use Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
