@@ -25,6 +25,7 @@ use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\UseCaseNode;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
@@ -135,6 +136,7 @@ final class Ast implements AstInterface
     private function find(callable $filter, Node ...$nodes): array
     {
         $traverser = new NodeTraverser();
+        $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
@@ -146,6 +148,7 @@ final class Ast implements AstInterface
     private function findFirst(callable $filter, Node ...$nodes): ?Node
     {
         $traverser = new NodeTraverser();
+        $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
