@@ -20,6 +20,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use PhpParser\Node;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 
 final class QueryBuilder implements QueryBuilderInterface
@@ -91,6 +92,21 @@ final class QueryBuilder implements QueryBuilderInterface
         );
 
         $this->currentQuery->returnSingleResult();
+
+        return $this;
+    }
+
+    /**
+     * TODO this filter must also be able to use the $eventDispatcherFqcn
+     */
+    public function selectMethodsDispatchingEvents(string $eventDispatcherMethod): QueryBuilderInterface
+    {
+        $this->currentQuery->addFilter(
+            function (Node $node) use ($eventDispatcherMethod) {
+                return $node instanceof MethodCall
+                    && $node->name->name === $eventDispatcherMethod;
+            }
+        );
 
         return $this;
     }
