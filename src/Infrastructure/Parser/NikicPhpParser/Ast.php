@@ -24,11 +24,13 @@ use Hgraca\ContextMapper\Core\Port\Parser\NodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\DispatchedEventNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\UseCaseNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeTraverser;
@@ -37,7 +39,6 @@ use PhpParser\NodeVisitor\FirstFindingVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
 use function array_merge;
-use function is_array;
 
 final class Ast implements AstInterface
 {
@@ -115,6 +116,8 @@ final class Ast implements AstInterface
         switch (true) {
             case $parserNode instanceof Class_:
                 return UseCaseNode::constructFromClass($parserNode);
+            case $parserNode instanceof MethodCall:
+                return DispatchedEventNode::constructFromMethodCall($parserNode);
             default:
                 throw new ParserException();
         }
