@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
+use function array_values;
 use Closure;
 use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
@@ -24,6 +25,7 @@ use Hgraca\ContextMapper\Core\Port\Parser\NodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\DispatchedEventNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\UseCaseNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
@@ -33,6 +35,9 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
 use PhpParser\NodeVisitor\FirstFindingVisitor;
@@ -42,7 +47,7 @@ use function array_merge;
 
 final class Ast implements AstInterface
 {
-    /** @var Stmt[] */
+    /** @var Namespace_[] */
     private $itemList = [];
 
     private function __construct()
@@ -51,14 +56,11 @@ final class Ast implements AstInterface
 
     public static function constructFromFolder(string $folder): AstInterface
     {
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
         $files = new \RegexIterator($files, '/\.php$/');
         $nodeList = [];
         foreach ($files as $file) {
-            $code = file_get_contents($file->getPathName());
-            $nodeList[] = $parser->parse($code);
+            $nodeList[] = self::parse(file_get_contents($file->getPathName()));
         }
 
         $ast = new self();
@@ -94,9 +96,11 @@ final class Ast implements AstInterface
 
     public function query(QueryInterface $query): NodeCollectionInterface
     {
+        $itemList = array_values($this->itemList);
+
         $parserNodeList = $query->shouldReturnSingleResult()
-            ? [$this->findFirst($this->createFilter($query), ...$this->itemList)]
-            : $this->find($this->createFilter($query), ...$this->itemList);
+            ? [$this->findFirst($this->createFilter($query), ...$itemList)]
+            : $this->find($this->createFilter($query), ...$itemList);
 
         return $this->mapNodeList($parserNodeList);
     }
@@ -158,5 +162,39 @@ final class Ast implements AstInterface
         $traverser->traverse($nodes);
 
         return $visitor->getFoundNode();
+    }
+
+    private static function parse(string $code): array
+    {
+        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+
+        foreach ($parser->parse($code) as $node) {
+            if (!$node instanceof Namespace_) {
+                continue;
+            }
+            $namespaceNode = $node;
+            $namespace = $namespaceNode->name->toCodeString();
+            $className = self::getUnitName($namespaceNode);
+
+            return [$namespace . '\\' . $className => $namespaceNode];
+        }
+
+        return [];
+    }
+
+    private static function getUnitName(Namespace_ $namespaceNode): string
+    {
+        foreach ($namespaceNode->stmts as $stmt) {
+            if (
+                $stmt instanceof Class_
+                || $stmt instanceof Interface_
+                || $stmt instanceof Trait_
+            ) {
+                return $stmt->name->toString();
+            }
+        }
+        throw new UnitNotFoundInNamespaceException(
+            'Could not find a class in the namespace ' . $namespaceNode->name->toCodeString()
+        );
     }
 }

@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Parser\Exception;
+namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\ContextMapper\Core\SharedKernel\Exception\ContextMapperRuntimeException;
+use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 
-class ParserException extends ContextMapperRuntimeException
+final class UnitNotFoundInNamespaceException extends ParserException
 {
 }
