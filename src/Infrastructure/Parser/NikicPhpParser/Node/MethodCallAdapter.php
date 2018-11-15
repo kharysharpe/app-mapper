@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Node\ArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use PhpParser\Node\Arg;
@@ -44,7 +44,7 @@ final class MethodCallAdapter implements MethodCallInterface
     private $enclosingMethod;
 
     /**
-     * @var ArgumentInterface[]
+     * @var MethodArgumentInterface[]
      */
     private $argumentList = [];
 
@@ -53,7 +53,7 @@ final class MethodCallAdapter implements MethodCallInterface
         $this->methodCall = $methodCall;
         /** @var Arg $argument */
         foreach ($methodCall->args as $argument) {
-            $this->argumentList[] = new ArgumentAdapter($argument->value);
+            $this->argumentList[] = new MethodArgumentAdapter($argument->value);
         }
     }
 
