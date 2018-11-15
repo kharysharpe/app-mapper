@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper;
+namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use PhpParser\Node\Stmt\Class_;

@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper;
+namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;

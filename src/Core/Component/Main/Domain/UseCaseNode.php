@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper\ClassWrapper;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassWrapper;
 use Hgraca\PhpExtension\String\StringService;
 use PhpParser\Node\Stmt\Class_;
 

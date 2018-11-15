@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper\MethodCallWrapper;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallWrapper;
 use PhpParser\Node\Expr\MethodCall;
 
 final class DispatchedEventNode implements DomainNodeInterface
