@@ -15,13 +15,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Port\Parser\DispatchedEventNodeInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper\MethodCallWrapper;
 use PhpParser\Node\Expr\MethodCall;
 
-final class DispatchedEventNode implements DispatchedEventNodeInterface
+final class DispatchedEventNode implements DomainNodeInterface
 {
     /** @var string */
     private $dispatcherClass;

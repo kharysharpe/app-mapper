@@ -15,9 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Parser;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-interface NodeInterface
+interface DomainNodeInterface
 {
     public function toArray(): array;
 }

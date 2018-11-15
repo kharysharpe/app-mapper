@@ -15,14 +15,13 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Port\Parser\UseCaseNodeInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper\ClassWrapper;
 use Hgraca\PhpExtension\String\StringService;
 use PhpParser\Node\Stmt\Class_;
 
-final class UseCaseNode implements UseCaseNodeInterface
+final class UseCaseNode implements DomainNodeInterface
 {
     /** @var string */
     private $fqcn;

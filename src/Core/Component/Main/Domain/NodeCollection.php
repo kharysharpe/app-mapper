@@ -15,7 +15,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Parser;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use ArrayIterator;
 use Iterator;
@@ -31,7 +31,7 @@ final class NodeCollection implements NodeCollectionInterface
      */
     private $itemList;
 
-    public function __construct(NodeInterface ...$itemList)
+    public function __construct(DomainNodeInterface ...$itemList)
     {
         $this->itemList = $itemList;
     }

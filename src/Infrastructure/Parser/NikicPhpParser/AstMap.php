@@ -18,16 +18,16 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Closure;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\DispatchedEventNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeInterface;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\NodeCollection;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\NodeCollectionInterface;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\UseCaseNode;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
-use Hgraca\ContextMapper\Core\Port\Parser\NodeCollection;
-use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\DispatchedEventNode;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\UseCaseNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
@@ -138,7 +138,7 @@ final class AstMap implements AstMapInterface
         return new NodeCollection(...$nodeList);
     }
 
-    private function mapNode(Node $parserNode): NodeInterface
+    private function mapNode(Node $parserNode): DomainNodeInterface
     {
         switch (true) {
             case $parserNode instanceof Class_:
