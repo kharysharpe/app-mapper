@@ -17,11 +17,13 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class ClassAdapter
+final class ClassAdapter implements ClassInterface
 {
     /**
      * @var Class_
@@ -43,7 +45,7 @@ final class ClassAdapter
         return $this->class->name->toString();
     }
 
-    public function getMethod(string $methodName): MethodAdapter
+    public function getMethod(string $methodName): MethodInterface
     {
         foreach ($this->class->stmts as $stmt) {
             if (

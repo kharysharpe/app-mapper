@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ArgumentInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
 use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node\Expr;
@@ -29,7 +30,7 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Class_;
 use function is_string;
 
-final class ArgumentAdapter
+final class ArgumentAdapter implements ArgumentInterface
 {
     /**
      * @var Name

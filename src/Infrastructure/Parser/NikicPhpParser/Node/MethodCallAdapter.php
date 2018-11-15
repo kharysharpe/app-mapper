@@ -17,12 +17,16 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ArgumentInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class MethodCallAdapter
+final class MethodCallAdapter implements MethodCallInterface
 {
     /**
      * @var MethodCall
@@ -30,17 +34,17 @@ final class MethodCallAdapter
     private $methodCall;
 
     /**
-     * @var ClassAdapter
+     * @var ClassInterface
      */
     private $enclosingClass;
 
     /**
-     * @var MethodAdapter
+     * @var MethodInterface
      */
     private $enclosingMethod;
 
     /**
-     * @var ArgumentAdapter[]
+     * @var ArgumentInterface[]
      */
     private $argumentList = [];
 
@@ -78,7 +82,7 @@ final class MethodCallAdapter
         return $this->argumentList[$argumentIndex]->getCanonicalType();
     }
 
-    private function getEnclosingClass(): ClassAdapter
+    private function getEnclosingClass(): ClassInterface
     {
         if ($this->enclosingClass === null) {
             $node = $this->methodCall;
@@ -92,7 +96,7 @@ final class MethodCallAdapter
         return $this->enclosingClass;
     }
 
-    private function getEnclosingMethod(): MethodAdapter
+    private function getEnclosingMethod(): MethodInterface
     {
         if ($this->enclosingMethod === null) {
             $node = $this->methodCall;

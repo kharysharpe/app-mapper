@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeNameNotFoundException;
 use PhpParser\Node;
@@ -26,7 +27,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 
-final class MethodAdapter
+final class MethodAdapter implements MethodInterface
 {
     /**
      * @var ClassMethod
