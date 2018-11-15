@@ -19,12 +19,15 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper
 
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
+use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Stmt\Class_;
+use function is_string;
 
 final class ArgumentWrapper
 {
@@ -40,7 +43,7 @@ final class ArgumentWrapper
                 $this->argument = $argument->class;
                 break;
             case $argument instanceof Variable:
-//                $this->argument = ; // TODO infer type from inspecting variable creation
+                $this->argument = $argument->getAttribute('typeAst');
                 break;
             case $argument instanceof StaticCall:
                 $class = new ClassWrapper($argument->class->getAttribute('ast'));
@@ -62,6 +65,14 @@ final class ArgumentWrapper
             return 'unknown';
         }
 
+        if (is_string($this->argument)) {
+            return $this->argument;
+        }
+
+        if ($this->argument instanceof Class_) {
+            return $this->argument->namespacedName->toCodeString();
+        }
+
         /** @var FullyQualified $argumentName */
         $argumentName = $this->argument->getAttribute('resolvedName');
         if ($argumentName === null) {
@@ -74,8 +85,18 @@ final class ArgumentWrapper
 
     public function getCanonicalType(): string
     {
-        return ($this->argument === null)
-            ? 'unknown'
-            : $this->argument->getLast();
+        if ($this->argument === null) {
+            return 'unknown';
+        }
+
+        if (is_string($this->argument)) {
+            return ClassService::extractCanonicalClassName($this->argument);
+        }
+
+        if ($this->argument instanceof Class_) {
+            return $this->argument->namespacedName->getLast();
+        }
+
+        return $this->argument->getLast();
     }
 }
