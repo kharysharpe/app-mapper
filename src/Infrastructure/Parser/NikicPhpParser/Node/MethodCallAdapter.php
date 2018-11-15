@@ -22,7 +22,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class MethodCallWrapper
+final class MethodCallAdapter
 {
     /**
      * @var MethodCall
@@ -30,17 +30,17 @@ final class MethodCallWrapper
     private $methodCall;
 
     /**
-     * @var ClassWrapper
+     * @var ClassAdapter
      */
     private $enclosingClass;
 
     /**
-     * @var MethodWrapper
+     * @var MethodAdapter
      */
     private $enclosingMethod;
 
     /**
-     * @var ArgumentWrapper[]
+     * @var ArgumentAdapter[]
      */
     private $argumentList = [];
 
@@ -49,7 +49,7 @@ final class MethodCallWrapper
         $this->methodCall = $methodCall;
         /** @var Arg $argument */
         foreach ($methodCall->args as $argument) {
-            $this->argumentList[] = new ArgumentWrapper($argument->value);
+            $this->argumentList[] = new ArgumentAdapter($argument->value);
         }
     }
 
@@ -78,7 +78,7 @@ final class MethodCallWrapper
         return $this->argumentList[$argumentIndex]->getCanonicalType();
     }
 
-    private function getEnclosingClass(): ClassWrapper
+    private function getEnclosingClass(): ClassAdapter
     {
         if ($this->enclosingClass === null) {
             $node = $this->methodCall;
@@ -86,13 +86,13 @@ final class MethodCallWrapper
                 $node = $node->getAttribute('parent');
             } while (!$node instanceof Class_);
 
-            $this->enclosingClass = new ClassWrapper($node);
+            $this->enclosingClass = new ClassAdapter($node);
         }
 
         return $this->enclosingClass;
     }
 
-    private function getEnclosingMethod(): MethodWrapper
+    private function getEnclosingMethod(): MethodAdapter
     {
         if ($this->enclosingMethod === null) {
             $node = $this->methodCall;
@@ -100,7 +100,7 @@ final class MethodCallWrapper
                 $node = $node->getAttribute('parent');
             } while (!$node instanceof ClassMethod);
 
-            $this->enclosingMethod = new MethodWrapper($node);
+            $this->enclosingMethod = new MethodAdapter($node);
         }
 
         return $this->enclosingMethod;

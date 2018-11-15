@@ -26,7 +26,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 
-final class MethodWrapper
+final class MethodAdapter
 {
     /**
      * @var ClassMethod

@@ -29,7 +29,7 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Class_;
 use function is_string;
 
-final class ArgumentWrapper
+final class ArgumentAdapter
 {
     /**
      * @var Name
@@ -46,7 +46,7 @@ final class ArgumentWrapper
                 $this->argument = $argument->getAttribute('typeAst');
                 break;
             case $argument instanceof StaticCall:
-                $class = new ClassWrapper($argument->class->getAttribute('ast'));
+                $class = new ClassAdapter($argument->class->getAttribute('ast'));
                 $method = $class->getMethod($argument->name->toString());
                 try {
                     $this->argument = $method->getReturnTypeAst()->namespacedName;

@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassWrapper;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassAdapter;
 use Hgraca\PhpExtension\String\StringService;
 use PhpParser\Node\Stmt\Class_;
 
@@ -38,7 +38,7 @@ final class UseCaseNode implements DomainNodeInterface
 
     public static function constructFromClass(Class_ $class): self
     {
-        $classWrapper = new ClassWrapper($class);
+        $classWrapper = new ClassAdapter($class);
 
         $node = new self();
         $node->fqcn = $classWrapper->getFullyQualifiedClassName();

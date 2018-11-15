@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallWrapper;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
 use PhpParser\Node\Expr\MethodCall;
 
 final class DispatchedEventNode implements DomainNodeInterface
@@ -43,7 +43,7 @@ final class DispatchedEventNode implements DomainNodeInterface
 
     public static function constructFromMethodCall(MethodCall $methodCall): self
     {
-        $methodCallWrapper = new MethodCallWrapper($methodCall);
+        $methodCallWrapper = new MethodCallAdapter($methodCall);
 
         $node = new self();
         $node->dispatcherClass = $methodCallWrapper->getEnclosingClassCanonicalName();

@@ -21,7 +21,7 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNo
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class ClassWrapper
+final class ClassAdapter
 {
     /**
      * @var Class_
@@ -43,14 +43,14 @@ final class ClassWrapper
         return $this->class->name->toString();
     }
 
-    public function getMethod(string $methodName): MethodWrapper
+    public function getMethod(string $methodName): MethodAdapter
     {
         foreach ($this->class->stmts as $stmt) {
             if (
                 $stmt instanceof ClassMethod
                 && $stmt->name->toString() === $methodName
             ) {
-                return new MethodWrapper($stmt);
+                return new MethodAdapter($stmt);
             }
         }
 
