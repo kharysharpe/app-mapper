@@ -17,8 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
-use PhpParser\Node\Expr\MethodCall;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 
 final class DispatchedEventNode implements DomainNodeInterface
 {
@@ -41,16 +40,14 @@ final class DispatchedEventNode implements DomainNodeInterface
     {
     }
 
-    public static function constructFromMethodCall(MethodCall $methodCall): self
+    public static function constructFromMethodCall(MethodCallInterface $methodCall): self
     {
-        $methodCallWrapper = new MethodCallAdapter($methodCall);
-
         $node = new self();
-        $node->dispatcherClass = $methodCallWrapper->getEnclosingClassCanonicalName();
-        $node->dispatcherMethod = $methodCallWrapper->getEnclosingMethodCanonicalName();
-        $node->event = $methodCallWrapper->getArgumentCanonicalType();
-        $node->dispatcherClassFqcn = $methodCallWrapper->getEnclosingClassFullyQualifiedName();
-        $node->eventFqcn = $methodCallWrapper->getArgumentFullyQualifiedType();
+        $node->dispatcherClass = $methodCall->getEnclosingClassCanonicalName();
+        $node->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
+        $node->event = $methodCall->getArgumentCanonicalType();
+        $node->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
+        $node->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
 
         return $node;
     }

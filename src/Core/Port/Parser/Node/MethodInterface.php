@@ -22,7 +22,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 
-interface MethodInterface
+interface MethodInterface extends NodeInterface
 {
     public function getCanonicalName(): string;
 

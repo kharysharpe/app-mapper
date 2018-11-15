@@ -17,15 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-interface MethodCallInterface extends NodeInterface
+interface NodeInterface
 {
-    public function getEnclosingClassFullyQualifiedName(): string;
-
-    public function getEnclosingClassCanonicalName(): string;
-
-    public function getEnclosingMethodCanonicalName(): string;
-
-    public function getArgumentFullyQualifiedType(int $argumentIndex = 0): string;
-
-    public function getArgumentCanonicalType(int $argumentIndex = 0): string;
 }

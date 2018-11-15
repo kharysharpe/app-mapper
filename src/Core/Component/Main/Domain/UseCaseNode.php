@@ -17,9 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassAdapter;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\PhpExtension\String\StringService;
-use PhpParser\Node\Stmt\Class_;
 
 final class UseCaseNode implements DomainNodeInterface
 {
@@ -36,13 +35,11 @@ final class UseCaseNode implements DomainNodeInterface
     {
     }
 
-    public static function constructFromClass(Class_ $class): self
+    public static function constructFromClass(ClassInterface $class): self
     {
-        $classWrapper = new ClassAdapter($class);
-
         $node = new self();
-        $node->fqcn = $classWrapper->getFullyQualifiedClassName();
-        $node->canonicalClassName = $classWrapper->getCanonicalClassName();
+        $node->fqcn = $class->getFullyQualifiedClassName();
+        $node->canonicalClassName = $class->getCanonicalClassName();
         $node->name = self::removeLastWord(
             StringService::separateCapitalizedWordsWithSpace($node->canonicalClassName)
         );

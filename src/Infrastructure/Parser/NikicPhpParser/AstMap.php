@@ -28,6 +28,8 @@ use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassAdapter;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
@@ -142,9 +144,9 @@ final class AstMap implements AstMapInterface
     {
         switch (true) {
             case $parserNode instanceof Class_:
-                return UseCaseNode::constructFromClass($parserNode);
+                return UseCaseNode::constructFromClass(new ClassAdapter($parserNode));
             case $parserNode instanceof MethodCall:
-                return DispatchedEventNode::constructFromMethodCall($parserNode);
+                return DispatchedEventNode::constructFromMethodCall(new MethodCallAdapter($parserNode));
             default:
                 throw new ParserException();
         }
