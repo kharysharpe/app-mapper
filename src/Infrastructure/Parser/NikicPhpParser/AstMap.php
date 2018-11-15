@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Closure;
-use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
@@ -48,7 +48,7 @@ use function array_key_exists;
 use function array_merge;
 use function array_values;
 
-final class Ast implements AstInterface
+final class AstMap implements AstMapInterface
 {
     /** @var Namespace_[] */
     private $itemList = [];
@@ -57,7 +57,7 @@ final class Ast implements AstInterface
     {
     }
 
-    public static function constructFromFolder(string $folder): AstInterface
+    public static function constructFromFolder(string $folder): AstMapInterface
     {
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
         $files = new \RegexIterator($files, '/\.php$/');
@@ -72,12 +72,12 @@ final class Ast implements AstInterface
         return $ast;
     }
 
-    public static function constructFromFile(string $filePath): AstInterface
+    public static function constructFromFile(string $filePath): AstMapInterface
     {
         return self::fromSerializedAst(file_get_contents($filePath));
     }
 
-    public static function fromSerializedAst(string $serializedAst): AstInterface
+    public static function fromSerializedAst(string $serializedAst): AstMapInterface
     {
         $ast = new self();
 

@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser;
 
-interface AstInterface
+interface AstMapInterface
 {
     public static function constructFromFolder(string $folder): self;
 

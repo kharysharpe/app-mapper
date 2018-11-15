@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
-use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
 final class UseCaseQuery
@@ -32,7 +32,7 @@ final class UseCaseQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstInterface $ast): array
+    public function queryAst(AstMapInterface $ast): array
     {
         //Implementing('Werkspot\Instapro\Infrastructure\CommandBus\Command\CommandInterface')
         $query = $this->queryBuilder->create()

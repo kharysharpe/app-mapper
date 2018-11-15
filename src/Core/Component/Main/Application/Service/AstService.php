@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
 use Hgraca\ContextMapper\Core\Port\Parser\AstFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 
 final class AstService
 {
@@ -36,7 +36,7 @@ final class AstService
         $this->dumpAstToFile($ast, $filePath, $prettyPrint);
     }
 
-    private function dumpAstToFile(AstInterface $ast, string $filePath, bool $prettyPrint = false): void
+    private function dumpAstToFile(AstMapInterface $ast, string $filePath, bool $prettyPrint = false): void
     {
         file_put_contents($filePath, $ast->toSerializedAst($prettyPrint));
     }

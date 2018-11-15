@@ -18,17 +18,17 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\ContextMapper\Core\Port\Parser\AstFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 
 final class AstFactory implements AstFactoryInterface
 {
-    public function constructFromFolder(string $folder): AstInterface
+    public function constructFromFolder(string $folder): AstMapInterface
     {
-        return Ast::constructFromFolder($folder);
+        return AstMap::constructFromFolder($folder);
     }
 
-    public function constructFromFile(string $filePath): AstInterface
+    public function constructFromFile(string $filePath): AstMapInterface
     {
-        return Ast::constructFromFile($filePath);
+        return AstMap::constructFromFile($filePath);
     }
 }

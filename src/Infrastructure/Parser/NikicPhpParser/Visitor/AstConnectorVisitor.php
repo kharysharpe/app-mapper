@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Ast;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name;
@@ -28,11 +28,11 @@ use PhpParser\NodeVisitorAbstract;
 class AstConnectorVisitor extends NodeVisitorAbstract
 {
     /**
-     * @var Ast
+     * @var AstMap
      */
     private $ast;
 
-    public function __construct(Ast $ast)
+    public function __construct(AstMap $ast)
     {
         $this->ast = $ast;
     }

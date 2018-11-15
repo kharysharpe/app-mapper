@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
-use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
 final class DispatchedEventQuery
@@ -32,7 +32,7 @@ final class DispatchedEventQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstInterface $ast): array
+    public function queryAst(AstMapInterface $ast): array
     {
         $query = $this->queryBuilder->create()
             ->selectMethodsDispatchingEvents('dispatch')
