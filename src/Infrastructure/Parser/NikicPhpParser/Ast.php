@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
-use function array_values;
 use Closure;
 use Hgraca\ContextMapper\Core\Port\Parser\AstInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
@@ -25,15 +24,16 @@ use Hgraca\ContextMapper\Core\Port\Parser\NodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeCollectionInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\DispatchedEventNode;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\UseCaseNode;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
@@ -43,7 +43,9 @@ use PhpParser\NodeVisitor\FindingVisitor;
 use PhpParser\NodeVisitor\FirstFindingVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
+use function array_key_exists;
 use function array_merge;
+use function array_values;
 
 final class Ast implements AstInterface
 {
@@ -105,6 +107,26 @@ final class Ast implements AstInterface
         return $this->mapNodeList($parserNodeList);
     }
 
+    public function hasAstNode(string $fqcn): bool
+    {
+        $key = trim($fqcn, '\\');
+        if (!array_key_exists($key, $this->itemList)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getAstNode(string $fqcn): Node
+    {
+        $key = trim($fqcn, '\\');
+        if (!array_key_exists($key, $this->itemList)) {
+            throw new AstNodeNotFoundException($key);
+        }
+
+        return self::getNamespaceUnitNode($this->itemList[$key]);
+    }
+
     private function mapNodeList(array $parserNodeList): NodeCollectionInterface
     {
         $nodeList = [];
@@ -145,6 +167,7 @@ final class Ast implements AstInterface
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
+        $traverser->addVisitor(new AstConnectorVisitor($this));
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
@@ -157,6 +180,7 @@ final class Ast implements AstInterface
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
+        $traverser->addVisitor(new AstConnectorVisitor($this));
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
@@ -184,13 +208,21 @@ final class Ast implements AstInterface
 
     private static function getUnitName(Namespace_ $namespaceNode): string
     {
+        return self::getNamespaceUnitNode($namespaceNode)->name->toString();
+    }
+
+    /**
+     * @return Class_|Interface_|Trait_
+     */
+    private static function getNamespaceUnitNode(Namespace_ $namespaceNode): Node
+    {
         foreach ($namespaceNode->stmts as $stmt) {
             if (
                 $stmt instanceof Class_
                 || $stmt instanceof Interface_
                 || $stmt instanceof Trait_
             ) {
-                return $stmt->name->toString();
+                return $stmt;
             }
         }
         throw new UnitNotFoundInNamespaceException(
