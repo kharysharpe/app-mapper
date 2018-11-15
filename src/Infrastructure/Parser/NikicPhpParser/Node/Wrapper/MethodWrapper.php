@@ -17,7 +17,14 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeNameNotFoundException;
+use PhpParser\Node;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\Trait_;
 
 final class MethodWrapper
 {
@@ -34,5 +41,34 @@ final class MethodWrapper
     public function getCanonicalName(): string
     {
         return $this->classMethod->name->toString();
+    }
+
+    /**
+     * @return Class_|Interface_|Trait_
+     */
+    public function getReturnTypeAst(): Node
+    {
+        $returnType = $this->classMethod->getReturnType();
+
+        if ($returnType !== null && $returnType->hasAttribute('ast')) {
+            return $returnType->getAttribute('ast');
+        }
+
+        throw new ReturnTypeAstNotFoundException();
+    }
+
+    public function getReturnType(): string
+    {
+        $returnType = $this->classMethod->getReturnType();
+
+        if ($returnType->hasAttribute('resolvedName')) {
+            return (string) $returnType->getAttribute('resolvedName');
+        }
+
+        if ($returnType instanceof Identifier) {
+            return $returnType->name;
+        }
+
+        throw new ReturnTypeNameNotFoundException();
     }
 }

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
@@ -42,7 +43,13 @@ final class ArgumentWrapper
 //                $this->argument = ; // TODO infer type from inspecting variable creation
                 break;
             case $argument instanceof StaticCall:
-//                $this->argument = ; // TODO infer type from inspecting variable creation
+                $class = new ClassWrapper($argument->class->getAttribute('ast'));
+                $method = $class->getMethod($argument->name->toString());
+                try {
+                    $this->argument = $method->getReturnTypeAst()->namespacedName;
+                } catch (ReturnTypeAstNotFoundException $e) {
+                    // We silently ignore this exception so we continue the operation and in the end write 'unknown'
+                }
                 break;
             default:
                 throw new ParserException("Can't get the argument node.");
@@ -55,16 +62,20 @@ final class ArgumentWrapper
             return 'unknown';
         }
 
-        /** @var FullyQualified $argumentFqcn */
-        $argumentFqcn = $this->argument->getAttribute('resolvedName');
+        /** @var FullyQualified $argumentName */
+        $argumentName = $this->argument->getAttribute('resolvedName');
+        if ($argumentName === null) {
+            /** @var Name $argumentName */
+            $argumentName = $this->argument;
+        }
 
-        return $argumentFqcn->toCodeString();
+        return $argumentName->toCodeString();
     }
 
     public function getCanonicalType(): string
     {
         return ($this->argument === null)
             ? 'unknown'
-            : $this->argument->toString();
+            : $this->argument->getLast();
     }
 }

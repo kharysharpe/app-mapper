@@ -17,7 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\Wrapper;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
 
 final class ClassWrapper
 {
@@ -39,5 +41,19 @@ final class ClassWrapper
     public function getCanonicalClassName(): string
     {
         return $this->class->name->toString();
+    }
+
+    public function getMethod(string $methodName): MethodWrapper
+    {
+        foreach ($this->class->stmts as $stmt) {
+            if (
+                $stmt instanceof ClassMethod
+                && $stmt->name->toString() === $methodName
+            ) {
+                return new MethodWrapper($stmt);
+            }
+        }
+
+        throw new MethodNotFoundInClassException($methodName, $this->getFullyQualifiedClassName());
     }
 }
