@@ -19,6 +19,8 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
@@ -96,15 +98,23 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    /**
-     * TODO this filter must also be able to use the $eventDispatcherFqcn
-     */
-    public function selectMethodsDispatchingEvents(string $eventDispatcherMethod): QueryBuilderInterface
-    {
+    public function selectMethodsDispatchingEvents(
+        string $eventDispatcherFqcn,
+        string $eventDispatcherMethod
+    ): QueryBuilderInterface {
         $this->currentQuery->addFilter(
-            function (Node $node) use ($eventDispatcherMethod) {
+            function (Node $node) use ($eventDispatcherFqcn, $eventDispatcherMethod) {
+                if (!$node instanceof MethodCall) {
+                    return false;
+                }
+                $dispatcherFqcn = NodeFactory::constructTypeNodeAdapter(
+                    $node->var->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                )->getFullyQualifiedType();
+                $dispatcherMethodName = $node->name->name;
+
                 return $node instanceof MethodCall
-                    && $node->name->name === $eventDispatcherMethod;
+                    && $dispatcherFqcn === $eventDispatcherFqcn
+                    && $dispatcherMethodName === $eventDispatcherMethod;
             }
         );
 

@@ -35,7 +35,10 @@ final class DispatchedEventQuery
     public function queryAst(AstMapInterface $ast): array
     {
         $query = $this->queryBuilder->create()
-            ->selectMethodsDispatchingEvents('dispatch')
+            ->selectMethodsDispatchingEvents(
+                '\Werkspot\Instapro\Infrastructure\EventDispatcher\EventDispatcherInterface',
+                'dispatch'
+            )
             ->build();
 
         return $ast->query($query)->toArray();
