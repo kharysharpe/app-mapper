@@ -18,14 +18,8 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeNameNotFoundException;
-use PhpParser\Node;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Stmt\Class_;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Trait_;
 
 final class MethodAdapter implements MethodInterface
 {
@@ -44,32 +38,19 @@ final class MethodAdapter implements MethodInterface
         return $this->classMethod->name->toString();
     }
 
-    /**
-     * @return Class_|Interface_|Trait_
-     */
-    public function getReturnTypeAst(): Node
+    public function getReturnTypeNode(): TypeNodeInterface
     {
         $returnType = $this->classMethod->getReturnType();
 
-        if ($returnType !== null && $returnType->hasAttribute('ast')) {
-            return $returnType->getAttribute('ast');
-        }
-
-        throw new ReturnTypeAstNotFoundException();
+        return NodeFactory::constructTypeNodeAdapter(
+            $returnType !== null && $returnType->hasAttribute('ast')
+                ? $returnType->getAttribute('ast')
+                : null
+        );
     }
 
     public function getReturnType(): string
     {
-        $returnType = $this->classMethod->getReturnType();
-
-        if ($returnType->hasAttribute('resolvedName')) {
-            return (string) $returnType->getAttribute('resolvedName');
-        }
-
-        if ($returnType instanceof Identifier) {
-            return $returnType->name;
-        }
-
-        throw new ReturnTypeNameNotFoundException();
+        return $this->getReturnTypeNode()->getFullyQualifiedType();
     }
 }

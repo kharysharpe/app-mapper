@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-interface MethodArgumentInterface extends NodeInterface
+interface MethodArgumentInterface extends TypeNodeInterface
 {
     public function getFullyQualifiedType(): string;
 

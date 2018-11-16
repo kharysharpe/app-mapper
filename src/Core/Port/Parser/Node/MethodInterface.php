@@ -17,19 +17,11 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Trait_;
-
 interface MethodInterface extends NodeInterface
 {
     public function getCanonicalName(): string;
 
-    /**
-     * @return Class_|Interface_|Trait_
-     */
-    public function getReturnTypeAst(): Node;
+    public function getReturnTypeNode(): TypeNodeInterface;
 
     public function getReturnType(): string;
 }

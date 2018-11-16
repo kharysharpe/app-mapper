@@ -20,6 +20,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
@@ -35,12 +36,17 @@ final class ClassAdapter implements ClassInterface
         $this->class = $class;
     }
 
-    public function getFullyQualifiedClassName(): string
+    public static function constructFromNew(New_ $newExpression): self
+    {
+        return new self($newExpression->getAttribute('ast'));
+    }
+
+    public function getFullyQualifiedType(): string
     {
         return $this->class->namespacedName->toCodeString();
     }
 
-    public function getCanonicalClassName(): string
+    public function getCanonicalType(): string
     {
         return $this->class->name->toString();
     }
@@ -56,6 +62,6 @@ final class ClassAdapter implements ClassInterface
             }
         }
 
-        throw new MethodNotFoundInClassException($methodName, $this->getFullyQualifiedClassName());
+        throw new MethodNotFoundInClassException($methodName, $this->getFullyQualifiedType());
     }
 }

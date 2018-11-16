@@ -17,23 +17,17 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\ReturnTypeAstNotFoundException;
-use Hgraca\PhpExtension\String\ClassService;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Name;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\Stmt\Class_;
-use function is_string;
 
 final class MethodArgumentAdapter implements MethodArgumentInterface
 {
     /**
-     * @var Name
+     * @var TypeNodeInterface
      */
     private $argument;
 
@@ -41,63 +35,28 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
     {
         switch (true) {
             case $argument instanceof New_:
-                $this->argument = $argument->class;
+                $this->argument = NodeFactory::constructTypeNodeAdapter($argument->class->getAttribute('ast'));
                 break;
             case $argument instanceof Variable:
-                $this->argument = $argument->getAttribute('typeAst');
+                $this->argument = NodeFactory::constructTypeNodeAdapter($argument->getAttribute('typeAst'));
                 break;
             case $argument instanceof StaticCall:
                 $class = new ClassAdapter($argument->class->getAttribute('ast'));
                 $method = $class->getMethod($argument->name->toString());
-                try {
-                    $this->argument = $method->getReturnTypeAst()->namespacedName;
-                } catch (ReturnTypeAstNotFoundException $e) {
-                    // We silently ignore this exception so we continue the operation and in the end write 'unknown'
-                }
+                $this->argument = $method->getReturnTypeNode();
                 break;
             default:
-                throw new ParserException("Can't get the argument node.");
+                $this->argument = new UnknownTypeNode($argument);
         }
     }
 
     public function getFullyQualifiedType(): string
     {
-        if ($this->argument === null) {
-            return 'unknown';
-        }
-
-        if (is_string($this->argument)) {
-            return $this->argument;
-        }
-
-        if ($this->argument instanceof Class_) {
-            return $this->argument->namespacedName->toCodeString();
-        }
-
-        /** @var FullyQualified $argumentName */
-        $argumentName = $this->argument->getAttribute('resolvedName');
-        if ($argumentName === null) {
-            /** @var Name $argumentName */
-            $argumentName = $this->argument;
-        }
-
-        return $argumentName->toCodeString();
+        return $this->argument->getFullyQualifiedType();
     }
 
     public function getCanonicalType(): string
     {
-        if ($this->argument === null) {
-            return 'unknown';
-        }
-
-        if (is_string($this->argument)) {
-            return ClassService::extractCanonicalClassName($this->argument);
-        }
-
-        if ($this->argument instanceof Class_) {
-            return $this->argument->namespacedName->getLast();
-        }
-
-        return $this->argument->getLast();
+        return $this->argument->getCanonicalType();
     }
 }

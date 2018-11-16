@@ -59,12 +59,12 @@ final class MethodCallAdapter implements MethodCallInterface
 
     public function getEnclosingClassFullyQualifiedName(): string
     {
-        return $this->getEnclosingClass()->getFullyQualifiedClassName();
+        return $this->getEnclosingClass()->getFullyQualifiedType();
     }
 
     public function getEnclosingClassCanonicalName(): string
     {
-        return $this->getEnclosingClass()->getCanonicalClassName();
+        return $this->getEnclosingClass()->getCanonicalType();
     }
 
     public function getEnclosingMethodCanonicalName(): string
