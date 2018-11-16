@@ -26,6 +26,7 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name\FullyQualified;
+use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeVisitorAbstract;
 use function array_key_exists;
@@ -57,9 +58,11 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                     if ($name === null) {
                         return; // silently ignore because it's not a class, so it's not an event
                     }
-                    $fqcn = $name->toCodeString();
-                    $variableName = $methodParameter->var->name;
-                    $this->setVariableTypeAst($variableName, $fqcn);
+
+                    $this->setVariableTypeAst(
+                        $this->resolveVariableNameFromMethodParameter($methodParameter),
+                        $name->toCodeString()
+                    );
                 }
                 break;
             case $node instanceof New_:
@@ -70,21 +73,19 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                 ) {
                     return;
                 }
-                /** @var FullyQualified $name */
-                $name = $node->class->getAttribute('resolvedName');
-                $fqcn = $name->toCodeString();
-                $variableName = $assignment->var->name;
-                if ($variableName instanceof Identifier) {
-                    $variableName = $variableName->name;
-                }
-                $this->setVariableTypeAst($variableName, $fqcn);
+
+                $this->setVariableTypeAst(
+                    $this->resolveVariableNameFromAssignment($assignment),
+                    $node->class->getAttribute(self::AST_KEY)
+                );
                 break;
             case $node instanceof Variable:
                 $variableName = $node->name;
                 try {
                     $node->setAttribute(self::AST_KEY, $this->getVariableTypeAst($variableName));
                 } catch (UnknownVariableException $e) {
-                    // silently ignore unknown variables, because those were not instantiated
+                    // silently ignore unknown variables, because those were not instantiated nor injected
+                    // TODO Also take into account variables assigned to the result of a method call
                 }
                 break;
         }
@@ -114,10 +115,32 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
         $this->assignedVariables = [];
     }
 
-    private function setVariableTypeAst(string $variableName, string $fqcn): void
+    private function setVariableTypeAst(string $variableName, $variableType): void
     {
-        $this->assignedVariables[$variableName] = $this->ast->hasAstNode($fqcn)
-            ? $this->ast->getAstNode($fqcn)
-            : $fqcn;
+        switch (true) {
+            case $variableType instanceof Node:
+                $this->assignedVariables[$variableName] = $variableType;
+                break;
+            case $this->ast->hasAstNode($variableType): // fqcn is known
+                $this->assignedVariables[$variableName] = $this->ast->getAstNode($variableType);
+                break;
+            default: // fqcn is unknown
+                $this->assignedVariables[$variableName] = $variableType;
+        }
+    }
+
+    private function resolveVariableNameFromAssignment(Assign $assignment): string
+    {
+        $variableName = $assignment->var->name;
+        if ($variableName instanceof Identifier) {
+            $variableName = $variableName->name;
+        }
+
+        return $variableName;
+    }
+
+    private function resolveVariableNameFromMethodParameter(Param $methodParameter): string
+    {
+        return $methodParameter->var->name;
     }
 }
