@@ -31,6 +31,7 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotF
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassAdapter;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
@@ -171,6 +172,7 @@ final class AstMap implements AstMapInterface
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $traverser->addVisitor(new AstConnectorVisitor($this));
+        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
@@ -184,7 +186,7 @@ final class AstMap implements AstMapInterface
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new AstConnectorVisitor($this));
+        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
