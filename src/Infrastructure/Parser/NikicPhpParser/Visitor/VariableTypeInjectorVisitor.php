@@ -59,10 +59,9 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                         return; // silently ignore because it's not a class, so it's not an event
                     }
 
-                    $this->setVariableTypeAst(
-                        $this->resolveVariableNameFromMethodParameter($methodParameter),
-                        $name->toCodeString()
-                    );
+                    $variableName = $this->resolveVariableNameFromMethodParameter($methodParameter);
+                    $this->setVariableTypeAst($variableName, $name->toCodeString());
+                    $methodParameter->type->setAttribute(self::AST_KEY, $this->getVariableTypeAst($variableName));
                 }
                 break;
             case $node instanceof New_:
