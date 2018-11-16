@@ -44,7 +44,7 @@ final class ClassAdapter implements ClassInterface
 
     public function getFullyQualifiedType(): string
     {
-        return $this->class->namespacedName->toCodeString();
+        return '\\' . ltrim($this->class->namespacedName->toCodeString(), '\\');
     }
 
     public function getCanonicalType(): string

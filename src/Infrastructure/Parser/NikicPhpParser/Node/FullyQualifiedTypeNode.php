@@ -29,7 +29,7 @@ final class FullyQualifiedTypeNode implements TypeNodeInterface
 
     public function __construct(string $fqcn)
     {
-        $this->fqcn = $fqcn;
+        $this->fqcn = '\\' . ltrim($fqcn, '\\');
     }
 
     public function getFullyQualifiedType(): string
