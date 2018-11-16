@@ -113,7 +113,9 @@ class UseCasesCommand extends AbstractCommandStopwatchDecorator
             $map = $this->sort('FQCN', $map);
             $this->io->title('USE CASE PER BOUNDED CONTEXT');
             $this->io->section('Bounded context: ');
-            $this->io->table(array_keys($map[0]), $map);
+            if (count($map) !== 0) {
+                $this->io->table(array_keys($map[0]), $map);
+            }
             $this->io->comment('Use case count: ' . count($map));
         } catch (Error $e) {
             $this->io->warning('Parsing error: ' . $e->getMessage());
