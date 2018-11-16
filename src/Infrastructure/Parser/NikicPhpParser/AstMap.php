@@ -56,6 +56,9 @@ final class AstMap implements AstMapInterface
     /** @var Namespace_[] */
     private $itemList = [];
 
+    /** @var bool */
+    private $isAstMapEnhanced = false;
+
     private function __construct()
     {
     }
@@ -169,14 +172,11 @@ final class AstMap implements AstMapInterface
     private function find(callable $filter, Node ...$nodes): array
     {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new AstConnectorVisitor($this));
-        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
-        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
+        $this->isAstMapEnhanced ?: $this->addEnhancementVisitors($traverser);
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
+        $this->isAstMapEnhanced = true;
 
         return $visitor->getFoundNodes();
     }
@@ -184,13 +184,11 @@ final class AstMap implements AstMapInterface
     private function findFirst(callable $filter, Node ...$nodes): ?Node
     {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
-        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
+        $this->isAstMapEnhanced ?: $this->addEnhancementVisitors($traverser);
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
+        $this->isAstMapEnhanced = true;
 
         return $visitor->getFoundNode();
     }
@@ -235,5 +233,14 @@ final class AstMap implements AstMapInterface
         throw new UnitNotFoundInNamespaceException(
             'Could not find a class in the namespace ' . $namespaceNode->name->toCodeString()
         );
+    }
+
+    private function addEnhancementVisitors(NodeTraverser $traverser): void
+    {
+        $traverser->addVisitor(new ParentConnectorVisitor());
+        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
+        $traverser->addVisitor(new AstConnectorVisitor($this));
+        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
+        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
     }
 }
