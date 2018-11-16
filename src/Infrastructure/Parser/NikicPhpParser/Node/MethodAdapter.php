@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node\Stmt\ClassMethod;
 
 final class MethodAdapter implements MethodInterface
@@ -43,8 +44,8 @@ final class MethodAdapter implements MethodInterface
         $returnType = $this->classMethod->getReturnType();
 
         return NodeFactory::constructTypeNodeAdapter(
-            $returnType !== null && $returnType->hasAttribute('ast')
-                ? $returnType->getAttribute('ast')
+            $returnType !== null && $returnType->hasAttribute(AstConnectorVisitorInterface::AST_KEY)
+                ? $returnType->getAttribute(AstConnectorVisitorInterface::AST_KEY)
                 : null
         );
     }

@@ -25,7 +25,7 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeVisitorAbstract;
 
-class AstConnectorVisitor extends NodeVisitorAbstract
+class AstConnectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
      * @var AstMap
@@ -63,7 +63,7 @@ class AstConnectorVisitor extends NodeVisitorAbstract
         $name = $nameNode->getAttribute('resolvedName');
         $fqcn = $name->toCodeString();
         if ($this->ast->hasAstNode($fqcn)) {
-            $nameNode->setAttribute('ast', $this->ast->getAstNode($fqcn));
+            $nameNode->setAttribute(self::AST_KEY, $this->ast->getAstNode($fqcn));
         }
     }
 
@@ -73,9 +73,9 @@ class AstConnectorVisitor extends NodeVisitorAbstract
         $name = $returnTypeNameNode->getAttribute('resolvedName');
         $fqcn = $name->toCodeString();
         if ($fqcn === 'self') {
-            $returnTypeNameNode->setAttribute('ast', $classMethod->getAttribute('parent'));
+            $returnTypeNameNode->setAttribute(self::AST_KEY, $classMethod->getAttribute('parent'));
         } elseif ($this->ast->hasAstNode($fqcn)) {
-            $returnTypeNameNode->setAttribute('ast', $this->ast->getAstNode($fqcn));
+            $returnTypeNameNode->setAttribute(self::AST_KEY, $this->ast->getAstNode($fqcn));
         }
     }
 }

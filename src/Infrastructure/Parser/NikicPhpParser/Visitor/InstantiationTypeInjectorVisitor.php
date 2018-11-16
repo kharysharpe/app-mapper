@@ -23,7 +23,7 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\NodeVisitorAbstract;
 
-class InstantiationTypeInjectorVisitor extends NodeVisitorAbstract
+class InstantiationTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
      * @var AstMap
@@ -44,7 +44,7 @@ class InstantiationTypeInjectorVisitor extends NodeVisitorAbstract
         $name = $node->class->getAttribute('resolvedName');
         $fqcn = $name->toCodeString();
         $node->class->setAttribute(
-            'ast',
+            self::AST_KEY,
             $this->ast->hasAstNode($fqcn)
                 ? $this->ast->getAstNode($fqcn)
                 : $fqcn

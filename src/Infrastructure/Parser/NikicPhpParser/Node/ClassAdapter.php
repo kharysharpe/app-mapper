@@ -20,6 +20,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -38,7 +39,7 @@ final class ClassAdapter implements ClassInterface
 
     public static function constructFromNew(New_ $newExpression): self
     {
-        return new self($newExpression->getAttribute('ast'));
+        return new self($newExpression->getAttribute(AstConnectorVisitorInterface::AST_KEY));
     }
 
     public function getFullyQualifiedType(): string

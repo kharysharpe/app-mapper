@@ -30,7 +30,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeVisitorAbstract;
 use function array_key_exists;
 
-class VariableTypeInjectorVisitor extends NodeVisitorAbstract
+class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
      * @var AstMap
@@ -82,7 +82,7 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract
             case $node instanceof Variable:
                 $variableName = $node->name;
                 try {
-                    $node->setAttribute('typeAst', $this->getVariableTypeAst($variableName));
+                    $node->setAttribute(self::AST_KEY, $this->getVariableTypeAst($variableName));
                 } catch (UnknownVariableException $e) {
                     // silently ignore unknown variables, because those were not instantiated
                 }

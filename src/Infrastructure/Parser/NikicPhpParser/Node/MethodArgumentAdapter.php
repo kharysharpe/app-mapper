@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
@@ -35,13 +36,17 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
     {
         switch (true) {
             case $argument instanceof New_:
-                $this->argument = NodeFactory::constructTypeNodeAdapter($argument->class->getAttribute('ast'));
+                $this->argument = NodeFactory::constructTypeNodeAdapter(
+                    $argument->class->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                );
                 break;
             case $argument instanceof Variable:
-                $this->argument = NodeFactory::constructTypeNodeAdapter($argument->getAttribute('typeAst'));
+                $this->argument = NodeFactory::constructTypeNodeAdapter(
+                    $argument->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                );
                 break;
             case $argument instanceof StaticCall:
-                $class = new ClassAdapter($argument->class->getAttribute('ast'));
+                $class = new ClassAdapter($argument->class->getAttribute(AstConnectorVisitorInterface::AST_KEY));
                 $method = $class->getMethod($argument->name->toString());
                 $this->argument = $method->getReturnTypeNode();
                 break;
