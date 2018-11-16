@@ -33,6 +33,7 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAda
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
@@ -172,24 +173,22 @@ final class AstMap implements AstMapInterface
 
     private function find(callable $filter, Node ...$nodes): array
     {
+        $this->isAstMapEnhanced ?: $this->enhanceAst();
         $traverser = new NodeTraverser();
-        $this->isAstMapEnhanced ?: $this->addEnhancementVisitors($traverser);
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
-        $this->isAstMapEnhanced = true;
 
         return $visitor->getFoundNodes();
     }
 
     private function findFirst(callable $filter, Node ...$nodes): ?Node
     {
+        $this->isAstMapEnhanced ?: $this->enhanceAst();
         $traverser = new NodeTraverser();
-        $this->isAstMapEnhanced ?: $this->addEnhancementVisitors($traverser);
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
-        $this->isAstMapEnhanced = true;
 
         return $visitor->getFoundNode();
     }
@@ -236,13 +235,23 @@ final class AstMap implements AstMapInterface
         );
     }
 
-    private function addEnhancementVisitors(NodeTraverser $traverser): void
+    private function enhanceAst(): void
     {
+        $nodeList = array_values($this->itemList);
+
+        $traverser = new NodeTraverser();
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $this->isAstMapEnhanced = true;
     }
 }
