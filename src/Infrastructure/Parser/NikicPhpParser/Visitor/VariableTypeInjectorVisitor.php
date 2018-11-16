@@ -64,19 +64,15 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract
                 break;
             case $node instanceof New_:
                 $assignment = $node->getAttribute('parent');
-                if (!$assignment instanceof Assign) {
+                if (
+                    !$assignment instanceof Assign
+                    || $assignment->var instanceof ArrayDimFetch // TODO add the type to the variables assigned with `list`
+                ) {
                     return;
                 }
                 /** @var FullyQualified $name */
                 $name = $node->class->getAttribute('resolvedName');
-                if ($name === null) {
-                    return; // silently ignore because it's not a class, so it's not an event
-                }
                 $fqcn = $name->toCodeString();
-                if ($assignment->var instanceof ArrayDimFetch) {
-                    // ignore
-                    return;
-                }
                 $variableName = $assignment->var->name;
                 if ($variableName instanceof Identifier) {
                     $variableName = $variableName->name;
