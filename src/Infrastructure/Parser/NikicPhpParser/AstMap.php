@@ -33,6 +33,7 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAda
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyDeclarationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
@@ -248,6 +249,14 @@ final class AstMap implements AstMapInterface
         $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
+        // First we finish the previous swipe to set all variables
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new PropertyDeclarationTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        // After setting the type in the properties declaration, we can copy it to every property call
+        // We need a separate traverse because a property might be set only in the end of the file,
+        // after the property is used
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);

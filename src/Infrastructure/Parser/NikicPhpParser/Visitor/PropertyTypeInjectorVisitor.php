@@ -17,15 +17,14 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
 use PhpParser\Node;
+use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitorAbstract;
 use function array_key_exists;
 
@@ -46,29 +45,35 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
     public function enterNode(Node $node): void
     {
         switch (true) {
+            case $node instanceof Property:
+                $propertyName = $node->props[0]->name->name;
+                $type = $node->getAttribute(self::AST_KEY);
+                $this->addProperty($propertyName, $type);
+                break;
             case $node instanceof PropertyFetch
                 && $node->getAttribute('parent') instanceof Assign:
                 // isPropertyAssignment
                 /** @var Assign $assignment */
                 $assignment = $node->getAttribute('parent');
-                if (!$assignment->expr instanceof Variable) {
-                    return; // TODO cases where a property is assigned the result of an expression
+                if ($assignment->var instanceof ArrayDimFetch) {
+                    return; // TODO add the type to the variables assigned with `list`
                 }
                 $node->setAttribute(
                     self::AST_KEY,
-                    $assignment->expr->getAttribute(self::AST_KEY)
+                    $this->getProperty($node->name->name)
                 );
-                $this->propertyList[$node->name->name] = $assignment->expr->getAttribute(self::AST_KEY);
                 break;
             case $node instanceof MethodCall
                 && $node->var instanceof PropertyFetch:
+                // Method call on a property
                 if (!array_key_exists($node->var->name->name, $this->propertyList)) {
-                    $methodCallAdapter = new MethodCallAdapter($node);
-                    throw new ParserException(
-                        'Unknown property ' . $node->var->name->name
-                        . ' in ' . $methodCallAdapter->getEnclosingClassFullyQualifiedName()
-                        . '::' . $methodCallAdapter->getEnclosingMethodCanonicalName()
-                    );
+                    return;
+//                    $methodCallAdapter = new MethodCallAdapter($node);
+//                    throw new ParserException(
+//                        'Unknown property ' . $node->var->name->name
+//                        . ' in ' . $methodCallAdapter->getEnclosingClassFullyQualifiedName()
+//                        . '::' . $methodCallAdapter->getEnclosingMethodCanonicalName()
+//                    );
                 }
                 $node->var->setAttribute(
                     self::AST_KEY,
@@ -88,5 +93,21 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
     private function resetPropertyList(): void
     {
         $this->propertyList = [];
+    }
+
+    /**
+     * @param string|Node $type
+     */
+    private function addProperty(string $name, $type): void
+    {
+        $this->propertyList[$name] = $type;
+    }
+
+    /**
+     * @return string|Node
+     */
+    private function getProperty(string $name)
+    {
+        return $this->propertyList[$name] ?? '';
     }
 }
