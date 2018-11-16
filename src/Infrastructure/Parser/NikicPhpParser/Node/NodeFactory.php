@@ -19,7 +19,6 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\NodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
-use Hgraca\PhpExtension\String\StringService;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
@@ -67,8 +66,6 @@ final class NodeFactory
 
     private static function isFullyQualifiedName($string): bool
     {
-        return is_string($string)
-            && StringService::hasBeginning('\\', $string)
-            && 0 < mb_strlen($string);
+        return is_string($string);
     }
 }
