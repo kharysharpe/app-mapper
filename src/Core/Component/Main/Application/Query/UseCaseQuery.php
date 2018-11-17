@@ -34,7 +34,6 @@ final class UseCaseQuery
 
     public function queryAst(AstMapInterface $ast): array
     {
-        //Implementing('Werkspot\Instapro\Infrastructure\CommandBus\Command\CommandInterface')
         $query = $this->queryBuilder->create()
             ->selectClassesWithFqcnMatchingRegex('/.*Command$/')
             ->build();
