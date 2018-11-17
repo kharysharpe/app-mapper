@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
-use Hgraca\PhpExtension\String\StringService;
 
 final class UseCaseNode implements DomainNodeInterface
 {
@@ -28,29 +27,17 @@ final class UseCaseNode implements DomainNodeInterface
     /** @var string */
     private $canonicalClassName;
 
-    /** @var string */
-    private $name;
-
     public function __construct(ClassInterface $class)
     {
         $this->fqcn = $class->getFullyQualifiedType();
         $this->canonicalClassName = $class->getCanonicalType();
-        $this->name = self::removeLastWord(
-            StringService::separateCapitalizedWordsWithSpace($this->canonicalClassName)
-        );
     }
 
     public function toArray(): array
     {
         return [
-            'Use Case' => $this->name,
             'Class' => $this->canonicalClassName,
             'FQCN' => $this->fqcn,
         ];
-    }
-
-    private static function removeLastWord(string $string): string
-    {
-        return mb_substr($string, 0, mb_strrpos($string, ' '));
     }
 }
