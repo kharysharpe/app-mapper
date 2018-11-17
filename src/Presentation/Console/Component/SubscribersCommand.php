@@ -110,7 +110,7 @@ class SubscribersCommand extends AbstractCommandStopwatchDecorator
                 : $this->astFactory->constructFromFile($input->getOption(self::OPT_FILE));
 
             $map = $this->subscribersQuery->queryAst($ast);
-            $map = $this->sort($this->flattenMap($map), 'Subscriber FQCN', 'Event FQCN');
+            $map = $this->sort($map, 'listener_fqcn', 'event_fqcn');
             $this->io->title('SUBSCRIBERS PER BOUNDED CONTEXT');
             $this->io->section('Bounded context: ');
             if (count($map) !== 0) {
@@ -134,24 +134,5 @@ class SubscribersCommand extends AbstractCommandStopwatchDecorator
         array_multisort(...$arguments);
 
         return $data;
-    }
-
-    private function flattenMap(array $map): array
-    {
-        $flattenedMap = [];
-        /** @var array $subscriber */
-        foreach ($map as $subscriber) {
-            foreach ($subscriber['Methods'] as $method) {
-                $flattenedMap[] = [
-                    'Subscriber' => $subscriber['Listener'],
-                    'Method' => $method['name'],
-                    'Event' => $method['event'],
-                    'Event FQCN' => $method['eventFqcn'],
-                    'Subscriber FQCN' => $subscriber['Listener FQCN'],
-                ];
-            }
-        }
-
-        return $flattenedMap;
     }
 }

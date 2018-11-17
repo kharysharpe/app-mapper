@@ -17,8 +17,10 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ListenerNode;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
 final class ListenerQuery
@@ -39,6 +41,19 @@ final class ListenerQuery
             ->selectClassesWithFqcnMatchingRegex('/.*Listener$/')
             ->build();
 
-        return $ast->query($query)->decorateByDomainNode(ListenerNode::class)->toArray();
+        $nodeCollection = $ast->query($query);
+
+        $listenerList = [];
+        /* @var ClassInterface $classAdapter */
+        foreach ($nodeCollection as $classAdapter) {
+            foreach ($classAdapter->getMethodList() as $methodAdapter) {
+                if ($methodAdapter->isConstructor() || !$methodAdapter->isPublic()) {
+                    continue;
+                }
+                $listenerList[] = new ListenerNode($classAdapter, $methodAdapter);
+            }
+        }
+
+        return (new DomainNodeCollection(...$listenerList))->toArray();
     }
 }

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 
 final class ListenerNode implements DomainNodeInterface
 {
@@ -27,31 +28,34 @@ final class ListenerNode implements DomainNodeInterface
     /** @var string */
     private $canonicalClassName;
 
-    /** @var string[][] */
-    private $methodList = [];
+    /** @var string */
+    private $methodName;
 
-    public function __construct(ClassInterface $class)
+    /** @var string */
+    private $event;
+
+    /** @var string */
+    private $eventFqcn;
+
+    public function __construct(ClassInterface $class, MethodInterface $method)
     {
         $this->fqcn = $class->getFullyQualifiedType();
         $this->canonicalClassName = $class->getCanonicalType();
-        foreach ($class->getMethodList() as $key => $method) {
-            if ($method->isConstructor() || !$method->isPublic()) {
-                continue;
-            }
-            $this->methodList[$key]['name'] = $method->getCanonicalName();
-            // TODO we assume the event is always the 1st parameter,
-            // but should actually search for the first parameter that is an event
-            $this->methodList[$key]['event'] = $method->getParameter(0)->getCanonicalType();
-            $this->methodList[$key]['eventFqcn'] = $method->getParameter(0)->getFullyQualifiedType();
-        }
+        $this->methodName = $method->getCanonicalName();
+        // TODO we assume the event is always the 1st parameter,
+        // but should actually search for the first parameter that is an event
+        $this->event = $method->getParameter(0)->getCanonicalType();
+        $this->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
     }
 
     public function toArray(): array
     {
         return [
-            'Listener' => $this->canonicalClassName,
-            'Methods' => $this->methodList,
-            'Listener FQCN' => $this->fqcn,
+            'class' => $this->canonicalClassName,
+            'method' => $this->methodName,
+            'event' => $this->event,
+            'listener_fqcn' => $this->getFullyQualifiedName(),
+            'event_fqcn' => $this->eventFqcn,
         ];
     }
 }

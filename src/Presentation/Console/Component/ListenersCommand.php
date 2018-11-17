@@ -110,7 +110,7 @@ class ListenersCommand extends AbstractCommandStopwatchDecorator
                 : $this->astFactory->constructFromFile($input->getOption(self::OPT_FILE));
 
             $map = $this->listenersQuery->queryAst($ast);
-            $map = $this->sort($this->flattenMap($map), 'Listener FQCN', 'Event FQCN');
+            $map = $this->sort($map, 'listener_fqcn', 'event_fqcn');
             $this->io->title('LISTENERS PER BOUNDED CONTEXT');
             $this->io->section('Bounded context: ');
             if (count($map) !== 0) {
@@ -134,24 +134,5 @@ class ListenersCommand extends AbstractCommandStopwatchDecorator
         array_multisort(...$arguments);
 
         return $data;
-    }
-
-    private function flattenMap(array $map): array
-    {
-        $flattenedMap = [];
-        /** @var array $listener */
-        foreach ($map as $listener) {
-            foreach ($listener['Methods'] as $method) {
-                $flattenedMap[] = [
-                    'Listener' => $listener['Listener'],
-                    'Method' => $method['name'],
-                    'Event' => $method['event'],
-                    'Event FQCN' => $method['eventFqcn'],
-                    'Listener FQCN' => $listener['Listener FQCN'],
-                ];
-            }
-        }
-
-        return $flattenedMap;
     }
 }
