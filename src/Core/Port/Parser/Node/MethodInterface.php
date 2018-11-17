@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-interface MethodInterface extends NodeInterface
+interface MethodInterface extends AdapterNodeInterface
 {
     public function getCanonicalName(): string;
 

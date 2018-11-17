@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Node\NodeInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -31,17 +31,17 @@ final class NodeFactory
     /**
      * @param null|string|Node $parserNode
      */
-    public static function constructNodeAdapter($parserNode): NodeInterface
+    public static function constructNodeAdapter($parserNode): AdapterNodeInterface
     {
         switch (true) {
+            case $parserNode instanceof ClassMethod: // this needs to be above the `Expr`
+                return new MethodAdapter($parserNode);
+            case $parserNode instanceof MethodCall:
+                return new MethodCallAdapter($parserNode);
             case $parserNode instanceof Class_:
             case $parserNode instanceof Expr: // MethodArgument
             case self::isFullyQualifiedName($parserNode):
                 return self::constructTypeNodeAdapter($parserNode);
-            case $parserNode instanceof ClassMethod:
-                return new MethodAdapter($parserNode);
-            case $parserNode instanceof MethodCall:
-                return new MethodCallAdapter($parserNode);
             default:
                 return new UnknownTypeNode($parserNode);
         }

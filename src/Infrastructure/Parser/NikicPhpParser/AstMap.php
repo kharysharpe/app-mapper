@@ -18,18 +18,12 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Closure;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DispatchedEventNode;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeInterface;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\NodeCollection;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\NodeCollectionInterface;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\UseCaseNode;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\ClassAdapter;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodCallAdapter;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
@@ -40,7 +34,6 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTy
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
-use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
@@ -106,7 +99,7 @@ final class AstMap implements AstMapInterface
         return $jsonEncoder->encode($this->itemList);
     }
 
-    public function query(QueryInterface $query): NodeCollectionInterface
+    public function query(QueryInterface $query): AdapterNodeCollection
     {
         $itemList = array_values($this->itemList);
 
@@ -137,26 +130,14 @@ final class AstMap implements AstMapInterface
         return self::getNamespaceUnitNode($this->itemList[$key]);
     }
 
-    private function mapNodeList(array $parserNodeList): NodeCollectionInterface
+    private function mapNodeList(array $parserNodeList): AdapterNodeCollection
     {
         $nodeList = [];
         foreach ($parserNodeList as $parserNode) {
-            $nodeList[] = $this->mapNode($parserNode);
+            $nodeList[] = NodeFactory::constructNodeAdapter($parserNode);
         }
 
-        return new NodeCollection(...$nodeList);
-    }
-
-    private function mapNode(Node $parserNode): DomainNodeInterface
-    {
-        switch (true) {
-            case $parserNode instanceof Class_:
-                return UseCaseNode::constructFromClass(new ClassAdapter($parserNode));
-            case $parserNode instanceof MethodCall:
-                return DispatchedEventNode::constructFromMethodCall(new MethodCallAdapter($parserNode));
-            default:
-                throw new ParserException();
-        }
+        return new AdapterNodeCollection(...$nodeList);
     }
 
     private function createFilter(QueryInterface $query): Closure

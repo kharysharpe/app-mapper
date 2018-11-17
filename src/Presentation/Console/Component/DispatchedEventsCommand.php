@@ -60,7 +60,7 @@ class DispatchedEventsCommand extends AbstractCommandStopwatchDecorator
 
     protected function configure(): void
     {
-        $this->setDescription('Create a full report about use cases, events and listeners.')
+        $this->setDescription('Create a full report about triggered events.')
             ->addOption(
                 self::OPT_FOLDER,
                 'o',

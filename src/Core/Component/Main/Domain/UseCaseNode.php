@@ -31,20 +31,13 @@ final class UseCaseNode implements DomainNodeInterface
     /** @var string */
     private $name;
 
-    private function __construct()
+    public function __construct(ClassInterface $class)
     {
-    }
-
-    public static function constructFromClass(ClassInterface $class): self
-    {
-        $node = new self();
-        $node->fqcn = $class->getFullyQualifiedClassName();
-        $node->canonicalClassName = $class->getCanonicalClassName();
-        $node->name = self::removeLastWord(
-            StringService::separateCapitalizedWordsWithSpace($node->canonicalClassName)
+        $this->fqcn = $class->getFullyQualifiedType();
+        $this->canonicalClassName = $class->getCanonicalType();
+        $this->name = self::removeLastWord(
+            StringService::separateCapitalizedWordsWithSpace($this->canonicalClassName)
         );
-
-        return $node;
     }
 
     public function toArray(): array

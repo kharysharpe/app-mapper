@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\NodeCollectionInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 
 interface AstMapInterface
 {
@@ -29,5 +29,5 @@ interface AstMapInterface
 
     public function toSerializedAst(bool $prettyPrint = false): string;
 
-    public function query(QueryInterface $query): NodeCollectionInterface;
+    public function query(QueryInterface $query): AdapterNodeCollection;
 }

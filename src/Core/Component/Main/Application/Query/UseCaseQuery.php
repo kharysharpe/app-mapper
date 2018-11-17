@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\UseCaseNode;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
@@ -38,6 +39,6 @@ final class UseCaseQuery
             ->selectClassesWithFqcnMatchingRegex('/.*Command$/')
             ->build();
 
-        return $ast->query($query)->toArray();
+        return $ast->query($query)->decorateByDomainNode(UseCaseNode::class)->toArray();
     }
 }

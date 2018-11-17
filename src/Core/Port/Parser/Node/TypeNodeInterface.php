@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-interface TypeNodeInterface extends NodeInterface
+interface TypeNodeInterface extends AdapterNodeInterface
 {
     public function getFullyQualifiedType(): string;
 

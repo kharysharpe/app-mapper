@@ -36,20 +36,13 @@ final class DispatchedEventNode implements DomainNodeInterface
     /** @var string */
     private $eventFqcn;
 
-    private function __construct()
+    public function __construct(MethodCallInterface $methodCall)
     {
-    }
-
-    public static function constructFromMethodCall(MethodCallInterface $methodCall): self
-    {
-        $node = new self();
-        $node->dispatcherClass = $methodCall->getEnclosingClassCanonicalName();
-        $node->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
-        $node->event = $methodCall->getArgumentCanonicalType();
-        $node->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
-        $node->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
-
-        return $node;
+        $this->dispatcherClass = $methodCall->getEnclosingClassCanonicalName();
+        $this->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
+        $this->event = $methodCall->getArgumentCanonicalType();
+        $this->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
+        $this->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
     }
 
     public function toArray(): array

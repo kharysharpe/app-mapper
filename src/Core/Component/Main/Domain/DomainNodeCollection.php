@@ -17,38 +17,19 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use ArrayIterator;
-use Iterator;
-use function count;
+use Hgraca\PhpExtension\Collection\Collection;
 
-/**
- * @internal this class should not be used for type-hinting, use the NodeCollectionInterface instead
- */
-final class NodeCollection implements NodeCollectionInterface
+final class DomainNodeCollection extends Collection
 {
-    /**
-     * @var array
-     */
-    private $itemList;
-
     public function __construct(DomainNodeInterface ...$itemList)
     {
-        $this->itemList = $itemList;
-    }
-
-    public function getIterator(): Iterator
-    {
-        return new ArrayIterator($this->itemList);
-    }
-
-    public function count(): int
-    {
-        return count($this->itemList);
+        parent::__construct($itemList);
     }
 
     public function toArray(): array
     {
         $out = [];
+        /** @var DomainNodeInterface $node */
         foreach ($this->itemList as $node) {
             $out[] = $node->toArray();
         }

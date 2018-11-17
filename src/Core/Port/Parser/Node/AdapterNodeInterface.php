@@ -15,17 +15,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
+namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-use Countable;
-use Iterator;
-use IteratorAggregate;
-
-interface NodeCollectionInterface extends Countable, IteratorAggregate
+interface AdapterNodeInterface
 {
-    public function getIterator(): Iterator;
-
-    public function count(): int;
-
-    public function toArray(): array;
 }
