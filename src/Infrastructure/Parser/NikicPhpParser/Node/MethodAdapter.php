@@ -54,4 +54,19 @@ final class MethodAdapter implements MethodInterface
     {
         return $this->getReturnTypeNode()->getFullyQualifiedType();
     }
+
+    public function getParameter(int $index): MethodParameterAdapter
+    {
+        return new MethodParameterAdapter($this->classMethod->params[$index]);
+    }
+
+    public function isConstructor(): bool
+    {
+        return $this->getCanonicalName() === '__construct';
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->classMethod->isPublic();
+    }
 }

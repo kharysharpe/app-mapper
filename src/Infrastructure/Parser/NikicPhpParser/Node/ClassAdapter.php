@@ -65,4 +65,19 @@ final class ClassAdapter implements ClassInterface
 
         throw new MethodNotFoundInClassException($methodName, $this->getFullyQualifiedType());
     }
+
+    /**
+     * @return MethodInterface[]
+     */
+    public function getMethodList(): array
+    {
+        $methodList = [];
+        foreach ($this->class->stmts as $stmt) {
+            if ($stmt instanceof ClassMethod) {
+                $methodList[] = new MethodAdapter($stmt);
+            }
+        }
+
+        return $methodList;
+    }
 }
