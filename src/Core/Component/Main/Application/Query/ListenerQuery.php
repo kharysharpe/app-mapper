@@ -35,7 +35,7 @@ final class ListenerQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstMapInterface $ast): array
+    public function queryAst(AstMapInterface $ast): DomainNodeCollection
     {
         $query = $this->queryBuilder->create()
             ->selectClassesWithFqcnMatchingRegex('/.*Listener$/')
@@ -54,6 +54,6 @@ final class ListenerQuery
             }
         }
 
-        return (new DomainNodeCollection(...$listenerList))->toArray();
+        return new DomainNodeCollection(...$listenerList);
     }
 }

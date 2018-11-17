@@ -44,15 +44,4 @@ final class DispatchedEventNode implements DomainNodeInterface
         $this->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
         $this->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
     }
-
-    public function toArray(): array
-    {
-        return [
-            'Dispatcher Class' => $this->dispatcherClass,
-            'Dispatcher Method' => $this->dispatcherMethod,
-            'Event' => $this->event,
-            'Dispatcher FQCN' => $this->dispatcherClassFqcn,
-            'Event FQCN' => $this->eventFqcn,
-        ];
-    }
 }

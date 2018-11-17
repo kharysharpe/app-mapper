@@ -47,15 +47,4 @@ final class ListenerNode implements DomainNodeInterface
         $this->event = $method->getParameter(0)->getCanonicalType();
         $this->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
     }
-
-    public function toArray(): array
-    {
-        return [
-            'class' => $this->canonicalClassName,
-            'method' => $this->methodName,
-            'event' => $this->event,
-            'listener_fqcn' => $this->getFullyQualifiedName(),
-            'event_fqcn' => $this->eventFqcn,
-        ];
-    }
 }

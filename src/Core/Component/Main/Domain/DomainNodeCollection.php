@@ -25,15 +25,4 @@ final class DomainNodeCollection extends Collection
     {
         parent::__construct($itemList);
     }
-
-    public function toArray(): array
-    {
-        $out = [];
-        /** @var DomainNodeInterface $node */
-        foreach ($this->itemList as $node) {
-            $out[] = $node->toArray();
-        }
-
-        return $out;
-    }
 }

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DispatchedEventNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
@@ -33,7 +34,7 @@ final class DispatchedEventQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstMapInterface $ast): array
+    public function queryAst(AstMapInterface $ast): DomainNodeCollection
     {
         $query = $this->queryBuilder->create()
             ->selectMethodsDispatchingEvents(
@@ -42,6 +43,6 @@ final class DispatchedEventQuery
             )
             ->build();
 
-        return $ast->query($query)->decorateByDomainNode(DispatchedEventNode::class)->toArray();
+        return $ast->query($query)->decorateByDomainNode(DispatchedEventNode::class);
     }
 }
