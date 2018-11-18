@@ -21,7 +21,7 @@ namespace Hgraca\ContextMapper\Core\Port\Parser;
  * This interface makes it possible to instantiate and AstMapInterface in the Core, without specifying the actual
  * class instantiated.
  */
-interface AstFactoryInterface
+interface AstMapFactoryInterface
 {
     public function constructFromFolder(string $folder): AstMapInterface;
 

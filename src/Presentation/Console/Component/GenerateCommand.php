@@ -18,12 +18,13 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Presentation\Console\Component;
 
 use Exception;
+use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\ListenerQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Parser\AstFactoryInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
 use PhpParser\Error;
@@ -52,7 +53,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     protected static $defaultName = self::NAME;
 
     /**
-     * @var AstFactoryInterface
+     * @var AstMapFactoryInterface
      */
     private $astMapFactory;
 
@@ -78,7 +79,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
 
     public function __construct(
         PrinterInterface $printer,
-        AstFactoryInterface $astMapFactory,
+        AstMapFactoryInterface $astMapFactory,
         UseCaseQuery $useCaseQuery,
         ListenerQuery $listenerQuery,
         SubscriberQuery $subscriberQuery

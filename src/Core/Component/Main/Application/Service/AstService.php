@@ -17,27 +17,27 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Port\Parser\AstFactoryInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 
 final class AstService
 {
-    /** @var AstFactoryInterface */
-    private $astFactory;
+    /** @var AstMapFactoryInterface */
+    private $astMapFactory;
 
-    public function __construct(AstFactoryInterface $astFactory)
+    public function __construct(AstMapFactoryInterface $astMapFactory)
     {
-        $this->astFactory = $astFactory;
+        $this->astMapFactory = $astMapFactory;
     }
 
     public function createAstFileFromFolder(string $folder, string $filePath, bool $prettyPrint = false): void
     {
-        $ast = $this->astFactory->constructFromFolder($folder);
-        $this->dumpAstToFile($ast, $filePath, $prettyPrint);
+        $astMap = $this->astMapFactory->constructFromFolder($folder);
+        $this->dumpAstToFile($astMap, $filePath, $prettyPrint);
     }
 
-    private function dumpAstToFile(AstMapInterface $ast, string $filePath, bool $prettyPrint = false): void
+    private function dumpAstToFile(AstMapInterface $astMap, string $filePath, bool $prettyPrint = false): void
     {
-        file_put_contents($filePath, $ast->toSerializedAst($prettyPrint));
+        file_put_contents($filePath, $astMap->toSerializedAst($prettyPrint));
     }
 }
