@@ -186,7 +186,8 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 );
             }
 
-            $contextMap = new ContextMap($input->getOption(self::OPT_TITLE), ...$componentList);
+            $contextMap = ContextMap::construct($input->getOption(self::OPT_TITLE))
+                ->addComponents(...$componentList);
 
             file_put_contents(
                 $input->getOption(self::OPT_OUT_FILE),

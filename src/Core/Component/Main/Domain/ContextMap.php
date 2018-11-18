@@ -27,12 +27,16 @@ final class ContextMap
     /**
      * @var Component[]
      */
-    private $componentList;
+    private $componentList = [];
 
-    public function __construct(string $name, Component ...$componentList)
+    private function __construct(string $name)
     {
         $this->name = $name;
-        $this->componentList = $componentList;
+    }
+
+    public static function construct(string $name): self
+    {
+        return new self($name);
     }
 
     public function getName(): string
@@ -40,9 +44,11 @@ final class ContextMap
         return $this->name;
     }
 
-    public function addComponent(Component ...$componentList): void
+    public function addComponents(Component ...$componentList): self
     {
         $this->componentList = array_merge($this->componentList, $componentList);
+
+        return $this;
     }
 
     /**
