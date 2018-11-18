@@ -47,4 +47,14 @@ final class ListenerNode implements DomainNodeInterface
         $this->event = $method->getParameter(0)->getCanonicalType();
         $this->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
     }
+
+    public function getFullyQualifiedName(): string
+    {
+        return $this->fqcn . '::' . $this->methodName;
+    }
+
+    public function getCanonicalName(): string
+    {
+        return $this->methodName;
+    }
 }

@@ -10,6 +10,7 @@
         "ext-iconv": "*",
         "ext-intl": "*",
         "ext-json": "*",
+        "graphp/graphviz": "^0.2.1",
         "hgraca/php-extension": "dev-master",
         "nikic/php-parser": "^4.1",
         "symfony/config": "^4.0",
