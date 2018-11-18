@@ -77,12 +77,18 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
      */
     private $printer;
 
+    /**
+     * @var EventQuery
+     */
+    private $eventQuery;
+
     public function __construct(
         PrinterInterface $printer,
         AstMapFactoryInterface $astMapFactory,
         UseCaseQuery $useCaseQuery,
         ListenerQuery $listenerQuery,
-        SubscriberQuery $subscriberQuery
+        SubscriberQuery $subscriberQuery,
+        EventQuery $eventQuery
     ) {
         parent::__construct();
         $this->printer = $printer;
@@ -90,6 +96,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
         $this->useCaseQuery = $useCaseQuery;
         $this->listenerQuery = $listenerQuery;
         $this->subscriberQuery = $subscriberQuery;
+        $this->eventQuery = $eventQuery;
     }
 
     protected function configure(): void
@@ -166,6 +173,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     {
         try {
             $componentList = [];
+            $eventList = [];
             $componentNameList = $input->getOption(self::OPT_COMPONENT_NAMES);
             $componentCounter = 0;
             foreach ($input->getOption(self::OPT_FOLDER) as $folderKey => $folderPath) {
@@ -185,10 +193,12 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                     $this->listenerQuery->queryAst($componentAstMap),
                     $this->subscriberQuery->queryAst($componentAstMap)
                 );
+                $eventList[] = $this->eventQuery->queryAst($componentAstMap);
             }
 
             $contextMap = ContextMap::construct($input->getOption(self::OPT_TITLE))
-                ->addComponents(...$componentList);
+                ->addComponents(...$componentList)
+                ->addEvents($eventList);
 
             file_put_contents(
                 $input->getOption(self::OPT_OUT_FILE),

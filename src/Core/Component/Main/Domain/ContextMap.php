@@ -29,6 +29,11 @@ final class ContextMap
      */
     private $componentList = [];
 
+    /**
+     * @var EventNode[]
+     */
+    private $eventList = [];
+
     private function __construct(string $name)
     {
         $this->name = $name;
@@ -57,5 +62,12 @@ final class ContextMap
     public function getComponentList(): array
     {
         return $this->componentList;
+    }
+
+    public function addEvents(EventNode ...$eventList): self
+    {
+        array_merge($this->eventList, $eventList);
+
+        return $this;
     }
 }
