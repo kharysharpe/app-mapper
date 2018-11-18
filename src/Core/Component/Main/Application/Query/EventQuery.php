@@ -17,12 +17,12 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DispatchedEventNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\EventNode;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
-final class DispatchedEventQuery
+final class EventQuery
 {
     /**
      * @var QueryBuilderInterface
@@ -43,6 +43,6 @@ final class DispatchedEventQuery
             )
             ->build();
 
-        return $ast->query($query)->decorateByDomainNode(DispatchedEventNode::class);
+        return $ast->query($query)->decorateByDomainNode(EventNode::class);
     }
 }
