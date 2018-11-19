@@ -28,6 +28,10 @@ use Hgraca\PhpExtension\String\StringService;
 final class GraphvizPrinter implements PrinterInterface
 {
     private const FORMAT = 'svg';
+    private const COLOR_COMPONENT = 'Lavender';
+    private const COLOR_USE_CASE = 'Lightsalmon';
+    private const COLOR_LISTENER = 'Honeydew';
+    private const COLOR_SUBSCRIBER = 'Lightcyan';
 
     public function printToImage(ContextMap $contextMap, string $titleFontSize): string
     {
@@ -67,6 +71,8 @@ final class GraphvizPrinter implements PrinterInterface
         // Only after adding all components, can we start adding the edges (links)
         $this->addEdgesToGraph($graph, $contextMap);
 
+        $this->addLegendToGraph($graph);
+
         return $graph;
     }
 
@@ -87,22 +93,28 @@ final class GraphvizPrinter implements PrinterInterface
     private function printComponent(Component $component): string
     {
         $componentStr = '<table border="0" cellborder="1" cellspacing="0">'
-            . '<tr><td BGCOLOR="Lavender"><b>' . $component->getName() . '</b></td></tr>';
+            . '<tr><td BGCOLOR="' . self::COLOR_COMPONENT . '"><b>' . $component->getName() . '</b></td></tr>';
 
         foreach ($component->getUseCaseList() as $useCase) {
-            $componentStr .= '<tr><td BGCOLOR="Lightsalmon" PORT="' . $this->createPortId($useCase) . '">'
+            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_USE_CASE . '" PORT="' . $this->createPortId(
+                    $useCase
+                ) . '">'
                 . $useCase->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getListenerList() as $listener) {
-            $componentStr .= '<tr><td BGCOLOR="Honeydew" PORT="' . $this->createPortId($listener) . '">'
+            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_LISTENER . '" PORT="' . $this->createPortId(
+                    $listener
+                ) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getSubscriberList() as $subscriber) {
-            $componentStr .= '<tr><td BGCOLOR="Lightcyan" PORT="' . $this->createPortId($subscriber) . '">'
+            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_SUBSCRIBER . '" PORT="' . $this->createPortId(
+                    $subscriber
+                ) . '">'
                 . $subscriber->getCanonicalName()
                 . '</td></tr>';
         }
@@ -146,5 +158,28 @@ final class GraphvizPrinter implements PrinterInterface
                 }
             }
         }
+    }
+
+    private function addLegendToGraph(Graph $graph): void
+    {
+        $legendVertex = $graph->createVertex('Legend');
+        $legendVertex->setAttribute('graphviz.rank', 'sink'); // put it at the bottom
+        $legendVertex->setAttribute('graphviz.shape', 'none');
+
+        $legendTable = '<table border="0" cellborder="1" cellspacing="0">'
+            . '<tr><td BGCOLOR="Gray"><b>' . $legendVertex->getId() . '</b></td></tr>'
+            . '<tr><td BGCOLOR="' . self::COLOR_COMPONENT . '"><b> Component </b></td></tr>'
+            . '<tr><td BGCOLOR="' . self::COLOR_USE_CASE . '"> Use Case </td></tr>'
+            . '<tr><td BGCOLOR="' . self::COLOR_LISTENER . '"> Listener </td></tr>'
+            . '<tr><td BGCOLOR="' . self::COLOR_SUBSCRIBER . '"> Subscriber </td></tr>';
+
+        $legendTable .= '</table>';
+
+        $legendVertex->setAttribute(
+            'graphviz.label',
+            GraphViz::raw(
+                '<' . $legendTable . '>'
+            )
+        );
     }
 }
