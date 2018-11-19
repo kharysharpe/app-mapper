@@ -29,11 +29,6 @@ final class ContextMap
      */
     private $componentList = [];
 
-    /**
-     * @var EventNode[]
-     */
-    private $eventList = [];
-
     private function __construct(string $name)
     {
         $this->name = $name;
@@ -64,10 +59,25 @@ final class ContextMap
         return $this->componentList;
     }
 
-    public function addEvents(EventNode ...$eventList): self
+    /**
+     * @return ListenerNode[]|DomainNodeCollection
+     */
+    public function getListenersOf(EventDispatcherNode $eventDispatcher): DomainNodeCollection
     {
-        array_merge($this->eventList, $eventList);
+        $listenersList = [];
+        foreach ($this->getComponentList() as $component) {
+            foreach ($component->getListenerList() as $listener) {
+                if ($listener->listensTo($eventDispatcher)) {
+                    $listenersList[] = $listener;
+                }
+            }
+            foreach ($component->getSubscriberList() as $subscriber) {
+                if ($subscriber->listensTo($eventDispatcher)) {
+                    $listenersList[] = $subscriber;
+                }
+            }
+        }
 
-        return $this;
+        return new DomainNodeCollection(...$listenersList);
     }
 }

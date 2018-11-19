@@ -33,16 +33,36 @@ final class Component
     /** @var ListenerNode[]|DomainNodeCollection */
     private $subscriberList;
 
+    /**
+     * @var EventDispatcherNode[]|DomainNodeCollection
+     */
+    private $eventDispatcherList = [];
+
     public function __construct(
         string $name,
         DomainNodeCollection $useCaseList = null,
         DomainNodeCollection $listenerList = null,
-        DomainNodeCollection $subscriberList = null
+        DomainNodeCollection $subscriberList = null,
+        DomainNodeCollection $eventDispatcherList = null
     ) {
         $this->name = $name;
         $this->useCaseList = $useCaseList ?? new DomainNodeCollection();
         $this->listenerList = $listenerList ?? new DomainNodeCollection();
         $this->subscriberList = $subscriberList ?? new DomainNodeCollection();
+        $this->eventDispatcherList = $eventDispatcherList ?? new DomainNodeCollection();
+
+        foreach ($this->useCaseList as $useCase) {
+            $useCase->setComponent($this);
+        }
+        foreach ($this->listenerList as $listener) {
+            $listener->setComponent($this);
+        }
+        foreach ($this->subscriberList as $subscriber) {
+            $subscriber->setComponent($this);
+        }
+        foreach ($this->eventDispatcherList as $eventDispatcher) {
+            $eventDispatcher->setComponent($this);
+        }
     }
 
     public function getName(): string
@@ -87,5 +107,13 @@ final class Component
     public function getSubscriberList(): DomainNodeCollection
     {
         return $this->subscriberList;
+    }
+
+    /**
+     * @return EventDispatcherNode[]|DomainNodeCollection
+     */
+    public function getEventDispatcherList(): DomainNodeCollection
+    {
+        return $this->eventDispatcherList;
     }
 }

@@ -174,7 +174,6 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     {
         try {
             $componentList = [];
-            $eventList = [];
             $componentNameList = $input->getOption(self::OPT_COMPONENT_NAMES);
             $componentCounter = 0;
             foreach ($input->getOption(self::OPT_FOLDER) as $folderKey => $folderPath) {
@@ -188,18 +187,17 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 $componentList[$componentName] = $astMap;
             }
             foreach ($componentList as $componentName => $componentAstMap) {
-                $componentList[] = new Component(
+                $componentList[$componentName] = new Component(
                     $componentName,
                     $this->useCaseQuery->queryAst($componentAstMap),
                     $this->listenerQuery->queryAst($componentAstMap),
-                    $this->subscriberQuery->queryAst($componentAstMap)
+                    $this->subscriberQuery->queryAst($componentAstMap),
+                    $this->eventDispatcherQuery->queryAst($componentAstMap)
                 );
-                $eventList[] = $this->eventQuery->queryAst($componentAstMap);
             }
 
             $contextMap = ContextMap::construct($input->getOption(self::OPT_TITLE))
-                ->addComponents(...$componentList)
-                ->addEvents($eventList);
+                ->addComponents(...array_values($componentList));
 
             file_put_contents(
                 $input->getOption(self::OPT_OUT_FILE),
