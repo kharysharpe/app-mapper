@@ -37,6 +37,11 @@ final class ListenerNode implements DomainNodeInterface
     /** @var string */
     private $eventFqcn;
 
+    /**
+     * @var Component|null
+     */
+    private $component;
+
     public function __construct(ClassInterface $class, MethodInterface $method)
     {
         $this->fqcn = $class->getFullyQualifiedType();
@@ -56,5 +61,20 @@ final class ListenerNode implements DomainNodeInterface
     public function getCanonicalName(): string
     {
         return $this->methodName;
+    }
+
+    public function listensTo(EventDispatcherNode $eventDispatcher): bool
+    {
+        return $this->eventFqcn === $eventDispatcher->getEventFullyQualifiedName();
+    }
+
+    public function setComponent(Component $component): void
+    {
+        $this->component = $component;
+    }
+
+    public function getComponent(): ?Component
+    {
+        return $this->component;
     }
 }

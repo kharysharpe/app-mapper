@@ -19,4 +19,9 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 interface DomainNodeInterface
 {
+    public function getComponent(): ?Component;
+
+    public function getFullyQualifiedName(): string;
+
+    public function getCanonicalName(): string;
 }
