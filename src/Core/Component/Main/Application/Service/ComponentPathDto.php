@@ -17,23 +17,38 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
+use function is_dir;
 
-final class PrintService
+final class ComponentPathDto
 {
     /**
-     * @var PrinterInterface
+     * @var string
      */
-    private $printer;
+    private $componentName;
 
-    public function __construct(PrinterInterface $printer)
+    /**
+     * @var string
+     */
+    private $path;
+
+    public function __construct(string $componentName, string $path)
     {
-        $this->printer = $printer;
+        $this->componentName = $componentName;
+        $this->path = $path;
     }
 
-    public function printContextMap(ContextMap $contextMap): string
+    public function getComponentName(): string
     {
-        return $this->printer->printToImage($contextMap);
+        return $this->componentName;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
+    public function isDir(): bool
+    {
+        return is_dir($this->getPath());
     }
 }

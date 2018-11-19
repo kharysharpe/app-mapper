@@ -18,20 +18,12 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Presentation\Console\Component;
 
 use Exception;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventDispatcherQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\ListenerQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
+use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ComponentPathDto;
+use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService;
 use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
-use PhpParser\Error;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function array_values;
 
 class GenerateCommand extends AbstractCommandStopwatchDecorator
 {
@@ -54,50 +46,14 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     protected static $defaultName = self::NAME;
 
     /**
-     * @var AstMapFactoryInterface
+     * @var ContextMapService
      */
-    private $astMapFactory;
+    private $contextMapService;
 
-    /**
-     * @var UseCaseQuery
-     */
-    private $useCaseQuery;
-
-    /**
-     * @var ListenerQuery
-     */
-    private $listenerQuery;
-
-    /**
-     * @var SubscriberQuery
-     */
-    private $subscriberQuery;
-
-    /**
-     * @var PrinterInterface
-     */
-    private $printer;
-
-    /**
-     * @var EventDispatcherQuery
-     */
-    private $eventDispatcherQuery;
-
-    public function __construct(
-        PrinterInterface $printer,
-        AstMapFactoryInterface $astMapFactory,
-        UseCaseQuery $useCaseQuery,
-        ListenerQuery $listenerQuery,
-        SubscriberQuery $subscriberQuery,
-        EventDispatcherQuery $eventDispatcherQuery
-    ) {
+    public function __construct(ContextMapService $contextMapService)
+    {
         parent::__construct();
-        $this->printer = $printer;
-        $this->astMapFactory = $astMapFactory;
-        $this->useCaseQuery = $useCaseQuery;
-        $this->listenerQuery = $listenerQuery;
-        $this->subscriberQuery = $subscriberQuery;
-        $this->eventDispatcherQuery = $eventDispatcherQuery;
+        $this->contextMapService = $contextMapService;
     }
 
     protected function configure(): void
@@ -172,43 +128,16 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
      */
     protected function executeUseCase(InputInterface $input, OutputInterface $output): void
     {
-        try {
-            $componentList = [];
-            $componentNameList = $input->getOption(self::OPT_COMPONENT_NAMES);
-            $componentCounter = 0;
-            foreach ($input->getOption(self::OPT_FOLDER) as $folderKey => $folderPath) {
-                $astMap = $this->astMapFactory->constructFromFolder($folderPath);
-                $componentName = (string) ($componentNameList[$componentCounter++] ?? $componentCounter++);
-                $componentList[$componentName] = $astMap;
-            }
-            foreach ($input->getOption(self::OPT_FILE) as $fileKey => $astFilePath) {
-                $astMap = $this->astMapFactory->constructFromFile($astFilePath);
-                $componentName = (string) ($componentNameList[$componentCounter++] ?? $componentCounter++);
-                $componentList[$componentName] = $astMap;
-            }
-            foreach ($componentList as $componentName => $componentAstMap) {
-                $componentList[$componentName] = new Component(
-                    $componentName,
-                    $this->useCaseQuery->queryAst($componentAstMap),
-                    $this->listenerQuery->queryAst($componentAstMap),
-                    $this->subscriberQuery->queryAst($componentAstMap),
-                    $this->eventDispatcherQuery->queryAst($componentAstMap)
-                );
-            }
+        $this->contextMapService->printContextMap(
+            $this->contextMapService->createFromPaths(
+                $input->getOption(self::OPT_TITLE),
+                ...$this->getComponentPathList($input)
+            ),
+            $input->getOption(self::OPT_OUT_FILE)
+        );
 
-            $contextMap = ContextMap::construct($input->getOption(self::OPT_TITLE))
-                ->addComponents(...array_values($componentList));
-
-            file_put_contents(
-                $input->getOption(self::OPT_OUT_FILE),
-                $this->printer->printToImage($contextMap)
-            );
-
-            if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {
-                $this->display($input->getOption(self::OPT_OUT_FILE));
-            }
-        } catch (Error $e) {
-            $this->io->warning('Parsing error: ' . $e->getMessage());
+        if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {
+            $this->display($input->getOption(self::OPT_OUT_FILE));
         }
     }
 
@@ -245,5 +174,28 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private function isOsMac(): bool
     {
         return mb_strtoupper(PHP_OS) === 'DARWIN';
+    }
+
+    private function getComponentNameFromPath(string $path): string
+    {
+        return mb_substr($path, mb_strrpos($path, \DIRECTORY_SEPARATOR) + 1);
+    }
+
+    /**
+     * @return ComponentPathDto[]
+     */
+    private function getComponentPathList(InputInterface $input): array
+    {
+        $componentNameList = $input->getOption(self::OPT_COMPONENT_NAMES);
+        $pathList = array_merge($input->getOption(self::OPT_FOLDER), $input->getOption(self::OPT_FILE));
+        $componentCounter = 0;
+        $componentPathList = [];
+        foreach ($pathList as $path) {
+            $componentName = (string) ($componentNameList[$componentCounter] ?? $this->getComponentNameFromPath($path));
+            $componentPathList[] = new ComponentPathDto($componentName, $path);
+            ++$componentCounter;
+        }
+
+        return $componentPathList;
     }
 }
