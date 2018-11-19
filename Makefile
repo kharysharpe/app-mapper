@@ -98,22 +98,12 @@ test:
 	$(MAKE) .test-dep
 
 .test-dep:
-	$(MAKE) .test-dep-components
 	$(MAKE) .test-dep-layers
 	$(MAKE) .test-dep-class
 
 test-dep-graph:
-	$(MAKE) test-dep-components-graph
 	$(MAKE) test-dep-layers-graph
 	$(MAKE) test-dep-class-graph
-
-.test-dep-components:
-	$(MAKE) .dep_analyzer-install
-	bin/deptrac analyze depfile.components.yaml --formatter-graphviz=0
-
-test-dep-components-graph:
-	$(MAKE) .dep_analyzer-install
-	bin/deptrac analyze depfile.components.yaml --formatter-graphviz-dump-image=var/deptrac_components.png --formatter-graphviz-dump-dot=var/deptrac_components.dot
 
 .test-dep-layers:
 	$(MAKE) .dep_analyzer-install

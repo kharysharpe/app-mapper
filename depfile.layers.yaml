@@ -161,6 +161,7 @@ ruleset:
 
   Domain:
     - PhpExtension
+    - Port
     - Port-PSR
     - SharedKernel-Domain
 
