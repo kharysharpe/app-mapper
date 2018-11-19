@@ -82,6 +82,7 @@ final class ContextMapService
     public function createFromPaths(
         string $contextMapTitle,
         string $useCaseRegex,
+        string $listenerRegex,
         string $subscriberRegex,
         ComponentPathDto ...$componentPathList
     ): ContextMap {
@@ -94,7 +95,7 @@ final class ContextMapService
             $componentList[] = new Component(
                 $componentPath->getComponentName(),
                 $this->useCaseQuery->queryAst($componentAstMap, $useCaseRegex),
-                $this->listenerQuery->queryAst($componentAstMap),
+                $this->listenerQuery->queryAst($componentAstMap, $listenerRegex),
                 $this->subscriberQuery->queryAst($componentAstMap, $subscriberRegex),
                 $this->eventDispatcherQuery->queryAst($componentAstMap)
             );

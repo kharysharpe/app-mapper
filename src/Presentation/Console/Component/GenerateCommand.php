@@ -38,6 +38,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private const OPT_TITLE = 'title';
     private const OPT_TITLE_SIZE = 'titleSize';
     private const OPT_USE_CASE_FQCN_REGEX = 'useCaseFqcnRegex';
+    private const OPT_LISTENER_FQCN_REGEX = 'listenerFqcnRegex';
     private const OPT_SUBSCRIBER_FQCN_REGEX = 'subscriberFqcnRegex';
 
     /**
@@ -115,6 +116,13 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 '/.*Command$/'
             )
             ->addOption(
+                self::OPT_LISTENER_FQCN_REGEX,
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'The listener class FQCN regex.',
+                '/.*Listener$/'
+            )
+            ->addOption(
                 self::OPT_SUBSCRIBER_FQCN_REGEX,
                 'b',
                 InputOption::VALUE_OPTIONAL,
@@ -156,6 +164,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
             $this->contextMapService->createFromPaths(
                 $input->getOption(self::OPT_TITLE),
                 $input->getOption(self::OPT_USE_CASE_FQCN_REGEX),
+                $input->getOption(self::OPT_LISTENER_FQCN_REGEX),
                 $input->getOption(self::OPT_SUBSCRIBER_FQCN_REGEX),
                 ...$this->getComponentPathList($input)
             ),
