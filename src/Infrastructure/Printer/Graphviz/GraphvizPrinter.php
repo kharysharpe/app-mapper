@@ -29,8 +29,6 @@ final class GraphvizPrinter implements PrinterInterface
 {
     private const FORMAT = 'svg';
 
-    private $tmp = [];
-
     public function printToImage(ContextMap $contextMap, string $titleFontSize): string
     {
         return (new GraphViz())
@@ -103,24 +101,19 @@ final class GraphvizPrinter implements PrinterInterface
             $componentStr .= '<tr><td BGCOLOR="Lightsalmon" PORT="' . $this->createPortId($useCase) . '">'
                 . $useCase->getCanonicalName()
                 . '</td></tr>';
-            $this->tmp[] = $useCase->getFullyQualifiedName();
         }
 
         foreach ($component->getListenerList() as $listener) {
             $componentStr .= '<tr><td BGCOLOR="Honeydew" PORT="' . $this->createPortId($listener) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
-            $this->tmp[] = $listener->getFullyQualifiedName();
         }
 
         foreach ($component->getSubscriberList() as $subscriber) {
             $componentStr .= '<tr><td BGCOLOR="Lightcyan" PORT="' . $this->createPortId($subscriber) . '">'
                 . $subscriber->getCanonicalName()
                 . '</td></tr>';
-            $this->tmp[] = $subscriber->getFullyQualifiedName();
         }
-
-        sort($this->tmp);
 
         $componentStr .= '</table>';
 
