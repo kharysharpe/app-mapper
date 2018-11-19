@@ -99,11 +99,11 @@ final class QueryBuilder implements QueryBuilderInterface
     }
 
     public function selectMethodsDispatchingEvents(
-        string $eventDispatcherFqcn,
-        string $eventDispatcherMethod
+        string $eventDispatcherTypeRegex,
+        string $eventDispatcherMethodRegex
     ): QueryBuilderInterface {
         $this->currentQuery->addFilter(
-            function (Node $node) use ($eventDispatcherFqcn, $eventDispatcherMethod) {
+            function (Node $node) use ($eventDispatcherTypeRegex, $eventDispatcherMethodRegex) {
                 if (!$node instanceof MethodCall) {
                     return false;
                 }
@@ -113,8 +113,8 @@ final class QueryBuilder implements QueryBuilderInterface
                 $dispatcherMethodName = $node->name->name;
 
                 return $node instanceof MethodCall
-                    && $dispatcherFqcn === $eventDispatcherFqcn
-                    && $dispatcherMethodName === $eventDispatcherMethod;
+                    && preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
+                    && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName);
             }
         );
 

@@ -34,13 +34,13 @@ final class EventDispatcherQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstMapInterface $ast): DomainNodeCollection
-    {
+    public function queryAst(
+        AstMapInterface $ast,
+        string $eventDispatcherTypeRegex,
+        string $eventDispatcherMethodRegex
+    ): DomainNodeCollection {
         $query = $this->queryBuilder->create()
-            ->selectMethodsDispatchingEvents(
-                '\Werkspot\Instapro\Infrastructure\EventDispatcher\EventDispatcherInterface',
-                'dispatch'
-            )
+            ->selectMethodsDispatchingEvents($eventDispatcherTypeRegex, $eventDispatcherMethodRegex)
             ->build();
 
         return $ast->query($query)->decorateByDomainNode(EventDispatcherNode::class);

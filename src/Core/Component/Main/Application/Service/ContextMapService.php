@@ -84,6 +84,8 @@ final class ContextMapService
         string $useCaseRegex,
         string $listenerRegex,
         string $subscriberRegex,
+        string $eventDispatcherTypeRegex,
+        string $eventDispatcherMethodRegex,
         ComponentPathDto ...$componentPathList
     ): ContextMap {
         $componentList = [];
@@ -97,7 +99,11 @@ final class ContextMapService
                 $this->useCaseQuery->queryAst($componentAstMap, $useCaseRegex),
                 $this->listenerQuery->queryAst($componentAstMap, $listenerRegex),
                 $this->subscriberQuery->queryAst($componentAstMap, $subscriberRegex),
-                $this->eventDispatcherQuery->queryAst($componentAstMap)
+                $this->eventDispatcherQuery->queryAst(
+                    $componentAstMap,
+                    $eventDispatcherTypeRegex,
+                    $eventDispatcherMethodRegex
+                )
             );
         }
 

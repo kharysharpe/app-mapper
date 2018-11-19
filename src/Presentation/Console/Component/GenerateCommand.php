@@ -40,6 +40,8 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private const OPT_USE_CASE_FQCN_REGEX = 'useCaseFqcnRegex';
     private const OPT_LISTENER_FQCN_REGEX = 'listenerFqcnRegex';
     private const OPT_SUBSCRIBER_FQCN_REGEX = 'subscriberFqcnRegex';
+    private const OPT_EVENT_DISPATCHER_TYPE_REGEX = 'eventDispatcherTypeRegex';
+    private const OPT_EVENT_DISPATCHER_METHOD_REGEX = 'eventDispatcherMethodRegex';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,
@@ -128,6 +130,20 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 InputOption::VALUE_OPTIONAL,
                 'The subscriber class FQCN regex.',
                 '/.*Subscriber$/'
+            )
+            ->addOption(
+                self::OPT_EVENT_DISPATCHER_TYPE_REGEX,
+                'f',
+                InputOption::VALUE_OPTIONAL,
+                'The event dispatcher type.',
+                '/.*EventDispatcherInterface$/'
+            )
+            ->addOption(
+                self::OPT_EVENT_DISPATCHER_METHOD_REGEX,
+                'g',
+                InputOption::VALUE_OPTIONAL,
+                'The event dispatcher method regex.',
+                '/^dispatch$/'
             );
     }
 
@@ -166,6 +182,8 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 $input->getOption(self::OPT_USE_CASE_FQCN_REGEX),
                 $input->getOption(self::OPT_LISTENER_FQCN_REGEX),
                 $input->getOption(self::OPT_SUBSCRIBER_FQCN_REGEX),
+                $input->getOption(self::OPT_EVENT_DISPATCHER_TYPE_REGEX),
+                $input->getOption(self::OPT_EVENT_DISPATCHER_METHOD_REGEX),
                 ...$this->getComponentPathList($input)
             ),
             $input->getOption(self::OPT_OUT_FILE),
