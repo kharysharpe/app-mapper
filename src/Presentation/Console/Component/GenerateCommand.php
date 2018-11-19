@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Presentation\Console\Component;
 
 use Exception;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventQuery;
+use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventDispatcherQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\ListenerQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
@@ -31,6 +31,7 @@ use PhpParser\Error;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function array_values;
 
 class GenerateCommand extends AbstractCommandStopwatchDecorator
 {
@@ -78,9 +79,9 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private $printer;
 
     /**
-     * @var EventQuery
+     * @var EventDispatcherQuery
      */
-    private $eventQuery;
+    private $eventDispatcherQuery;
 
     public function __construct(
         PrinterInterface $printer,
@@ -88,7 +89,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
         UseCaseQuery $useCaseQuery,
         ListenerQuery $listenerQuery,
         SubscriberQuery $subscriberQuery,
-        EventQuery $eventQuery
+        EventDispatcherQuery $eventDispatcherQuery
     ) {
         parent::__construct();
         $this->printer = $printer;
@@ -96,7 +97,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
         $this->useCaseQuery = $useCaseQuery;
         $this->listenerQuery = $listenerQuery;
         $this->subscriberQuery = $subscriberQuery;
-        $this->eventQuery = $eventQuery;
+        $this->eventDispatcherQuery = $eventDispatcherQuery;
     }
 
     protected function configure(): void
