@@ -36,6 +36,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private const OPT_OPEN_OUT_FILE = 'openOutFile';
     private const OPT_COMPONENT_NAMES = 'componentNames';
     private const OPT_TITLE = 'title';
+    private const OPT_TITLE_SIZE = 'titleSize';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,
@@ -96,6 +97,13 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 InputOption::VALUE_OPTIONAL,
                 'The context map title.',
                 'Context Map'
+            )
+            ->addOption(
+                self::OPT_TITLE_SIZE,
+                'z',
+                InputOption::VALUE_OPTIONAL,
+                'The context map title font size.',
+                '30'
             );
     }
 
@@ -133,7 +141,8 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 $input->getOption(self::OPT_TITLE),
                 ...$this->getComponentPathList($input)
             ),
-            $input->getOption(self::OPT_OUT_FILE)
+            $input->getOption(self::OPT_OUT_FILE),
+            $input->getOption(self::OPT_TITLE_SIZE)
         );
 
         if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {

@@ -74,9 +74,9 @@ final class ContextMapService
         $this->eventDispatcherQuery = $eventDispatcherQuery;
     }
 
-    public function printContextMap(ContextMap $contextMap, string $outFile): void
+    public function printContextMap(ContextMap $contextMap, string $outFile, string $titleFontSize): void
     {
-        file_put_contents($outFile, $this->printer->printToImage($contextMap));
+        file_put_contents($outFile, $this->printer->printToImage($contextMap, $titleFontSize));
     }
 
     public function createFromPaths(string $contextMapTitle, ComponentPathDto ...$componentPathList): ContextMap

@@ -21,9 +21,9 @@ use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
 
 interface PrinterInterface
 {
-    public function printToImage(ContextMap $contextMap): string;
+    public function printToImage(ContextMap $contextMap, string $titleFontSize): string;
 
-    public function printToDot(ContextMap $contextMap): string;
+    public function printToDot(ContextMap $contextMap, string $titleFontSize): string;
 
-    public function printToHtml(ContextMap $contextMap): string;
+    public function printToHtml(ContextMap $contextMap, string $titleFontSize): string;
 }

@@ -31,24 +31,24 @@ final class GraphvizPrinter implements PrinterInterface
 
     private $tmp = [];
 
-    public function printToImage(ContextMap $contextMap): string
+    public function printToImage(ContextMap $contextMap, string $titleFontSize): string
     {
         return (new GraphViz())
             ->setFormat(self::FORMAT)
-            ->createImageData($this->printContextMap($contextMap));
+            ->createImageData($this->printContextMap($contextMap, $titleFontSize));
     }
 
-    public function printToDot(ContextMap $contextMap): string
+    public function printToDot(ContextMap $contextMap, string $titleFontSize): string
     {
-        return (new GraphViz())->createScript($this->printContextMap($contextMap));
+        return (new GraphViz())->createScript($this->printContextMap($contextMap, $titleFontSize));
     }
 
-    public function printToHtml(ContextMap $contextMap): string
+    public function printToHtml(ContextMap $contextMap, string $titleFontSize): string
     {
-        return (new GraphViz())->createImageHtml($this->printContextMap($contextMap));
+        return (new GraphViz())->createImageHtml($this->printContextMap($contextMap, $titleFontSize));
     }
 
-    private function printContextMap(ContextMap $contextMap): Graph
+    private function printContextMap(ContextMap $contextMap, string $titleFontSize): Graph
     {
         $graph = new Graph();
         $graph->setAttribute('graphviz.graph.layout', 'circo');
@@ -56,7 +56,7 @@ final class GraphvizPrinter implements PrinterInterface
         $graph->setAttribute('graphviz.graph.labelloc', 't');
         $graph->setAttribute('graphviz.graph.label', $contextMap->getName());
         $graph->setAttribute('graphviz.graph.fontname', 'arial');
-        $graph->setAttribute('graphviz.graph.fontsize', '30');
+        $graph->setAttribute('graphviz.graph.fontsize', $titleFontSize);
 //        $graph->setAttribute('graphviz.graph.ranksep', '1.5');
         $graph->setAttribute('graphviz.graph.nodesep', '2');
         $graph->setAttribute('graphviz.graph.size', '60,60');
