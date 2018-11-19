@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodParameterInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -55,7 +56,7 @@ final class MethodAdapter implements MethodInterface
         return $this->getReturnTypeNode()->getFullyQualifiedType();
     }
 
-    public function getParameter(int $index): MethodParameterAdapter
+    public function getParameter(int $index): MethodParameterInterface
     {
         return new MethodParameterAdapter($this->classMethod->params[$index]);
     }

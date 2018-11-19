@@ -17,8 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\MethodParameterAdapter;
-
 interface MethodInterface extends AdapterNodeInterface
 {
     public function getCanonicalName(): string;
@@ -27,7 +25,7 @@ interface MethodInterface extends AdapterNodeInterface
 
     public function getReturnType(): string;
 
-    public function getParameter(int $int): MethodParameterAdapter;
+    public function getParameter(int $int): MethodParameterInterface;
 
     public function isConstructor(): bool;
 
