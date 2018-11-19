@@ -62,6 +62,16 @@ final class GraphvizPrinter implements PrinterInterface
 
         $graph->setAttribute('graphviz.node.fontname', 'arial');
 
+        $this->addVertexesToGraph($graph, $contextMap);
+
+        // Only after adding all components, can we start adding the edges (links)
+        $this->addEdgesToGraph($graph, $contextMap);
+
+        return $graph;
+    }
+
+    private function addVertexesToGraph(Graph $graph, ContextMap $contextMap): void
+    {
         foreach ($contextMap->getComponentList() as $component) {
             $graphComponent = $graph->createVertex($component->getName());
             $graphComponent->setAttribute('graphviz.shape', 'none');
@@ -72,24 +82,6 @@ final class GraphvizPrinter implements PrinterInterface
                 )
             );
         }
-
-        // Only after adding all components, can we start adding the edges (links)
-        foreach ($contextMap->getComponentList() as $component) {
-            foreach ($component->getEventDispatcherList() as $eventDispatcher) {
-                $originComponentVertex = $graph->getVertex($component->getName());
-                foreach ($contextMap->getListenersOf($eventDispatcher) as $listener) {
-                    $destinationComponentVertex = $graph->getVertex($listener->getComponent()->getName());
-                    $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
-                    $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));
-                    $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
-                    $eventEdge->setAttribute('graphviz.style', 'dashed');
-                    $eventEdge->setAttribute('graphviz.xlabel', $eventDispatcher->getEventCanonicalName());
-                    $eventEdge->setAttribute('graphviz.fontname', 'arial');
-                }
-            }
-        }
-
-        return $graph;
     }
 
     private function printComponent(Component $component): string
@@ -136,5 +128,23 @@ final class GraphvizPrinter implements PrinterInterface
         $id = StringService::replaceFromEnd('Handler', 'Command', $id);
 
         return $id;
+    }
+
+    private function addEdgesToGraph(Graph $graph, ContextMap $contextMap): void
+    {
+        foreach ($contextMap->getComponentList() as $component) {
+            foreach ($component->getEventDispatcherList() as $eventDispatcher) {
+                $originComponentVertex = $graph->getVertex($component->getName());
+                foreach ($contextMap->getListenersOf($eventDispatcher) as $listener) {
+                    $destinationComponentVertex = $graph->getVertex($listener->getComponent()->getName());
+                    $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
+                    $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));
+                    $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
+                    $eventEdge->setAttribute('graphviz.style', 'dashed');
+                    $eventEdge->setAttribute('graphviz.xlabel', $eventDispatcher->getEventCanonicalName());
+                    $eventEdge->setAttribute('graphviz.fontname', 'arial');
+                }
+            }
+        }
     }
 }
