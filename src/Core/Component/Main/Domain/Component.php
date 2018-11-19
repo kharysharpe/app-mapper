@@ -70,21 +70,6 @@ final class Component
         return $this->name;
     }
 
-    public function addUseCase(UseCaseNode ...$useCaseList): void
-    {
-        array_merge($this->useCaseList, $useCaseList);
-    }
-
-    public function addListener(ListenerNode ...$listenerList): void
-    {
-        array_merge($this->listenerList, $listenerList);
-    }
-
-    public function addSubscriber(ListenerNode ...$subscriberList): void
-    {
-        array_merge($this->subscriberList, $subscriberList);
-    }
-
     /**
      * @return UseCaseNode[]|DomainNodeCollection
      */
