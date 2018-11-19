@@ -37,6 +37,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private const OPT_COMPONENT_NAMES = 'componentNames';
     private const OPT_TITLE = 'title';
     private const OPT_TITLE_SIZE = 'titleSize';
+    private const OPT_USE_CASE_FQCN_REGEX = 'useCaseFqcnRegex';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,
@@ -104,6 +105,13 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 InputOption::VALUE_OPTIONAL,
                 'The context map title font size.',
                 '30'
+            )
+            ->addOption(
+                self::OPT_USE_CASE_FQCN_REGEX,
+                'm',
+                InputOption::VALUE_OPTIONAL,
+                'The use case class FQCN regex.',
+                '/.*Command$/'
             );
     }
 
@@ -139,6 +147,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
         $this->contextMapService->printContextMap(
             $this->contextMapService->createFromPaths(
                 $input->getOption(self::OPT_TITLE),
+                $input->getOption(self::OPT_USE_CASE_FQCN_REGEX),
                 ...$this->getComponentPathList($input)
             ),
             $input->getOption(self::OPT_OUT_FILE),

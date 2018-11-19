@@ -79,7 +79,11 @@ final class ContextMapService
         file_put_contents($outFile, $this->printer->printToImage($contextMap, $titleFontSize));
     }
 
-    public function createFromPaths(string $contextMapTitle, ComponentPathDto ...$componentPathList): ContextMap
+    public function createFromPaths(
+        string $contextMapTitle,
+        string $useCaseRegex,
+        ComponentPathDto ...$componentPathList
+    ): ContextMap
     {
         $componentList = [];
         foreach ($componentPathList as $componentPath) {
@@ -89,7 +93,7 @@ final class ContextMapService
 
             $componentList[] = new Component(
                 $componentPath->getComponentName(),
-                $this->useCaseQuery->queryAst($componentAstMap),
+                $this->useCaseQuery->queryAst($componentAstMap, $useCaseRegex),
                 $this->listenerQuery->queryAst($componentAstMap),
                 $this->subscriberQuery->queryAst($componentAstMap),
                 $this->eventDispatcherQuery->queryAst($componentAstMap)

@@ -34,10 +34,10 @@ final class UseCaseQuery
         $this->queryBuilder = $queryBuilder;
     }
 
-    public function queryAst(AstMapInterface $ast): DomainNodeCollection
+    public function queryAst(AstMapInterface $ast, string $regex): DomainNodeCollection
     {
         $query = $this->queryBuilder->create()
-            ->selectClassesWithFqcnMatchingRegex('/.*Command$/')
+            ->selectClassesWithFqcnMatchingRegex($regex)
             ->build();
 
         return $ast->query($query)->decorateByDomainNode(UseCaseNode::class);
