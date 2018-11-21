@@ -15,16 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Printer;
+namespace Hgraca\ContextMapper\Infrastructure\Configuration\Symfony;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
+use Hgraca\ContextMapper\Core\Port\Configuration\Exception\MissingFileException;
 
-interface PrinterInterface
+interface LoaderInterface
 {
-    public function printToImage(ContextMap $contextMap, Configuration $config): string;
-
-    public function printToDot(ContextMap $contextMap, Configuration $config): string;
-
-    public function printToHtml(ContextMap $contextMap, Configuration $config): string;
+    /**
+     * @throws MissingFileException
+     */
+    public function load(string $fileAbsPath): array;
 }

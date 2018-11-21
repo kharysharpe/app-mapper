@@ -15,16 +15,22 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Printer;
+namespace Hgraca\ContextMapper\Core\Port\Configuration\Collector;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
-
-interface PrinterInterface
+final class ClassFqcnRegexCriteria
 {
-    public function printToImage(ContextMap $contextMap, Configuration $config): string;
+    /**
+     * @var string
+     */
+    private $regex;
 
-    public function printToDot(ContextMap $contextMap, Configuration $config): string;
+    public function __construct(string $regex)
+    {
+        $this->regex = $regex;
+    }
 
-    public function printToHtml(ContextMap $contextMap, Configuration $config): string;
+    public function __toString(): string
+    {
+        return $this->regex;
+    }
 }

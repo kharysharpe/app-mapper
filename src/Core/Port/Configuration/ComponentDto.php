@@ -15,36 +15,58 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
+namespace Hgraca\ContextMapper\Core\Port\Configuration;
 
 use function is_dir;
 
-final class ComponentPathDto
+final class ComponentDto
 {
     /**
      * @var string
      */
-    private $componentName;
+    private $name;
 
     /**
      * @var string
      */
     private $path;
 
-    public function __construct(string $componentName, string $path)
+    /**
+     * @var int
+     */
+    private $locationX;
+
+    /**
+     * @var int
+     */
+    private $locationY;
+
+    public function __construct(string $name, string $path, int $locationX, int $locationY)
     {
-        $this->componentName = $componentName;
+        $this->name = $name;
         $this->path = $path;
+        $this->locationX = $locationX;
+        $this->locationY = $locationY;
     }
 
-    public function getComponentName(): string
+    public function getName(): string
     {
-        return $this->componentName;
+        return $this->name;
     }
 
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    public function getLocationX(): int
+    {
+        return $this->locationX;
+    }
+
+    public function getLocationY(): int
+    {
+        return $this->locationY;
     }
 
     public function isDir(): bool

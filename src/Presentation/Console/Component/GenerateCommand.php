@@ -18,30 +18,23 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Presentation\Console\Component;
 
 use Exception;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ComponentPathDto;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService;
+use Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
 use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function file_exists;
+use function is_file;
 
 class GenerateCommand extends AbstractCommandStopwatchDecorator
 {
     private const DELAY_OPEN = 2.0;
 
     private const NAME = 'cmap:map:generate';
-    private const OPT_FOLDER = 'folder';
-    private const OPT_FILE = 'file';
+    private const OPT_CONFIG_FILE = 'configFilePath';
     private const OPT_OUT_FILE = 'outFile';
     private const OPT_OPEN_OUT_FILE = 'openOutFile';
-    private const OPT_COMPONENT_NAMES = 'componentNames';
-    private const OPT_TITLE = 'title';
-    private const OPT_TITLE_SIZE = 'titleSize';
-    private const OPT_USE_CASE_FQCN_REGEX = 'useCaseFqcnRegex';
-    private const OPT_LISTENER_FQCN_REGEX = 'listenerFqcnRegex';
-    private const OPT_SUBSCRIBER_FQCN_REGEX = 'subscriberFqcnRegex';
-    private const OPT_EVENT_DISPATCHER_TYPE_REGEX = 'eventDispatcherTypeRegex';
-    private const OPT_EVENT_DISPATCHER_METHOD_REGEX = 'eventDispatcherMethodRegex';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,
@@ -52,13 +45,22 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     protected static $defaultName = self::NAME;
 
     /**
+     * @var ConfigurationFactoryInterface
+     */
+    private $configurationFactory;
+
+    /**
      * @var ContextMapService
      */
     private $contextMapService;
 
-    public function __construct(ContextMapService $contextMapService)
+    public function __construct(
+        ConfigurationFactoryInterface $configurationFactory,
+        ContextMapService $contextMapService
+    )
     {
         parent::__construct();
+        $this->configurationFactory = $configurationFactory;
         $this->contextMapService = $contextMapService;
     }
 
@@ -66,84 +68,24 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     {
         $this->setDescription('Create a full report about use cases.')
             ->addOption(
-                self::OPT_FOLDER,
-                'o',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'The folder where to scan for PHP files.'
-            )
-            ->addOption(
-                self::OPT_FILE,
-                'i',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'The file with the AST to load into memory.'
-            )
-            ->addOption(
-                self::OPT_COMPONENT_NAMES,
-                'c',
-                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-                'The component names, in the same order as they are passed with options -o and -i.'
+                self::OPT_CONFIG_FILE,
+                'f',
+                InputOption::VALUE_OPTIONAL,
+                'The configuration file absolute or relative path.',
+                '.cmap.yml'
             )
             ->addOption(
                 self::OPT_OUT_FILE,
-                'u',
+                'i',
                 InputOption::VALUE_OPTIONAL,
                 'The file path for the image.',
-                sys_get_temp_dir() . \DIRECTORY_SEPARATOR . 'image.cmap.png'
+                'var/cmap.png'
             )
             ->addOption(
                 self::OPT_OPEN_OUT_FILE,
-                'p',
+                'o',
                 InputOption::VALUE_NONE,
                 'Should open the generated image.'
-            )
-            ->addOption(
-                self::OPT_TITLE,
-                't',
-                InputOption::VALUE_OPTIONAL,
-                'The context map title.',
-                'Context Map'
-            )
-            ->addOption(
-                self::OPT_TITLE_SIZE,
-                'z',
-                InputOption::VALUE_OPTIONAL,
-                'The context map title font size.',
-                '30'
-            )
-            ->addOption(
-                self::OPT_USE_CASE_FQCN_REGEX,
-                'm',
-                InputOption::VALUE_OPTIONAL,
-                'The use case class FQCN regex.',
-                '/.*Command$/'
-            )
-            ->addOption(
-                self::OPT_LISTENER_FQCN_REGEX,
-                'd',
-                InputOption::VALUE_OPTIONAL,
-                'The listener class FQCN regex.',
-                '/.*Listener$/'
-            )
-            ->addOption(
-                self::OPT_SUBSCRIBER_FQCN_REGEX,
-                'b',
-                InputOption::VALUE_OPTIONAL,
-                'The subscriber class FQCN regex.',
-                '/.*Subscriber$/'
-            )
-            ->addOption(
-                self::OPT_EVENT_DISPATCHER_TYPE_REGEX,
-                'f',
-                InputOption::VALUE_OPTIONAL,
-                'The event dispatcher type.',
-                '/.*EventDispatcherInterface$/'
-            )
-            ->addOption(
-                self::OPT_EVENT_DISPATCHER_METHOD_REGEX,
-                'g',
-                InputOption::VALUE_OPTIONAL,
-                'The event dispatcher method regex.',
-                '/^dispatch$/'
             );
     }
 
@@ -159,11 +101,9 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
      */
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
-        if (
-            $input->getOption(self::OPT_FOLDER) === null
-            && $input->getOption(self::OPT_FILE) === null
-        ) {
-            $this->io->error('You need to either provide a folder to scan or a file with the AST.');
+        $configFilePath = $input->getOption(self::OPT_CONFIG_FILE);
+        if (!file_exists($configFilePath) || !is_file($configFilePath)) {
+            $this->io->error('Configuration file not found: ' . $configFilePath);
             exit(1);
         }
     }
@@ -176,26 +116,19 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
      */
     protected function executeUseCase(InputInterface $input, OutputInterface $output): void
     {
+        $config = $this->configurationFactory->createConfig($input->getOption(self::OPT_CONFIG_FILE));
+
         $this->contextMapService->printContextMap(
-            $this->contextMapService->createFromPaths(
-                $input->getOption(self::OPT_TITLE),
-                $input->getOption(self::OPT_USE_CASE_FQCN_REGEX),
-                $input->getOption(self::OPT_LISTENER_FQCN_REGEX),
-                $input->getOption(self::OPT_SUBSCRIBER_FQCN_REGEX),
-                $input->getOption(self::OPT_EVENT_DISPATCHER_TYPE_REGEX),
-                $input->getOption(self::OPT_EVENT_DISPATCHER_METHOD_REGEX),
-                ...$this->getComponentPathList($input)
-            ),
-            $input->getOption(self::OPT_OUT_FILE),
-            $input->getOption(self::OPT_TITLE_SIZE)
+            $this->contextMapService->createFromConfig($config),
+            $config
         );
 
         if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {
-            $this->display($input->getOption(self::OPT_OUT_FILE));
+            $this->display($config->getOutputFileAbsPath());
         }
     }
 
-    public function display(string $filePath): void
+    private function display(string $filePath): void
     {
         static $next = 0;
 
@@ -228,28 +161,5 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private function isOsMac(): bool
     {
         return mb_strtoupper(PHP_OS) === 'DARWIN';
-    }
-
-    private function getComponentNameFromPath(string $path): string
-    {
-        return mb_substr($path, mb_strrpos($path, \DIRECTORY_SEPARATOR) + 1);
-    }
-
-    /**
-     * @return ComponentPathDto[]
-     */
-    private function getComponentPathList(InputInterface $input): array
-    {
-        $componentNameList = $input->getOption(self::OPT_COMPONENT_NAMES);
-        $pathList = array_merge($input->getOption(self::OPT_FOLDER), $input->getOption(self::OPT_FILE));
-        $componentCounter = 0;
-        $componentPathList = [];
-        foreach ($pathList as $path) {
-            $componentName = (string) ($componentNameList[$componentCounter] ?? $this->getComponentNameFromPath($path));
-            $componentPathList[] = new ComponentPathDto($componentName, $path);
-            ++$componentCounter;
-        }
-
-        return $componentPathList;
     }
 }

@@ -1,0 +1,72 @@
+paths:
+  - ./src
+
+include_files:
+  - type: filePath
+    regex: .*\.php$
+
+out_file: ./var/cmap.svg # svg, jpg, jpeg, git, png, bmp, jp2
+
+size:
+  x: 100
+  y: 100
+
+title:
+  text: "Context Map"
+  size: 30
+
+legend:
+  position:
+    x: 90
+    y: 90
+
+code_units:
+
+  component:
+    color:  "Lavender"  # any color pattern used in the HTML `bgcolor` attribute
+
+  use_case:
+    collector:
+      - type: classFqcn
+        regex: .*Command$
+    color: "Lightsalmon"
+
+  listener:
+    collector:
+      - type: classFqcn
+        regex: .*Listener$
+    color: "Honeydew"
+
+  subscriber:
+    collector:
+      - type: classFqcn
+        regex: .*Subscriber$
+    color: "Lightcyan"
+
+  event:
+    collector:
+      # The order of the collector criteria list needs to match the arguments
+      # of the queries at src/Core/Component/Main/Application/Query
+      - type: classFqcn
+        regex: .*EventDispatcherInterface$
+      # AND/OR depends on the query itself
+      - type: methodName
+        regex: ^dispatch$
+    color: "Grey"
+    line: "dashed"      # "dashed", "dotted", "solid", "invis", "bold"
+
+components:
+
+  - name: Invoice
+    path: Core/Component/Invoice
+    position:
+      x: 10
+      y: 10
+
+  - name: Crm
+    path: Core/Component/Crm.cmap.json
+    position:
+      x: 30
+      y: 10
+
+    # ...

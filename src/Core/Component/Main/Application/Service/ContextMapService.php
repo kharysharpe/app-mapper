@@ -23,6 +23,7 @@ use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
+use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 
@@ -74,39 +75,31 @@ final class ContextMapService
         $this->eventDispatcherQuery = $eventDispatcherQuery;
     }
 
-    public function printContextMap(ContextMap $contextMap, string $outFile, string $titleFontSize): void
+    public function printContextMap(ContextMap $contextMap, Configuration $config): void
     {
-        file_put_contents($outFile, $this->printer->printToImage($contextMap, $titleFontSize));
+        file_put_contents(
+            $config->getOutputFileAbsPath(),
+            $this->printer->printToImage($contextMap, $config)
+        );
     }
 
-    public function createFromPaths(
-        string $contextMapTitle,
-        string $useCaseRegex,
-        string $listenerRegex,
-        string $subscriberRegex,
-        string $eventDispatcherTypeRegex,
-        string $eventDispatcherMethodRegex,
-        ComponentPathDto ...$componentPathList
-    ): ContextMap {
+    public function createFromConfig(Configuration $config): ContextMap
+    {
         $componentList = [];
-        foreach ($componentPathList as $componentPath) {
-            $componentAstMap = $componentPath->isDir()
-                ? $this->astMapFactory->constructFromFolder($componentPath->getPath())
-                : $this->astMapFactory->constructFromFile($componentPath->getPath());
+        foreach ($config->getComponents() as $componentDto) {
+            $componentAstMap = $componentDto->isDir()
+                ? $this->astMapFactory->constructFromFolder($componentDto->getPath())
+                : $this->astMapFactory->constructFromFile($componentDto->getPath());
 
             $componentList[] = new Component(
-                $componentPath->getComponentName(),
-                $this->useCaseQuery->queryAst($componentAstMap, $useCaseRegex),
-                $this->listenerQuery->queryAst($componentAstMap, $listenerRegex),
-                $this->subscriberQuery->queryAst($componentAstMap, $subscriberRegex),
-                $this->eventDispatcherQuery->queryAst(
-                    $componentAstMap,
-                    $eventDispatcherTypeRegex,
-                    $eventDispatcherMethodRegex
-                )
+                $componentDto->getName(),
+                $this->useCaseQuery->queryAst($componentAstMap, $config->getUseCaseCollector()),
+                $this->listenerQuery->queryAst($componentAstMap, $config->getListenerCollector()),
+                $this->subscriberQuery->queryAst($componentAstMap, $config->getSubscriberCollector()),
+                $this->eventDispatcherQuery->queryAst($componentAstMap, $config->getEventDispatcherCollector())
             );
         }
 
-        return ContextMap::construct($contextMapTitle)->addComponents(...$componentList);
+        return ContextMap::construct($config->getTitle())->addComponents(...$componentList);
     }
 }

@@ -19,6 +19,9 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\EventDispatcherNode;
+use Hgraca\ContextMapper\Core\Port\Configuration\Collector\ClassFqcnRegexCriteria;
+use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
+use Hgraca\ContextMapper\Core\Port\Configuration\Exception\ConfigurationException;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
@@ -36,13 +39,24 @@ final class EventDispatcherQuery
 
     public function queryAst(
         AstMapInterface $ast,
-        string $eventDispatcherTypeRegex,
-        string $eventDispatcherMethodRegex
+        CodeUnitCollector $collector
     ): DomainNodeCollection {
+        $this->validateCollector($collector);
+
         $query = $this->queryBuilder->create()
-            ->selectMethodsDispatchingEvents($eventDispatcherTypeRegex, $eventDispatcherMethodRegex)
+            ->selectMethodsDispatchingEvents(...$collector->getCriteriaListAsString())
             ->build();
 
         return $ast->query($query)->decorateByDomainNode(EventDispatcherNode::class);
+    }
+
+    private function validateCollector(CodeUnitCollector $collector): void
+    {
+        if (!$collector->hasCriteria(ClassFqcnRegexCriteria::class)) {
+            throw new ConfigurationException(
+                'Collector provided to ' . self::class
+                . ' does have the required criteria: ' . ClassFqcnRegexCriteria::class
+            );
+        }
     }
 }

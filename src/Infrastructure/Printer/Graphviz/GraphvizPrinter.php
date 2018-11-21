@@ -22,97 +22,95 @@ use Graphp\GraphViz\GraphViz;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeInterface;
+use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\StringService;
 
 final class GraphvizPrinter implements PrinterInterface
 {
-    private const FORMAT = 'svg';
-    private const COLOR_COMPONENT = 'Lavender';
-    private const COLOR_USE_CASE = 'Lightsalmon';
-    private const COLOR_LISTENER = 'Honeydew';
-    private const COLOR_SUBSCRIBER = 'Lightcyan';
-
-    public function printToImage(ContextMap $contextMap, string $titleFontSize): string
+    public function printToImage(ContextMap $contextMap, Configuration $config): string
     {
         return (new GraphViz())
-            ->setFormat(self::FORMAT)
-            ->createImageData($this->printContextMap($contextMap, $titleFontSize));
+            ->setFormat($config->getOutputFileFormat())
+            ->createImageData($this->printContextMap($contextMap, $config));
     }
 
-    public function printToDot(ContextMap $contextMap, string $titleFontSize): string
+    public function printToDot(ContextMap $contextMap, Configuration $config): string
     {
-        return (new GraphViz())->createScript($this->printContextMap($contextMap, $titleFontSize));
+        return (new GraphViz())->createScript($this->printContextMap($contextMap, $config));
     }
 
-    public function printToHtml(ContextMap $contextMap, string $titleFontSize): string
+    public function printToHtml(ContextMap $contextMap, Configuration $config): string
     {
-        return (new GraphViz())->createImageHtml($this->printContextMap($contextMap, $titleFontSize));
+        return (new GraphViz())->createImageHtml($this->printContextMap($contextMap, $config));
     }
 
-    private function printContextMap(ContextMap $contextMap, string $titleFontSize): Graph
+    private function printContextMap(ContextMap $contextMap, Configuration $config): Graph
     {
         $graph = new Graph();
-        $graph->setAttribute('graphviz.graph.layout', 'circo');
+        $graph->setAttribute('graphviz.graph.layout', 'fdp');
         $graph->setAttribute('graphviz.graph.rankdir', 'LR');
-        $graph->setAttribute('graphviz.graph.labelloc', 't');
+        $graph->setAttribute('graphviz.graph.labelloc', 't'); // label location in the top
         $graph->setAttribute('graphviz.graph.label', $contextMap->getName());
         $graph->setAttribute('graphviz.graph.fontname', 'arial');
-        $graph->setAttribute('graphviz.graph.fontsize', $titleFontSize);
-//        $graph->setAttribute('graphviz.graph.ranksep', '1.5');
-        $graph->setAttribute('graphviz.graph.nodesep', '2');
-        $graph->setAttribute('graphviz.graph.size', '60,60');
-        $graph->setAttribute('graphviz.graph.ratio', 'fill');
+        $graph->setAttribute('graphviz.graph.fontsize', $config->getTitleFontSize());
+        $graph->setAttribute('graphviz.graph.nodesep', '2'); // without this, we get straight lines
 
         $graph->setAttribute('graphviz.node.fontname', 'arial');
 
-        $this->addVertexesToGraph($graph, $contextMap);
+        $this->addVertexesToGraph($graph, $contextMap, $config);
 
         // Only after adding all components, can we start adding the edges (links)
-        $this->addEdgesToGraph($graph, $contextMap);
+        $this->addEdgesToGraph($graph, $contextMap, $config);
 
-        $this->addLegendToGraph($graph);
+        $this->addLegendToGraph($graph, $config);
 
         return $graph;
     }
 
-    private function addVertexesToGraph(Graph $graph, ContextMap $contextMap): void
+    private function addVertexesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
     {
         foreach ($contextMap->getComponentList() as $component) {
             $graphComponent = $graph->createVertex($component->getName());
             $graphComponent->setAttribute('graphviz.shape', 'none');
             $graphComponent->setAttribute(
+                'graphviz.pos',
+                $config->getComponentPositionX($component->getName())
+                . ','
+                . $config->getComponentPositionY($component->getName())
+                . '!'
+            );
+            $graphComponent->setAttribute(
                 'graphviz.label',
                 GraphViz::raw(
-                    '<' . $this->printComponent($component) . '>'
+                    '<' . $this->printComponent($component, $config) . '>'
                 )
             );
         }
     }
 
-    private function printComponent(Component $component): string
+    private function printComponent(Component $component, Configuration $config): string
     {
         $componentStr = '<table border="0" cellborder="1" cellspacing="0">'
-            . '<tr><td BGCOLOR="' . self::COLOR_COMPONENT . '"><b>' . $component->getName() . '</b></td></tr>';
+            . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b>' . $component->getName() . '</b></td></tr>';
 
         foreach ($component->getUseCaseList() as $useCase) {
-            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_USE_CASE . '" PORT="' . $this->createPortId(
-                    $useCase
-                ) . '">'
+            $componentStr .=
+                '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '" PORT="' . $this->createPortId($useCase) . '">'
                 . $useCase->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getListenerList() as $listener) {
-            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_LISTENER . '" PORT="' . $this->createPortId(
-                    $listener
-                ) . '">'
+            $componentStr .=
+                '<tr><td BGCOLOR="' . $config->getListenerColor() . '" PORT="' . $this->createPortId($listener) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getSubscriberList() as $subscriber) {
-            $componentStr .= '<tr><td BGCOLOR="' . self::COLOR_SUBSCRIBER . '" PORT="' . $this->createPortId(
+            $componentStr .=
+                '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '" PORT="' . $this->createPortId(
                     $subscriber
                 ) . '">'
                 . $subscriber->getCanonicalName()
@@ -129,11 +127,11 @@ final class GraphvizPrinter implements PrinterInterface
         $id = StringService::replace('::', '.', $node->getFullyQualifiedName());
         $id = StringService::replace('\\', '.', $id);
         $id = ltrim($id, '.');
-        $useCaseTermination = 'Handler.';
+        $useCaseTermination = 'Handler.'; // TODO refactor this in a more flexible way
         if (StringService::contains($useCaseTermination, $id)) {
             $id = mb_substr($id, 0, mb_strrpos($id, $useCaseTermination) + mb_strlen($useCaseTermination) - 1);
         }
-        $listenerTermination = 'Listener.';
+        $listenerTermination = 'Listener.'; // TODO refactor this in a more flexible way
         if (StringService::contains($listenerTermination, $id)) {
             $id = mb_substr($id, 0, mb_strrpos($id, $listenerTermination) + mb_strlen($listenerTermination) - 1);
         }
@@ -142,7 +140,7 @@ final class GraphvizPrinter implements PrinterInterface
         return $id;
     }
 
-    private function addEdgesToGraph(Graph $graph, ContextMap $contextMap): void
+    private function addEdgesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
     {
         foreach ($contextMap->getComponentList() as $component) {
             foreach ($component->getEventDispatcherList() as $eventDispatcher) {
@@ -152,26 +150,31 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
                     $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));
                     $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
-                    $eventEdge->setAttribute('graphviz.style', 'dashed');
+                    $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
                     $eventEdge->setAttribute('graphviz.xlabel', $eventDispatcher->getEventCanonicalName());
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
+                    // TODO add event line color
                 }
             }
         }
     }
 
-    private function addLegendToGraph(Graph $graph): void
+    private function addLegendToGraph(Graph $graph, Configuration $config): void
     {
         $legendVertex = $graph->createVertex('Legend');
-        $legendVertex->setAttribute('graphviz.rank', 'sink'); // put it at the bottom
         $legendVertex->setAttribute('graphviz.shape', 'none');
+        $legendVertex->setAttribute(
+            'graphviz.pos',
+            $config->getLegendPositionX() . ',' . $config->getLegendPositionY() . '!'
+        );
 
         $legendTable = '<table border="0" cellborder="1" cellspacing="0">'
             . '<tr><td BGCOLOR="Gray"><b>' . $legendVertex->getId() . '</b></td></tr>'
-            . '<tr><td BGCOLOR="' . self::COLOR_COMPONENT . '"><b> Component </b></td></tr>'
-            . '<tr><td BGCOLOR="' . self::COLOR_USE_CASE . '"> Use Case </td></tr>'
-            . '<tr><td BGCOLOR="' . self::COLOR_LISTENER . '"> Listener </td></tr>'
-            . '<tr><td BGCOLOR="' . self::COLOR_SUBSCRIBER . '"> Subscriber </td></tr>';
+            . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b> Component </b></td></tr>'
+            . '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '"> Use Case </td></tr>'
+            . '<tr><td BGCOLOR="' . $config->getListenerColor() . '"> Listener </td></tr>'
+            . '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '"> Subscriber </td></tr>';
+        // TODO add events style
 
         $legendTable .= '</table>';
 
