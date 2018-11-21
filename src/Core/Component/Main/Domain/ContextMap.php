@@ -62,17 +62,17 @@ final class ContextMap
     /**
      * @return ListenerNode[]|DomainNodeCollection
      */
-    public function getListenersOf(EventDispatcherNode $eventDispatcher): DomainNodeCollection
+    public function getListenersOf(EventDispatchingNode $eventDispatching): DomainNodeCollection
     {
         $listenersList = [];
         foreach ($this->getComponentList() as $component) {
             foreach ($component->getListenerList() as $listener) {
-                if ($listener->listensTo($eventDispatcher)) {
+                if ($listener->listensTo($eventDispatching)) {
                     $listenersList[] = $listener;
                 }
             }
             foreach ($component->getSubscriberList() as $subscriber) {
-                if ($subscriber->listensTo($eventDispatcher)) {
+                if ($subscriber->listensTo($eventDispatching)) {
                     $listenersList[] = $subscriber;
                 }
             }

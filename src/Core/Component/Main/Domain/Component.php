@@ -34,22 +34,22 @@ final class Component
     private $subscriberList;
 
     /**
-     * @var EventDispatcherNode[]|DomainNodeCollection
+     * @var EventDispatchingNode[]|DomainNodeCollection
      */
-    private $eventDispatcherList = [];
+    private $eventDispatchingList = [];
 
     public function __construct(
         string $name,
         DomainNodeCollection $useCaseList = null,
         DomainNodeCollection $listenerList = null,
         DomainNodeCollection $subscriberList = null,
-        DomainNodeCollection $eventDispatcherList = null
+        DomainNodeCollection $eventDispatchingList = null
     ) {
         $this->name = $name;
         $this->useCaseList = $useCaseList ?? new DomainNodeCollection();
         $this->listenerList = $listenerList ?? new DomainNodeCollection();
         $this->subscriberList = $subscriberList ?? new DomainNodeCollection();
-        $this->eventDispatcherList = $eventDispatcherList ?? new DomainNodeCollection();
+        $this->eventDispatchingList = $eventDispatchingList ?? new DomainNodeCollection();
 
         foreach ($this->useCaseList as $useCase) {
             $useCase->setComponent($this);
@@ -60,8 +60,8 @@ final class Component
         foreach ($this->subscriberList as $subscriber) {
             $subscriber->setComponent($this);
         }
-        foreach ($this->eventDispatcherList as $eventDispatcher) {
-            $eventDispatcher->setComponent($this);
+        foreach ($this->eventDispatchingList as $eventDispatching) {
+            $eventDispatching->setComponent($this);
         }
     }
 
@@ -95,10 +95,10 @@ final class Component
     }
 
     /**
-     * @return EventDispatcherNode[]|DomainNodeCollection
+     * @return EventDispatchingNode[]|DomainNodeCollection
      */
-    public function getEventDispatcherList(): DomainNodeCollection
+    public function getEventDispatchingList(): DomainNodeCollection
     {
-        return $this->eventDispatcherList;
+        return $this->eventDispatchingList;
     }
 }

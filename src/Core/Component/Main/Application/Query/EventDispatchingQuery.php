@@ -18,14 +18,14 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Query;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\EventDispatcherNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\EventDispatchingNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Collector\ClassFqcnRegexCriteria;
 use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
 use Hgraca\ContextMapper\Core\Port\Configuration\Exception\ConfigurationException;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
 
-final class EventDispatcherQuery
+final class EventDispatchingQuery
 {
     /**
      * @var QueryBuilderInterface
@@ -47,7 +47,7 @@ final class EventDispatcherQuery
             ->selectMethodsDispatchingEvents(...$collector->getCriteriaListAsString())
             ->build();
 
-        return $ast->query($query)->decorateByDomainNode(EventDispatcherNode::class);
+        return $ast->query($query)->decorateByDomainNode(EventDispatchingNode::class);
     }
 
     private function validateCollector(CodeUnitCollector $collector): void

@@ -143,15 +143,15 @@ final class GraphvizPrinter implements PrinterInterface
     private function addEdgesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
     {
         foreach ($contextMap->getComponentList() as $component) {
-            foreach ($component->getEventDispatcherList() as $eventDispatcher) {
+            foreach ($component->getEventDispatchingList() as $eventDispatching) {
                 $originComponentVertex = $graph->getVertex($component->getName());
-                foreach ($contextMap->getListenersOf($eventDispatcher) as $listener) {
+                foreach ($contextMap->getListenersOf($eventDispatching) as $listener) {
                     $destinationComponentVertex = $graph->getVertex($listener->getComponent()->getName());
                     $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
-                    $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));
+                    $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatching));
                     $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
                     $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
-                    $eventEdge->setAttribute('graphviz.xlabel', $eventDispatcher->getEventCanonicalName());
+                    $eventEdge->setAttribute('graphviz.xlabel', $eventDispatching->getEventCanonicalName());
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
                     // TODO add event line color
                 }

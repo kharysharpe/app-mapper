@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventDispatcherQuery;
+use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventDispatchingQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\ListenerQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
@@ -55,9 +55,9 @@ final class ContextMapService
     private $subscriberQuery;
 
     /**
-     * @var EventDispatcherQuery
+     * @var EventDispatchingQuery
      */
-    private $eventDispatcherQuery;
+    private $eventDispatchingQuery;
 
     public function __construct(
         PrinterInterface $printer,
@@ -65,14 +65,14 @@ final class ContextMapService
         UseCaseQuery $useCaseQuery,
         ListenerQuery $listenerQuery,
         SubscriberQuery $subscriberQuery,
-        EventDispatcherQuery $eventDispatcherQuery
+        EventDispatchingQuery $eventDispatchingQuery
     ) {
         $this->printer = $printer;
         $this->astMapFactory = $astMapFactory;
         $this->useCaseQuery = $useCaseQuery;
         $this->listenerQuery = $listenerQuery;
         $this->subscriberQuery = $subscriberQuery;
-        $this->eventDispatcherQuery = $eventDispatcherQuery;
+        $this->eventDispatchingQuery = $eventDispatchingQuery;
     }
 
     public function printContextMap(ContextMap $contextMap, Configuration $config): void
@@ -96,7 +96,7 @@ final class ContextMapService
                 $this->useCaseQuery->queryAst($componentAstMap, $config->getUseCaseCollector()),
                 $this->listenerQuery->queryAst($componentAstMap, $config->getListenerCollector()),
                 $this->subscriberQuery->queryAst($componentAstMap, $config->getSubscriberCollector()),
-                $this->eventDispatcherQuery->queryAst($componentAstMap, $config->getEventDispatcherCollector())
+                $this->eventDispatchingQuery->queryAst($componentAstMap, $config->getEventDispatchingCollector())
             );
         }
 

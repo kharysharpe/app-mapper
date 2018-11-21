@@ -19,7 +19,7 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 
-final class EventDispatcherNode implements DomainNodeInterface
+final class EventDispatchingNode implements DomainNodeInterface
 {
     /** @var string */
     private $eventCanonicalName;

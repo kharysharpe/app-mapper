@@ -57,8 +57,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     public function __construct(
         ConfigurationFactoryInterface $configurationFactory,
         ContextMapService $contextMapService
-    )
-    {
+    ) {
         parent::__construct();
         $this->configurationFactory = $configurationFactory;
         $this->contextMapService = $contextMapService;
