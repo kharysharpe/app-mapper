@@ -55,6 +55,7 @@ final class GraphvizPrinter implements PrinterInterface
         $graph->setAttribute('graphviz.graph.fontname', 'arial');
         $graph->setAttribute('graphviz.graph.fontsize', $config->getTitleFontSize());
         $graph->setAttribute('graphviz.graph.nodesep', '2'); // without this, we get straight lines
+        $graph->setAttribute('graphviz.graph.splines', 'true'); // for rounded edges around nodes
 
         $graph->setAttribute('graphviz.node.fontname', 'arial');
 
