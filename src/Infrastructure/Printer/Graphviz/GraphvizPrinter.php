@@ -150,6 +150,7 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
                     $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatching));
                     $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
+                    $eventEdge->setAttribute('graphviz.dir', 'forward'); // force the edge direction
                     $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
                     $eventEdge->setAttribute('graphviz.color', $config->getEventColor());
                     $eventEdge->setAttribute('graphviz.xlabel', $eventDispatching->getEventCanonicalName());
