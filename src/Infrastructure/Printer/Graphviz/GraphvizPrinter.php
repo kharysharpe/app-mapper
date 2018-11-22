@@ -151,9 +151,9 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatching));
                     $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
                     $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
+                    $eventEdge->setAttribute('graphviz.color', $config->getEventColor());
                     $eventEdge->setAttribute('graphviz.xlabel', $eventDispatching->getEventCanonicalName());
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
-                    // TODO add event line color
                 }
             }
         }
