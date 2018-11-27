@@ -36,7 +36,7 @@ final class Component
     /**
      * @var EventDispatchingNode[]|DomainNodeCollection
      */
-    private $eventDispatchingList = [];
+    private $eventDispatchingList;
 
     public function __construct(
         string $name,
