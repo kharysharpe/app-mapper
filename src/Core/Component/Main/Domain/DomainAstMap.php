@@ -87,7 +87,7 @@ final class DomainAstMap
                 if ($methodAdapter->isConstructor() || !$methodAdapter->isPublic()) {
                     continue;
                 }
-                $listenerList[] = new ListenerNode($classAdapter, $methodAdapter);
+                $listenerList[] = ListenerNode::constructFromClassAndMethod($classAdapter, $methodAdapter);
             }
         }
 
@@ -107,7 +107,7 @@ final class DomainAstMap
                 if ($methodAdapter->isConstructor() || !$methodAdapter->isPublic()) {
                     continue;
                 }
-                $subscriberList[] = new ListenerNode($classAdapter, $methodAdapter);
+                $subscriberList[] = ListenerNode::constructFromClassAndMethod($classAdapter, $methodAdapter);
             }
         }
 

@@ -43,15 +43,22 @@ final class ListenerNode implements DomainNodeInterface
      */
     private $component;
 
-    public function __construct(ClassInterface $class, MethodInterface $method)
+    private function __construct()
     {
-        $this->fqcn = $class->getFullyQualifiedType();
-        $this->canonicalClassName = $class->getCanonicalType();
-        $this->methodName = $method->getCanonicalName();
+    }
+
+    public static function constructFromClassAndMethod(ClassInterface $class, MethodInterface $method): self
+    {
+        $self = new self();
+        $self->fqcn = $class->getFullyQualifiedType();
+        $self->canonicalClassName = $class->getCanonicalType();
+        $self->methodName = $method->getCanonicalName();
         // TODO we assume the event is always the 1st parameter,
         // but should actually search for the first parameter that is an event
-        $this->event = $method->getParameter(0)->getCanonicalType();
-        $this->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
+        $self->event = $method->getParameter(0)->getCanonicalType();
+        $self->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
+
+        return $self;
     }
 
     public function getFullyQualifiedName(): string
