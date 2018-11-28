@@ -27,8 +27,14 @@ class CodeUnitCollector
      */
     private $criteriaList = [];
 
-    public function __construct(array $collector)
+    private function __construct()
     {
+    }
+
+    public static function constructFromCollector(array $collector): self
+    {
+        $self = new self();
+
         foreach ($collector as $criteria) {
             if (!isset($criteria['type'])) {
                 throw new \InvalidArgumentException('Collector needs a type.');
@@ -36,17 +42,19 @@ class CodeUnitCollector
             switch (true) {
                 case $criteria['type'] === 'classFqcn'
                     && array_key_exists('regex', $criteria):
-                    $this->criteriaList[] = new ClassFqcnRegexCriteria($criteria['regex']);
+                    $self->criteriaList[] = new ClassFqcnRegexCriteria($criteria['regex']);
                     break;
                 case $criteria['type'] === 'methodName'
                     && array_key_exists('regex', $criteria):
-                    $this->criteriaList[] = new MethodNameRegexCriteria($criteria['regex']);
+                    $self->criteriaList[] = new MethodNameRegexCriteria($criteria['regex']);
                     break;
                 default:
                     $criteriaType = $criteria['type'];
                     throw new ConfigurationException("Unknown criteria type '$criteriaType'");
             }
         }
+
+        return $self;
     }
 
     public function hasCriteria(string $fqcn): bool

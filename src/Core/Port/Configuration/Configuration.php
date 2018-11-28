@@ -139,22 +139,22 @@ class Configuration
 
     public function getUseCaseCollector(): CodeUnitCollector
     {
-        return new CodeUnitCollector($this->codeUnits['use_case']['collector']);
+        return CodeUnitCollector::constructFromCollector($this->codeUnits['use_case']['collector']);
     }
 
     public function getListenerCollector(): CodeUnitCollector
     {
-        return new CodeUnitCollector($this->codeUnits['listener']['collector']);
+        return CodeUnitCollector::constructFromCollector($this->codeUnits['listener']['collector']);
     }
 
     public function getSubscriberCollector(): CodeUnitCollector
     {
-        return new CodeUnitCollector($this->codeUnits['subscriber']['collector']);
+        return CodeUnitCollector::constructFromCollector($this->codeUnits['subscriber']['collector']);
     }
 
     public function getEventDispatchingCollector(): CodeUnitCollector
     {
-        return new CodeUnitCollector($this->codeUnits['event']['collector']);
+        return CodeUnitCollector::constructFromCollector($this->codeUnits['event']['collector']);
     }
 
     public function getComponentColor(): string
