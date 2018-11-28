@@ -31,7 +31,7 @@ interface QueryBuilderInterface
 
     public function selectClassWithFqcn(string $fqcn): self;
 
-    public function selectMethodsDispatchingEvents(
+    public function selectClassesCallingMethod(
         string $eventDispatchingTypeRegex,
         string $eventDispatchingMethodRegex
     ): self;

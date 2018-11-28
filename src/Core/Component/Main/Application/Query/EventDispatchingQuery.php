@@ -44,7 +44,7 @@ final class EventDispatchingQuery
         $this->validateCollector($collector);
 
         $query = $this->queryBuilder->create()
-            ->selectMethodsDispatchingEvents(...$collector->getCriteriaListAsString())
+            ->selectClassesCallingMethod(...$collector->getCriteriaListAsString())
             ->build();
 
         return $ast->query($query)->decorateByDomainNode(EventDispatchingNode::class);

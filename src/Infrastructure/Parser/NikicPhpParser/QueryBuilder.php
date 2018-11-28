@@ -98,7 +98,7 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function selectMethodsDispatchingEvents(
+    public function selectClassesCallingMethod(
         string $eventDispatchingTypeRegex,
         string $eventDispatchingMethodRegex
     ): QueryBuilderInterface {
