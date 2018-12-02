@@ -31,4 +31,9 @@ final class AstMapFactory implements AstMapFactoryInterface
     {
         return AstMap::constructFromFile($filePath);
     }
+
+    public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface
+    {
+        return AstMap::constructFromAstMapList(...$astMapList);
+    }
 }

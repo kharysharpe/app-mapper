@@ -88,6 +88,23 @@ final class AstMap implements AstMapInterface
         return $ast;
     }
 
+    public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
+    {
+        $itemListList = [];
+        foreach ($astMapList as $astMap) {
+            $itemListList[] = $astMap->toArray();
+        }
+        $completeAstMap = new self();
+        $completeAstMap->itemList = array_merge(...$itemListList);
+
+        return $completeAstMap;
+    }
+
+    public function toArray(): array
+    {
+        return $this->itemList;
+    }
+
     public function toSerializedAst(bool $prettyPrint = false): string
     {
         $jsonEncoder = JsonEncoder::construct();
