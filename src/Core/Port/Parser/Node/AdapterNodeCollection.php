@@ -18,6 +18,9 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\MethodCallerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\UseCaseNode;
 use Hgraca\PhpExtension\Collection\Collection;
 
 final class AdapterNodeCollection extends Collection
@@ -27,11 +30,17 @@ final class AdapterNodeCollection extends Collection
         parent::__construct($itemList);
     }
 
+    /**
+     * @param string|UseCaseNode|EventDispatchingNode|MethodCallerNode $fqcn
+     *
+     * @return DomainNodeCollection
+     */
     public function decorateByDomainNode(string $fqcn): DomainNodeCollection
     {
         $domainNodeList = [];
         foreach ($this->itemList as $nodeAdapter) {
-            $domainNodeList[] = new $fqcn($nodeAdapter);
+            // FIXME this will break if the class does not have a `constructFromNode` method, we should use a factory
+            $domainNodeList[] = $fqcn::constructFromNode($nodeAdapter);
         }
 
         return new DomainNodeCollection(...$domainNodeList);

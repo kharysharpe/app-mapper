@@ -42,13 +42,24 @@ final class EventDispatchingNode implements DomainNodeInterface
      */
     private $component;
 
-    public function __construct(MethodCallInterface $methodCall)
+    private function __construct()
     {
-        $this->eventCanonicalName = $methodCall->getArgumentCanonicalType();
-        $this->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
-        $this->dispatcherClassCanonicalName = $methodCall->getEnclosingClassCanonicalName();
-        $this->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
-        $this->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
+    }
+
+    /**
+     * @return static
+     */
+    public static function constructFromNode(MethodCallInterface $methodCall): self
+    {
+        $self = new self();
+
+        $self->dispatcherClassCanonicalName = $methodCall->getEnclosingClassCanonicalName();
+        $self->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
+        $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
+        $self->eventCanonicalName = $methodCall->getArgumentCanonicalType();
+        $self->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
+
+        return $self;
     }
 
     public function getEventCanonicalName(): string
