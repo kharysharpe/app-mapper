@@ -57,6 +57,15 @@ class CodeUnitCollector
         return $self;
     }
 
+    public static function constructFromCriteria(CriteriaInterface ...$criteriaList): self
+    {
+        $self = new self();
+
+        $self->criteriaList = $criteriaList;
+
+        return $self;
+    }
+
     public function hasCriteria(string $fqcn): bool
     {
         foreach ($this->criteriaList as $criteria) {
