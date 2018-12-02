@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
+use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
+
 final class Component
 {
     /**
@@ -38,14 +41,21 @@ final class Component
      */
     private $eventDispatchingList;
 
+    /**
+     * @var AstMap
+     */
+    private $astMap;
+
     public function __construct(
         string $name,
+        AstMapInterface $astMap,
         DomainNodeCollection $useCaseList = null,
         DomainNodeCollection $listenerList = null,
         DomainNodeCollection $subscriberList = null,
         DomainNodeCollection $eventDispatchingList = null
     ) {
         $this->name = $name;
+        $this->astMap = $astMap;
         $this->useCaseList = $useCaseList ?? new DomainNodeCollection();
         $this->listenerList = $listenerList ?? new DomainNodeCollection();
         $this->subscriberList = $subscriberList ?? new DomainNodeCollection();
@@ -68,6 +78,11 @@ final class Component
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getAstMap(): AstMap
+    {
+        return $this->astMap;
     }
 
     /**
