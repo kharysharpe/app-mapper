@@ -17,34 +17,15 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 
-final class EventDispatchingNode implements DomainNodeInterface
+final class EventDispatchingNode extends MethodCallerNode
 {
     /** @var string */
     private $eventCanonicalName;
 
     /** @var string */
     private $eventFqcn;
-
-    /** @var string */
-    private $dispatcherClassCanonicalName;
-
-    /** @var string */
-    private $dispatcherClassFqcn;
-
-    /** @var string */
-    private $dispatcherMethod;
-
-    /**
-     * @var Component|null
-     */
-    private $component;
-
-    private function __construct()
-    {
-    }
 
     /**
      * @return static
@@ -70,30 +51,5 @@ final class EventDispatchingNode implements DomainNodeInterface
     public function getEventFullyQualifiedName(): string
     {
         return $this->eventFqcn;
-    }
-
-    public function getFullyQualifiedName(): string
-    {
-        return $this->dispatcherClassFqcn . '::' . $this->dispatcherMethod;
-    }
-
-    public function getCanonicalName(): string
-    {
-        return $this->dispatcherClassCanonicalName . '::' . $this->dispatcherMethod;
-    }
-
-    public function getAction(): string
-    {
-        return $this->dispatcherMethod;
-    }
-
-    public function setComponent(Component $component): void
-    {
-        $this->component = $component;
-    }
-
-    public function getComponent(): ?Component
-    {
-        return $this->component;
     }
 }
