@@ -33,10 +33,21 @@ final class UseCaseNode implements DomainNodeInterface
      */
     private $component;
 
-    public function __construct(ClassInterface $class)
+    private function __construct()
     {
-        $this->fqcn = $class->getFullyQualifiedType();
-        $this->canonicalClassName = $class->getCanonicalType();
+    }
+
+    /**
+     * @return static
+     */
+    public static function constructFromNode(ClassInterface $class)
+    {
+        $self = new self();
+
+        $self->fqcn = $class->getFullyQualifiedType();
+        $self->canonicalClassName = $class->getCanonicalType();
+
+        return $self;
     }
 
     public function getFullyQualifiedName(): string
