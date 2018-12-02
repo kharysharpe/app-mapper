@@ -17,20 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Configuration\Collector;
 
-final class ClassFqcnRegexCriteria implements CriteriaInterface
+interface CriteriaInterface
 {
-    /**
-     * @var string
-     */
-    private $regex;
-
-    public function __construct(string $regex)
-    {
-        $this->regex = $regex;
-    }
-
-    public function __toString(): string
-    {
-        return $this->regex;
-    }
+    public function __toString(): string;
 }

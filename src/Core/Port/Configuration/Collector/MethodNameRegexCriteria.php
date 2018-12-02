@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Configuration\Collector;
 
-final class MethodNameRegexCriteria
+final class MethodNameRegexCriteria implements CriteriaInterface
 {
     /**
      * @var string
