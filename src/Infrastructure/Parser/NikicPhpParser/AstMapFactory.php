@@ -22,14 +22,11 @@ use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 
 final class AstMapFactory implements AstMapFactoryInterface
 {
-    public function constructFromFolder(string $folder): AstMapInterface
+    public function constructFromPath(string $path): AstMapInterface
     {
-        return AstMap::constructFromFolder($folder);
-    }
-
-    public function unserializeFromFile(string $filePath): AstMapInterface
-    {
-        return AstMap::unserializeFromFile($filePath);
+        return is_dir($path)
+            ? AstMap::constructFromFolder($path)
+            : AstMap::unserializeFromFile($path);
     }
 
     public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface

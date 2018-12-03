@@ -23,9 +23,7 @@ namespace Hgraca\ContextMapper\Core\Port\Parser;
  */
 interface AstMapFactoryInterface
 {
-    public function constructFromFolder(string $folder): AstMapInterface;
-
-    public function unserializeFromFile(string $filePath): AstMapInterface;
+    public function constructFromPath(string $path): AstMapInterface;
 
     public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface;
 }
