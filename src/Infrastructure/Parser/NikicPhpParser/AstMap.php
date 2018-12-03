@@ -79,6 +79,11 @@ final class AstMap implements AstMapInterface
         return self::fromSerializedAst(file_get_contents($filePath));
     }
 
+    public function serializeToFile(string $filePath, bool $prettyPrint = false): void
+    {
+        file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
+    }
+
     public static function fromSerializedAst(string $serializedAst): AstMapInterface
     {
         $ast = new self();

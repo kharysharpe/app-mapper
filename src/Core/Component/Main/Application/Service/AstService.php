@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 
 final class AstService
 {
@@ -33,11 +32,6 @@ final class AstService
     public function createAstFileFromFolder(string $folder, string $filePath, bool $prettyPrint = false): void
     {
         $astMap = $this->astMapFactory->constructFromFolder($folder);
-        $this->dumpAstToFile($astMap, $filePath, $prettyPrint);
-    }
-
-    private function dumpAstToFile(AstMapInterface $astMap, string $filePath, bool $prettyPrint = false): void
-    {
-        file_put_contents($filePath, $astMap->toSerializedAst($prettyPrint));
+        $astMap->serializeToFile($filePath, $prettyPrint);
     }
 }

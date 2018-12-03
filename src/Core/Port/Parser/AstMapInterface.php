@@ -23,13 +23,11 @@ interface AstMapInterface
 {
     public static function constructFromFolder(string $folder): self;
 
-    public static function constructFromFile(string $filePath): self;
+    public function serializeToFile(string $filePath, bool $prettyPrint = false): void;
 
     public static function constructFromAstMapList(self ...$astMapList): self;
 
     public static function fromSerializedAst(string $serializedAst): self;
-
-    public function toSerializedAst(bool $prettyPrint = false): string;
 
     public function query(QueryInterface $query): AdapterNodeCollection;
 
