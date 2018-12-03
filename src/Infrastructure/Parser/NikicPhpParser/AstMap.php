@@ -84,41 +84,16 @@ final class AstMap implements AstMapInterface
         file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
     }
 
-    public static function fromSerializedAst(string $serializedAst): AstMapInterface
-    {
-        $ast = new self();
-
-        $ast->itemList = (new JsonDecoder())->decode($serializedAst);
-
-        return $ast;
-    }
-
     public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
     {
         $itemListList = [];
         foreach ($astMapList as $astMap) {
-            $itemListList[] = $astMap->toArray();
+            $itemListList[] = $astMap->itemList;
         }
         $completeAstMap = new self();
         $completeAstMap->itemList = array_merge(...$itemListList);
 
         return $completeAstMap;
-    }
-
-    public function toArray(): array
-    {
-        return $this->itemList;
-    }
-
-    public function toSerializedAst(bool $prettyPrint = false): string
-    {
-        $jsonEncoder = JsonEncoder::construct();
-
-        if ($prettyPrint) {
-            $jsonEncoder->prettyPrint();
-        }
-
-        return $jsonEncoder->encode($this->itemList);
     }
 
     public function query(QueryInterface $query): AdapterNodeCollection
@@ -159,6 +134,17 @@ final class AstMap implements AstMapInterface
         $ast->itemList = (new JsonDecoder())->decode($serializedAst);
 
         return $ast;
+    }
+
+    private function toSerializedAst(bool $prettyPrint = false): string
+    {
+        $jsonEncoder = JsonEncoder::construct();
+
+        if ($prettyPrint) {
+            $jsonEncoder->prettyPrint();
+        }
+
+        return $jsonEncoder->encode($this->itemList);
     }
 
     private function mapNodeList(array $parserNodeList): AdapterNodeCollection

@@ -17,8 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
-
 interface AstMapInterface
 {
     public static function constructFromFolder(string $folder): self;
@@ -26,10 +24,4 @@ interface AstMapInterface
     public function serializeToFile(string $filePath, bool $prettyPrint = false): void;
 
     public static function constructFromAstMapList(self ...$astMapList): self;
-
-    public static function fromSerializedAst(string $serializedAst): self;
-
-    public function query(QueryInterface $query): AdapterNodeCollection;
-
-    public function toArray(): array;
 }
