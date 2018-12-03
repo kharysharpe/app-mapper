@@ -74,7 +74,7 @@ final class AstMap implements AstMapInterface
         return $ast;
     }
 
-    public static function constructFromFile(string $filePath): AstMapInterface
+    public static function unserializeFromFile(string $filePath): AstMapInterface
     {
         return self::fromSerializedAst(file_get_contents($filePath));
     }
@@ -150,6 +150,15 @@ final class AstMap implements AstMapInterface
         }
 
         return self::getNamespaceUnitNode($this->itemList[$key]);
+    }
+
+    private static function fromSerializedAst(string $serializedAst): AstMapInterface
+    {
+        $ast = new self();
+
+        $ast->itemList = (new JsonDecoder())->decode($serializedAst);
+
+        return $ast;
     }
 
     private function mapNodeList(array $parserNodeList): AdapterNodeCollection

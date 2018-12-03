@@ -27,9 +27,9 @@ final class AstMapFactory implements AstMapFactoryInterface
         return AstMap::constructFromFolder($folder);
     }
 
-    public function constructFromFile(string $filePath): AstMapInterface
+    public function unserializeFromFile(string $filePath): AstMapInterface
     {
-        return AstMap::constructFromFile($filePath);
+        return AstMap::unserializeFromFile($filePath);
     }
 
     public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface

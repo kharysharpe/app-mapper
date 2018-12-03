@@ -24,16 +24,10 @@ use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\EventDispatchingNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\MethodCallerNode;
-use Hgraca\ContextMapper\Core\Port\Configuration\Collector\ClassFqcnRegexCriteria;
-use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
-use Hgraca\ContextMapper\Core\Port\Configuration\Collector\MethodNameRegexCriteria;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
-use Hgraca\PhpExtension\String\StringService;
 
 final class ContextMapService
 {
@@ -97,7 +91,7 @@ final class ContextMapService
         foreach ($config->getComponents() as $componentDto) {
             $componentAstMap = $componentDto->isDir()
                 ? $this->astMapFactory->constructFromFolder($componentDto->getPath())
-                : $this->astMapFactory->constructFromFile($componentDto->getPath());
+                : $this->astMapFactory->unserializeFromFile($componentDto->getPath());
 
             $componentList[] = new Component(
                 $componentDto->getName(),

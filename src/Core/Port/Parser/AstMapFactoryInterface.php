@@ -25,7 +25,7 @@ interface AstMapFactoryInterface
 {
     public function constructFromFolder(string $folder): AstMapInterface;
 
-    public function constructFromFile(string $filePath): AstMapInterface;
+    public function unserializeFromFile(string $filePath): AstMapInterface;
 
     public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface;
 }
