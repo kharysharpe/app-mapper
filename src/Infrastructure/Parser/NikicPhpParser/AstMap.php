@@ -59,6 +59,23 @@ final class AstMap implements AstMapInterface
     {
     }
 
+    public function serializeToFile(string $filePath, bool $prettyPrint = false): void
+    {
+        file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
+    }
+
+    public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
+    {
+        $itemListList = [];
+        foreach ($astMapList as $astMap) {
+            $itemListList[] = $astMap->itemList;
+        }
+        $completeAstMap = new self();
+        $completeAstMap->itemList = array_merge(...$itemListList);
+
+        return $completeAstMap;
+    }
+
     public static function constructFromFolder(string $folder): AstMapInterface
     {
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
