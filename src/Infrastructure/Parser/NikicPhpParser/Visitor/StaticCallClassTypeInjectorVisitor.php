@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name\FullyQualified;
@@ -26,11 +26,11 @@ use PhpParser\NodeVisitorAbstract;
 class StaticCallClassTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
-     * @var AstMap
+     * @var NodeCollection
      */
     private $astMap;
 
-    public function __construct(AstMap $astMap)
+    public function __construct(NodeCollection $astMap)
     {
         $this->astMap = $astMap;
     }

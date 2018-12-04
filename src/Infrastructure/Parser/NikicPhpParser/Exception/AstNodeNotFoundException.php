@@ -23,6 +23,6 @@ final class AstNodeNotFoundException extends ParserException
 {
     public function __construct(string $fqcn)
     {
-        parent::__construct('AstMap node not found in AstMap map: ' . $fqcn);
+        parent::__construct('NodeCollection node not found in NodeCollection map: ' . $fqcn);
     }
 }

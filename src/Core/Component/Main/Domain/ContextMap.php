@@ -66,12 +66,12 @@ final class ContextMap
     {
         $listenersList = [];
         foreach ($this->getComponentList() as $component) {
-            foreach ($component->getListenerList() as $listener) {
+            foreach ($component->getListenerCollection() as $listener) {
                 if ($listener->listensTo($eventDispatching)) {
                     $listenersList[] = $listener;
                 }
             }
-            foreach ($component->getSubscriberList() as $subscriber) {
+            foreach ($component->getSubscriberCollection() as $subscriber) {
                 if ($subscriber->listensTo($eventDispatching)) {
                     $listenersList[] = $subscriber;
                 }

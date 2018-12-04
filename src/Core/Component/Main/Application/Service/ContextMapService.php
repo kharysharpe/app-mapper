@@ -17,14 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\EventDispatchingQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\ListenerQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\MethodCallerQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\SubscriberQuery;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Query\UseCaseQuery;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\MethodCallerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainAstMap;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
@@ -41,40 +36,12 @@ final class ContextMapService
      */
     private $astMapFactory;
 
-    /**
-     * @var UseCaseQuery
-     */
-    private $useCaseQuery;
-
-    /**
-     * @var ListenerQuery
-     */
-    private $listenerQuery;
-
-    /**
-     * @var SubscriberQuery
-     */
-    private $subscriberQuery;
-
-    /**
-     * @var EventDispatchingQuery
-     */
-    private $eventDispatchingQuery;
-
     public function __construct(
         PrinterInterface $printer,
-        AstMapFactoryInterface $astMapFactory,
-        UseCaseQuery $useCaseQuery,
-        ListenerQuery $listenerQuery,
-        SubscriberQuery $subscriberQuery,
-        EventDispatchingQuery $eventDispatchingQuery
+        AstMapFactoryInterface $astMapFactory
     ) {
         $this->printer = $printer;
         $this->astMapFactory = $astMapFactory;
-        $this->useCaseQuery = $useCaseQuery;
-        $this->listenerQuery = $listenerQuery;
-        $this->subscriberQuery = $subscriberQuery;
-        $this->eventDispatchingQuery = $eventDispatchingQuery;
     }
 
     public function printContextMap(ContextMap $contextMap, Configuration $config): void
@@ -87,19 +54,22 @@ final class ContextMapService
 
     public function createFromConfig(Configuration $config): ContextMap
     {
+        $useCaseCollector = $config->getUseCaseCollector();
+        $listenerCollector = $config->getListenerCollector();
+        $subscriberCollector = $config->getSubscriberCollector();
+        $eventDispatchingCollector = $config->getEventDispatchingCollector();
+
         $componentList = [];
         foreach ($config->getComponents() as $componentDto) {
-            $componentAstMap = $componentDto->isDir()
-                ? $this->astMapFactory->constructFromFolder($componentDto->getPath())
-                : $this->astMapFactory->unserializeFromFile($componentDto->getPath());
-
             $componentList[] = new Component(
                 $componentDto->getName(),
-                $componentAstMap, // FIXME all this below should be encapsulated
-                $this->useCaseQuery->queryAst($componentAstMap, $config->getUseCaseCollector()),
-                $this->listenerQuery->queryAst($componentAstMap, $config->getListenerCollector()),
-                $this->subscriberQuery->queryAst($componentAstMap, $config->getSubscriberCollector()),
-                $this->eventDispatchingQuery->queryAst($componentAstMap, $config->getEventDispatchingCollector())
+                new DomainAstMap(
+                    $this->astMapFactory->constructFromPath($componentDto->getPath()),
+                    $useCaseCollector,
+                    $listenerCollector,
+                    $subscriberCollector,
+                    $eventDispatchingCollector
+                )
             );
         }
 

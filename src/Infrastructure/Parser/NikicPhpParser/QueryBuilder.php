@@ -17,34 +17,32 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\ContextMapper\Core\Port\Parser\QueryBuilderInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 
-final class QueryBuilder implements QueryBuilderInterface
+final class QueryBuilder
 {
     /** @var Query */
     private $currentQuery;
 
-    public function create(): QueryBuilderInterface
+    public function create(): self
     {
         $this->currentQuery = new Query();
 
         return $this;
     }
 
-    public function selectClasses(): QueryBuilderInterface
+    public function selectClasses(): self
     {
         $this->selectNodeType(Class_::class);
 
         return $this;
     }
 
-    public function selectClassesExtending(string $fqcn): QueryBuilderInterface
+    public function selectClassesExtending(string $fqcn): self
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcn) {
@@ -58,7 +56,7 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function selectClassesImplementing(string $fqcn): QueryBuilderInterface
+    public function selectClassesImplementing(string $fqcn): self
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcn) {
@@ -72,7 +70,7 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function selectClassesWithFqcnMatchingRegex(string $fqcnRegex): QueryBuilderInterface
+    public function selectClassesWithFqcnMatchingRegex(string $fqcnRegex): self
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcnRegex) {
@@ -84,7 +82,7 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function selectClassWithFqcn(string $fqcn): QueryBuilderInterface
+    public function selectClassWithFqcn(string $fqcn): self
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcn) {
@@ -101,7 +99,7 @@ final class QueryBuilder implements QueryBuilderInterface
     public function selectClassesCallingMethod(
         string $eventDispatchingTypeRegex,
         string $eventDispatchingMethodRegex
-    ): QueryBuilderInterface {
+    ): self {
         $this->currentQuery->addFilter(
             function (Node $node) use ($eventDispatchingTypeRegex, $eventDispatchingMethodRegex) {
                 if (!$node instanceof MethodCall) {
@@ -121,7 +119,7 @@ final class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    public function build(): QueryInterface
+    public function build(): Query
     {
         return $this->currentQuery;
     }

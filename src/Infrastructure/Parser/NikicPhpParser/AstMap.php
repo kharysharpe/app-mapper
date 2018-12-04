@@ -20,148 +20,81 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 use Closure;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
-use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyDeclarationTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
-use Hgraca\PhpExtension\String\JsonEncoder;
-use PhpParser\JsonDecoder;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
 use PhpParser\NodeVisitor\FirstFindingVisitor;
-use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\ParserFactory;
-use function array_key_exists;
-use function array_merge;
-use function array_values;
 
 final class AstMap implements AstMapInterface
 {
-    /** @var Namespace_[] */
-    private $itemList = [];
+    /**
+     * @var NodeCollection
+     */
+    private $nodeCollection;
 
-    /** @var bool */
-    private $isAstMapEnhanced = false;
+    /**
+     * @var QueryBuilder
+     */
+    private $queryBuilder;
 
-    private function __construct()
+    private function __construct(NodeCollection $nodeCollection)
     {
+        $this->nodeCollection = $nodeCollection;
+        $this->queryBuilder = new QueryBuilder();
     }
 
     public function serializeToFile(string $filePath, bool $prettyPrint = false): void
     {
-        file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
+        $this->nodeCollection->serializeToFile($filePath, $prettyPrint);
+    }
+
+    public function findClassesWithFqcnMatchingRegex(string $fqcnRegex): AdapterNodeCollection
+    {
+        $query = $this->queryBuilder->create()
+            ->selectClassesWithFqcnMatchingRegex($fqcnRegex)
+            ->build();
+
+        return $this->query($query);
+    }
+
+    public function findClassesCallingMethod(
+        string $methodClassFqcnRegex,
+        string $methodNameRegex
+    ): AdapterNodeCollection {
+        $query = $this->queryBuilder->create()
+            ->selectClassesCallingMethod($methodClassFqcnRegex, $methodNameRegex)
+            ->build();
+
+        return $this->query($query);
     }
 
     public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
     {
-        $itemListList = [];
+        $nodeCollectionList = [];
         foreach ($astMapList as $astMap) {
-            $itemListList[] = $astMap->itemList;
-        }
-        $completeAstMap = new self();
-        $completeAstMap->itemList = array_merge(...$itemListList);
-
-        return $completeAstMap;
-    }
-
-    public static function constructFromFolder(string $folder): AstMapInterface
-    {
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
-        $files = new \RegexIterator($files, '/\.php$/');
-        $nodeList = [];
-        foreach ($files as $file) {
-            $nodeList[] = self::parse(file_get_contents($file->getPathName()));
+            $nodeCollectionList[] = $astMap->nodeCollection;
         }
 
-        $ast = new self();
-        $ast->itemList = array_merge(...$nodeList);
-
-        return $ast;
+        return self::constructFromNodeCollection(
+            NodeCollection::constructFromNodeCollectionList(...$nodeCollectionList)
+        );
     }
 
-    public static function unserializeFromFile(string $filePath): AstMapInterface
+    public static function constructFromNodeCollection(NodeCollection $nodeCollection): self
     {
-        return self::fromSerializedAst(file_get_contents($filePath));
+        return new self($nodeCollection);
     }
 
-    public function serializeToFile(string $filePath, bool $prettyPrint = false): void
+    private function query(Query $query): AdapterNodeCollection
     {
-        file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
-    }
-
-    public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
-    {
-        $itemListList = [];
-        foreach ($astMapList as $astMap) {
-            $itemListList[] = $astMap->itemList;
-        }
-        $completeAstMap = new self();
-        $completeAstMap->itemList = array_merge(...$itemListList);
-
-        return $completeAstMap;
-    }
-
-    public function query(QueryInterface $query): AdapterNodeCollection
-    {
-        $itemList = array_values($this->itemList);
+        $itemList = array_values($this->nodeCollection->toArray());
 
         $parserNodeList = $query->shouldReturnSingleResult()
             ? [$this->findFirst($this->createFilter($query), ...$itemList)]
             : $this->find($this->createFilter($query), ...$itemList);
 
         return $this->mapNodeList($parserNodeList);
-    }
-
-    public function hasAstNode(string $fqcn): bool
-    {
-        $key = trim($fqcn, '\\');
-        if (!array_key_exists($key, $this->itemList)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function getAstNode(string $fqcn): Node
-    {
-        $key = trim($fqcn, '\\');
-        if (!array_key_exists($key, $this->itemList)) {
-            throw new AstNodeNotFoundException($key);
-        }
-
-        return self::getNamespaceUnitNode($this->itemList[$key]);
-    }
-
-    private static function fromSerializedAst(string $serializedAst): AstMapInterface
-    {
-        $ast = new self();
-
-        $ast->itemList = (new JsonDecoder())->decode($serializedAst);
-
-        return $ast;
-    }
-
-    private function toSerializedAst(bool $prettyPrint = false): string
-    {
-        $jsonEncoder = JsonEncoder::construct();
-
-        if ($prettyPrint) {
-            $jsonEncoder->prettyPrint();
-        }
-
-        return $jsonEncoder->encode($this->itemList);
     }
 
     private function mapNodeList(array $parserNodeList): AdapterNodeCollection
@@ -174,7 +107,7 @@ final class AstMap implements AstMapInterface
         return new AdapterNodeCollection(...$nodeList);
     }
 
-    private function createFilter(QueryInterface $query): Closure
+    private function createFilter(Query $query): Closure
     {
         return function (Node $node) use ($query) {
             foreach ($query->getFilterList() as $filter) {
@@ -189,7 +122,6 @@ final class AstMap implements AstMapInterface
 
     private function find(callable $filter, Node ...$nodes): array
     {
-        $this->isAstMapEnhanced ?: $this->enhanceAst();
         $traverser = new NodeTraverser();
         $visitor = new FindingVisitor($filter);
         $traverser->addVisitor($visitor);
@@ -200,82 +132,11 @@ final class AstMap implements AstMapInterface
 
     private function findFirst(callable $filter, Node ...$nodes): ?Node
     {
-        $this->isAstMapEnhanced ?: $this->enhanceAst();
         $traverser = new NodeTraverser();
         $visitor = new FirstFindingVisitor($filter);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
 
         return $visitor->getFoundNode();
-    }
-
-    private static function parse(string $code): array
-    {
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-
-        foreach ($parser->parse($code) as $node) {
-            if (!$node instanceof Namespace_) {
-                continue;
-            }
-            $namespaceNode = $node;
-            $namespace = $namespaceNode->name->toCodeString();
-            $className = self::getUnitName($namespaceNode);
-
-            return [$namespace . '\\' . $className => $namespaceNode];
-        }
-
-        return [];
-    }
-
-    private static function getUnitName(Namespace_ $namespaceNode): string
-    {
-        return self::getNamespaceUnitNode($namespaceNode)->name->toString();
-    }
-
-    /**
-     * @return Class_|Interface_|Trait_
-     */
-    private static function getNamespaceUnitNode(Namespace_ $namespaceNode): Node
-    {
-        foreach ($namespaceNode->stmts as $stmt) {
-            if (
-                $stmt instanceof Class_
-                || $stmt instanceof Interface_
-                || $stmt instanceof Trait_
-            ) {
-                return $stmt;
-            }
-        }
-        throw new UnitNotFoundInNamespaceException(
-            'Could not find a class in the namespace ' . $namespaceNode->name->toCodeString()
-        );
-    }
-
-    private function enhanceAst(): void
-    {
-        $nodeList = array_values($this->itemList);
-
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
-        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
-        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
-        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // First we finish the previous swipe to set all variables
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyDeclarationTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // After setting the type in the properties declaration, we can copy it to every property call
-        // We need a separate traverse because a property might be set only in the end of the file,
-        // after the property is used
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        $this->isAstMapEnhanced = true;
     }
 }

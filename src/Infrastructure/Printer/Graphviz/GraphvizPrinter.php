@@ -95,21 +95,21 @@ final class GraphvizPrinter implements PrinterInterface
         $componentStr = '<table border="0" cellborder="1" cellspacing="0">'
             . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b>' . $component->getName() . '</b></td></tr>';
 
-        foreach ($component->getUseCaseList() as $useCase) {
+        foreach ($component->getUseCaseCollection() as $useCase) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '" PORT="' . $this->createPortId($useCase) . '">'
                 . $useCase->getCanonicalName()
                 . '</td></tr>';
         }
 
-        foreach ($component->getListenerList() as $listener) {
+        foreach ($component->getListenerCollection() as $listener) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getListenerColor() . '" PORT="' . $this->createPortId($listener) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
         }
 
-        foreach ($component->getSubscriberList() as $subscriber) {
+        foreach ($component->getSubscriberCollection() as $subscriber) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '" PORT="' . $this->createPortId(
                     $subscriber
@@ -144,7 +144,7 @@ final class GraphvizPrinter implements PrinterInterface
     private function addEdgesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
     {
         foreach ($contextMap->getComponentList() as $component) {
-            foreach ($component->getEventDispatchingList() as $eventDispatching) {
+            foreach ($component->getEventDispatchingCollection() as $eventDispatching) {
                 $originComponentVertex = $graph->getVertex($component->getName());
                 foreach ($contextMap->getListenersOf($eventDispatching) as $listener) {
                     $destinationComponentVertex = $graph->getVertex($listener->getComponent()->getName());
