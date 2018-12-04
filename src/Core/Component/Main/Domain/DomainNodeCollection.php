@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
 use Hgraca\PhpExtension\Collection\Collection;
 
 final class DomainNodeCollection extends Collection
