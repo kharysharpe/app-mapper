@@ -17,9 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\ContextMapper\Core\Port\Parser\QueryInterface;
-
-final class Query implements QueryInterface
+final class Query
 {
     /** @var callable[] */
     private $filterList = [];

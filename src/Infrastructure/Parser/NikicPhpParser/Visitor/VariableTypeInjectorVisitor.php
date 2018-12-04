@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownVariableException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
@@ -34,13 +34,13 @@ use function array_key_exists;
 class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
-     * @var AstMap
+     * @var NodeCollection
      */
     private $ast;
 
     private $assignedVariables = [];
 
-    public function __construct(AstMap $ast)
+    public function __construct(NodeCollection $ast)
     {
         $this->ast = $ast;
     }

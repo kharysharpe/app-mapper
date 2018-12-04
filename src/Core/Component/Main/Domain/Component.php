@@ -17,9 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\AstMap;
-
 final class Component
 {
     /**
@@ -28,49 +25,46 @@ final class Component
     private $name;
 
     /** @var UseCaseNode[]|DomainNodeCollection */
-    private $useCaseList;
+    private $useCaseCollection;
 
     /** @var ListenerNode[]|DomainNodeCollection */
-    private $listenerList;
+    private $listenerCollection;
 
     /** @var ListenerNode[]|DomainNodeCollection */
-    private $subscriberList;
+    private $subscriberCollection;
 
     /**
      * @var EventDispatchingNode[]|DomainNodeCollection
      */
-    private $eventDispatchingList;
+    private $eventDispatchingCollection;
 
     /**
-     * @var AstMap
+     * @var DomainAstMap
      */
     private $astMap;
 
-    public function __construct(
-        string $name,
-        AstMapInterface $astMap,
-        DomainNodeCollection $useCaseList = null,
-        DomainNodeCollection $listenerList = null,
-        DomainNodeCollection $subscriberList = null,
-        DomainNodeCollection $eventDispatchingList = null
-    ) {
+    public function __construct(string $name, DomainAstMap $astMap)
+    {
         $this->name = $name;
         $this->astMap = $astMap;
-        $this->useCaseList = $useCaseList ?? new DomainNodeCollection();
-        $this->listenerList = $listenerList ?? new DomainNodeCollection();
-        $this->subscriberList = $subscriberList ?? new DomainNodeCollection();
-        $this->eventDispatchingList = $eventDispatchingList ?? new DomainNodeCollection();
 
-        foreach ($this->useCaseList as $useCase) {
+        $this->useCaseCollection = $astMap->findUseCases();
+        foreach ($this->useCaseCollection as $useCase) {
             $useCase->setComponent($this);
         }
-        foreach ($this->listenerList as $listener) {
+
+        $this->listenerCollection = $astMap->findListeners();
+        foreach ($this->listenerCollection as $listener) {
             $listener->setComponent($this);
         }
-        foreach ($this->subscriberList as $subscriber) {
+
+        $this->subscriberCollection = $astMap->findSubscribers();
+        foreach ($this->subscriberCollection as $subscriber) {
             $subscriber->setComponent($this);
         }
-        foreach ($this->eventDispatchingList as $eventDispatching) {
+
+        $this->eventDispatchingCollection = $astMap->findEventDispatching();
+        foreach ($this->eventDispatchingCollection as $eventDispatching) {
             $eventDispatching->setComponent($this);
         }
     }
@@ -80,7 +74,7 @@ final class Component
         return $this->name;
     }
 
-    public function getAstMap(): AstMap
+    public function getAstMap(): DomainAstMap
     {
         return $this->astMap;
     }
@@ -88,32 +82,32 @@ final class Component
     /**
      * @return UseCaseNode[]|DomainNodeCollection
      */
-    public function getUseCaseList(): DomainNodeCollection
+    public function getUseCaseCollection(): DomainNodeCollection
     {
-        return $this->useCaseList;
+        return $this->useCaseCollection;
     }
 
     /**
      * @return ListenerNode[]|DomainNodeCollection
      */
-    public function getListenerList(): DomainNodeCollection
+    public function getListenerCollection(): DomainNodeCollection
     {
-        return $this->listenerList;
+        return $this->listenerCollection;
     }
 
     /**
      * @return ListenerNode[]|DomainNodeCollection
      */
-    public function getSubscriberList(): DomainNodeCollection
+    public function getSubscriberCollection(): DomainNodeCollection
     {
-        return $this->subscriberList;
+        return $this->subscriberCollection;
     }
 
     /**
      * @return EventDispatchingNode[]|DomainNodeCollection
      */
-    public function getEventDispatchingList(): DomainNodeCollection
+    public function getEventDispatchingCollection(): DomainNodeCollection
     {
-        return $this->eventDispatchingList;
+        return $this->eventDispatchingCollection;
     }
 }

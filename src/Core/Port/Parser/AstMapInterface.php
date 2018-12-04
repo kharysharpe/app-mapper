@@ -17,11 +17,16 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser;
 
+use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
+
 interface AstMapInterface
 {
-    public static function constructFromFolder(string $folder): self;
-
     public function serializeToFile(string $filePath, bool $prettyPrint = false): void;
 
-    public static function constructFromAstMapList(self ...$astMapList): self;
+    public function findClassesWithFqcnMatchingRegex(string $fqcnRegex): AdapterNodeCollection;
+
+    public function findClassesCallingMethod(
+        string $methodClassFqcnRegex,
+        string $methodNameRegex
+    ): AdapterNodeCollection;
 }

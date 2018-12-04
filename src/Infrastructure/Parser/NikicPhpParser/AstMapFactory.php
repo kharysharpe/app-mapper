@@ -24,9 +24,11 @@ final class AstMapFactory implements AstMapFactoryInterface
 {
     public function constructFromPath(string $path): AstMapInterface
     {
-        return is_dir($path)
-            ? AstMap::constructFromFolder($path)
-            : AstMap::unserializeFromFile($path);
+        return AstMap::constructFromNodeCollection(
+            is_dir($path)
+                ? NodeCollection::constructFromFolder($path)
+                : NodeCollection::unserializeFromFile($path)
+        );
     }
 
     public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface
