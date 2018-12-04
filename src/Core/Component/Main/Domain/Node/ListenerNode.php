@@ -15,11 +15,13 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 
-final class UseCaseNode implements DomainNodeInterface
+final class ListenerNode implements DomainNodeInterface
 {
     /** @var string */
     private $fqcn;
@@ -27,25 +29,44 @@ final class UseCaseNode implements DomainNodeInterface
     /** @var string */
     private $canonicalClassName;
 
+    /** @var string */
+    private $methodName;
+
+    /** @var string */
+    private $event;
+
+    /** @var string */
+    private $eventFqcn;
+
     /**
      * @var Component|null
      */
     private $component;
 
-    public function __construct(ClassInterface $class)
+    public function __construct(ClassInterface $class, MethodInterface $method)
     {
         $this->fqcn = $class->getFullyQualifiedType();
         $this->canonicalClassName = $class->getCanonicalType();
+        $this->methodName = $method->getCanonicalName();
+        // TODO we assume the event is always the 1st parameter,
+        // but should actually search for the first parameter that is an event
+        $this->event = $method->getParameter(0)->getCanonicalType();
+        $this->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
     }
 
     public function getFullyQualifiedName(): string
     {
-        return $this->fqcn;
+        return $this->fqcn . '::' . $this->methodName;
     }
 
     public function getCanonicalName(): string
     {
-        return $this->canonicalClassName;
+        return $this->methodName;
+    }
+
+    public function listensTo(EventDispatchingNode $eventDispatching): bool
+    {
+        return $this->eventFqcn === $eventDispatching->getEventFullyQualifiedName();
     }
 
     public function setComponent(Component $component): void

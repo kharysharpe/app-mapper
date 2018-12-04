@@ -15,8 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
+namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 
 final class EventDispatchingNode implements DomainNodeInterface

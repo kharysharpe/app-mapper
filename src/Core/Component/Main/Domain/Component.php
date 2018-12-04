@@ -17,6 +17,10 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
+
 final class Component
 {
     /**

@@ -21,7 +21,7 @@ use Fhaculty\Graph\Graph;
 use Graphp\GraphViz\GraphViz;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeInterface;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\StringService;
