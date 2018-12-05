@@ -22,8 +22,23 @@ use Hgraca\PhpExtension\Collection\Collection;
 
 final class DomainNodeCollection extends Collection
 {
-    public function __construct(DomainNodeInterface ...$itemList)
+    /** @noinspection MagicMethodsValidityInspection */
+
+    /** @noinspection PhpMissingParentConstructorInspection */
+    public function __construct(DomainNodeInterface ...$nodeList)
     {
-        parent::__construct($itemList);
+        $this->addNodes(...$nodeList);
+    }
+
+    public function hasNodeWithFqcn(string $fqcn): bool
+    {
+        return array_key_exists($fqcn, $this->itemList);
+    }
+
+    public function addNodes(DomainNodeInterface ...$nodeList): void
+    {
+        foreach ($nodeList as $node) {
+            $this->itemList[$node->getFullyQualifiedName()] = $node;
+        }
     }
 }
