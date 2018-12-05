@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\MethodCallerNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
@@ -118,5 +119,11 @@ final class DomainAstMap
     {
         return $this->astMap->findClassesCallingMethod(...$this->eventDispatchingCollector->getCriteriaListAsString())
             ->decorateByDomainNode(EventDispatchingNode::class);
+    }
+
+    public function findMethodCallers(CodeUnitCollector $collector): DomainNodeCollection
+    {
+        return $this->astMap->findClassesCallingMethod(...$collector->getCriteriaListAsString())
+            ->decorateByDomainNode(MethodCallerNode::class);
     }
 }

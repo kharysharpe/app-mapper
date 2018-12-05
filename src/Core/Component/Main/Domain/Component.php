@@ -19,7 +19,12 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\MethodCallerNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
+use Hgraca\ContextMapper\Core\Port\Configuration\Collector\ClassFqcnRegexCriteria;
+use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
+use Hgraca\ContextMapper\Core\Port\Configuration\Collector\MethodNameRegexCriteria;
+use Hgraca\PhpExtension\String\StringService;
 
 final class Component
 {
@@ -71,6 +76,8 @@ final class Component
         foreach ($this->eventDispatchingCollection as $eventDispatching) {
             $eventDispatching->setComponent($this);
         }
+
+        $this->resolveIntermediaryEventDispatchingRoots();
     }
 
     public function getName(): string
@@ -113,5 +120,78 @@ final class Component
     public function getEventDispatchingCollection(): DomainNodeCollection
     {
         return $this->eventDispatchingCollection;
+    }
+
+    public function hasUseCase(string $fqcn): bool
+    {
+        return $this->useCaseCollection->hasNodeWithFqcn($fqcn);
+    }
+
+    public function hasListener(string $fqcn): bool
+    {
+        return $this->listenerCollection->hasNodeWithFqcn($fqcn);
+    }
+
+    public function hasSubscriber(string $fqcn): bool
+    {
+        return $this->subscriberCollection->hasNodeWithFqcn($fqcn);
+    }
+
+    private function resolveIntermediaryEventDispatchingRoots(): void
+    {
+        $this->eventDispatchingCollection = $this->findEventDispatchingRoots($this->eventDispatchingCollection);
+    }
+
+    /**
+     * @param MethodCallerNode[]|DomainNodeCollection $methodDispatcherNodeCollection
+     *
+     * @return MethodCallerNode[]|DomainNodeCollection
+     */
+    private function findEventDispatchingRoots(
+        DomainNodeCollection $methodDispatcherNodeCollection
+    ): DomainNodeCollection {
+        $newEventDispatcherNodeCollection = new DomainNodeCollection();
+
+        foreach ($methodDispatcherNodeCollection as $methodDispatcherNode) {
+            $eventDispatchingNodeClassFqcn = $methodDispatcherNode->getDispatcherClassFqcn();
+
+            if ($this->isEventDispatchingRoot($eventDispatchingNodeClassFqcn)) {
+                $newEventDispatcherNodeCollection->addNodes($methodDispatcherNode);
+                continue;
+            }
+
+            $eventDispatchingRootList = $this->findEventDispatchingRoots(
+                $this->astMap->findMethodCallers(
+                    CodeUnitCollector::constructFromCriteria(
+                        new ClassFqcnRegexCriteria(
+                            '/' . StringService::replace('\\', '\\\\', $eventDispatchingNodeClassFqcn) . '/'
+                        ),
+                        new MethodNameRegexCriteria('/' . $methodDispatcherNode->getDispatcherMethod() . '/')
+                    )
+                )
+            );
+
+            if ($methodDispatcherNode instanceof EventDispatchingNode) {
+                $list = [];
+                foreach ($eventDispatchingRootList as $eventDispatchingRoot) {
+                    $list[] = EventDispatchingNode::constructFromMethodDispatcherNode(
+                        $eventDispatchingRoot,
+                        $methodDispatcherNode->getEventFullyQualifiedName()
+                    );
+                }
+                $eventDispatchingRootList = $list;
+            }
+
+            $newEventDispatcherNodeCollection->addNodes(...$eventDispatchingRootList);
+        }
+
+        return $newEventDispatcherNodeCollection;
+    }
+
+    private function isEventDispatchingRoot(string $eventDispatchingNodeFqcn): bool
+    {
+        return $this->hasUseCase($eventDispatchingNodeFqcn)
+            || $this->hasListener($eventDispatchingNodeFqcn)
+            || $this->hasSubscriber($eventDispatchingNodeFqcn);
     }
 }

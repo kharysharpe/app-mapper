@@ -28,6 +28,7 @@ final class DomainNodeCollection extends Collection
     protected $itemList = [];
 
     /** @noinspection MagicMethodsValidityInspection */
+
     /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct(DomainNodeInterface ...$nodeList)
     {

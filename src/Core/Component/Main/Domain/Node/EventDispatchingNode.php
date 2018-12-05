@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
+use Hgraca\PhpExtension\String\ClassService;
 
 final class EventDispatchingNode extends MethodCallerNode
 {
@@ -39,6 +40,20 @@ final class EventDispatchingNode extends MethodCallerNode
         $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
         $self->eventCanonicalName = $methodCall->getArgumentCanonicalType();
         $self->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
+
+        return $self;
+    }
+
+    public static function constructFromMethodDispatcherNode(
+        MethodCallerNode $eventDispatchingRoot,
+        string $getEventFullyQualifiedName
+    ): self {
+        $self = new self();
+        $self->dispatcherClassFqcn = $eventDispatchingRoot->getDispatcherClassFqcn();
+        $self->dispatcherClassCanonicalName = ClassService::extractCanonicalClassName($self->dispatcherClassFqcn);
+        $self->dispatcherMethod = $eventDispatchingRoot->getDispatcherMethod();
+        $self->eventCanonicalName = ClassService::extractCanonicalClassName($getEventFullyQualifiedName);
+        $self->eventFqcn = $getEventFullyQualifiedName;
 
         return $self;
     }
