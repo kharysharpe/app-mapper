@@ -32,26 +32,21 @@ final class ContextMap
      */
     private $componentList = [];
 
-    private function __construct(string $name)
+    private function __construct(string $name, Component ...$componentList)
     {
         $this->name = $name;
+
+        $this->addComponents(...$componentList);
     }
 
-    public static function construct(string $name): self
+    public static function construct(string $name, Component ...$componentList): self
     {
-        return new self($name);
+        return new self($name, ...$componentList);
     }
 
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function addComponents(Component ...$componentList): self
-    {
-        $this->componentList = array_merge($this->componentList, $componentList);
-
-        return $this;
     }
 
     /**
@@ -82,5 +77,10 @@ final class ContextMap
         }
 
         return new DomainNodeCollection(...$listenersList);
+    }
+
+    private function addComponents(Component ...$componentList): void
+    {
+        $this->componentList = array_merge($this->componentList, $componentList);
     }
 }

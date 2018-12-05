@@ -73,6 +73,6 @@ final class ContextMapService
             );
         }
 
-        return ContextMap::construct($config->getTitle())->addComponents(...$componentList);
+        return ContextMap::construct($config->getTitle(), ...$componentList);
     }
 }
