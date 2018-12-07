@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\MethodCallerNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 use Hgraca\PhpExtension\Collection\Collection;
@@ -31,7 +31,7 @@ final class AdapterNodeCollection extends Collection
     }
 
     /**
-     * @param string|UseCaseNode|EventDispatchingNode|MethodCallerNode $fqcn
+     * @param string|UseCaseNode|EventDispatcherNode|MethodCallerNode $fqcn
      *
      * @return DomainNodeCollection
      */

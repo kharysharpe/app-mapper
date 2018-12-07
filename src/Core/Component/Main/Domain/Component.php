@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 
@@ -38,9 +38,9 @@ final class Component
     private $subscriberCollection;
 
     /**
-     * @var EventDispatchingNode[]|DomainNodeCollection
+     * @var EventDispatcherNode[]|DomainNodeCollection
      */
-    private $eventDispatchingCollection;
+    private $eventDispatcherCollection;
 
     /**
      * @var DomainAstMap
@@ -67,9 +67,9 @@ final class Component
             $subscriber->setComponent($this);
         }
 
-        $this->eventDispatchingCollection = $astMap->findEventDispatching();
-        foreach ($this->eventDispatchingCollection as $eventDispatching) {
-            $eventDispatching->setComponent($this);
+        $this->eventDispatcherCollection = $astMap->findEventDispatchers();
+        foreach ($this->eventDispatcherCollection as $eventDispatcher) {
+            $eventDispatcher->setComponent($this);
         }
     }
 
@@ -108,10 +108,10 @@ final class Component
     }
 
     /**
-     * @return EventDispatchingNode[]|DomainNodeCollection
+     * @return EventDispatcherNode[]|DomainNodeCollection
      */
-    public function getEventDispatchingCollection(): DomainNodeCollection
+    public function getEventDispatcherCollection(): DomainNodeCollection
     {
-        return $this->eventDispatchingCollection;
+        return $this->eventDispatcherCollection;
     }
 }

@@ -152,7 +152,7 @@ class Configuration
         return CodeUnitCollector::constructFromCollector($this->codeUnits['subscriber']['collector']);
     }
 
-    public function getEventDispatchingCollector(): CodeUnitCollector
+    public function getEventDispatcherCollector(): CodeUnitCollector
     {
         return CodeUnitCollector::constructFromCollector($this->codeUnits['event']['collector']);
     }

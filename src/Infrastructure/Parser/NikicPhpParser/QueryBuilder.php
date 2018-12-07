@@ -97,11 +97,11 @@ final class QueryBuilder
     }
 
     public function selectClassesCallingMethod(
-        string $eventDispatchingTypeRegex,
-        string $eventDispatchingMethodRegex
+        string $eventDispatcherTypeRegex,
+        string $eventDispatcherMethodRegex
     ): self {
         $this->currentQuery->addFilter(
-            function (Node $node) use ($eventDispatchingTypeRegex, $eventDispatchingMethodRegex) {
+            function (Node $node) use ($eventDispatcherTypeRegex, $eventDispatcherMethodRegex) {
                 if (!$node instanceof MethodCall) {
                     return false;
                 }
@@ -111,8 +111,8 @@ final class QueryBuilder
                 $dispatcherMethodName = $node->name->name;
 
                 return $node instanceof MethodCall
-                    && preg_match($eventDispatchingTypeRegex, $dispatcherFqcn)
-                    && preg_match($eventDispatchingMethodRegex, $dispatcherMethodName);
+                    && preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
+                    && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName);
             }
         );
 

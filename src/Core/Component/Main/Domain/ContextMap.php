@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
 
 final class ContextMap
@@ -62,17 +62,17 @@ final class ContextMap
     /**
      * @return ListenerNode[]|DomainNodeCollection
      */
-    public function getListenersOf(EventDispatchingNode $eventDispatching): DomainNodeCollection
+    public function getListenersOf(EventDispatcherNode $eventDispatcher): DomainNodeCollection
     {
         $listenersList = [];
         foreach ($this->getComponentList() as $component) {
             foreach ($component->getListenerCollection() as $listener) {
-                if ($listener->listensTo($eventDispatching)) {
+                if ($listener->listensTo($eventDispatcher)) {
                     $listenersList[] = $listener;
                 }
             }
             foreach ($component->getSubscriberCollection() as $subscriber) {
-                if ($subscriber->listensTo($eventDispatching)) {
+                if ($subscriber->listensTo($eventDispatcher)) {
                     $listenersList[] = $subscriber;
                 }
             }

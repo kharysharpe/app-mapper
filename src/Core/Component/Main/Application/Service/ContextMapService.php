@@ -57,7 +57,7 @@ final class ContextMapService
         $useCaseCollector = $config->getUseCaseCollector();
         $listenerCollector = $config->getListenerCollector();
         $subscriberCollector = $config->getSubscriberCollector();
-        $eventDispatchingCollector = $config->getEventDispatchingCollector();
+        $eventDispatcherCollector = $config->getEventDispatcherCollector();
 
         $componentList = [];
         foreach ($config->getComponents() as $componentDto) {
@@ -68,7 +68,7 @@ final class ContextMapService
                     $useCaseCollector,
                     $listenerCollector,
                     $subscriberCollector,
-                    $eventDispatchingCollector
+                    $eventDispatcherCollector
                 )
             );
         }

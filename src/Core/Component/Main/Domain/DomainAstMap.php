@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatchingNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
@@ -49,20 +49,20 @@ final class DomainAstMap
     /**
      * @var CodeUnitCollector
      */
-    private $eventDispatchingCollector;
+    private $eventDispatcherCollector;
 
     public function __construct(
         AstMapInterface $astMap,
         CodeUnitCollector $useCaseCollector,
         CodeUnitCollector $listenerCollector,
         CodeUnitCollector $subscriberCollector,
-        CodeUnitCollector $eventDispatchingCollector
+        CodeUnitCollector $eventDispatcherCollector
     ) {
         $this->astMap = $astMap;
         $this->useCaseCollector = $useCaseCollector;
         $this->listenerCollector = $listenerCollector;
         $this->subscriberCollector = $subscriberCollector;
-        $this->eventDispatchingCollector = $eventDispatchingCollector;
+        $this->eventDispatcherCollector = $eventDispatcherCollector;
     }
 
     public function findUseCases(): DomainNodeCollection
@@ -114,9 +114,9 @@ final class DomainAstMap
         return new DomainNodeCollection(...$subscriberList);
     }
 
-    public function findEventDispatching(): DomainNodeCollection
+    public function findEventDispatchers(): DomainNodeCollection
     {
-        return $this->astMap->findClassesCallingMethod(...$this->eventDispatchingCollector->getCriteriaListAsString())
-            ->decorateByDomainNode(EventDispatchingNode::class);
+        return $this->astMap->findClassesCallingMethod(...$this->eventDispatcherCollector->getCriteriaListAsString())
+            ->decorateByDomainNode(EventDispatcherNode::class);
     }
 }
