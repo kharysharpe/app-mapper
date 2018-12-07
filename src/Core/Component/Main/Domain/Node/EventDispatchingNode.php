@@ -39,6 +39,7 @@ final class EventDispatchingNode extends MethodCallerNode
         $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
         $self->eventCanonicalName = $methodCall->getArgumentCanonicalType();
         $self->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
+        $self->methodCallLine = $methodCall->getLine();
 
         return $self;
     }

@@ -82,6 +82,11 @@ final class MethodCallAdapter implements MethodCallInterface
         return $this->argumentList[$argumentIndex]->getCanonicalType();
     }
 
+    public function getLine(): int
+    {
+        return (int) $this->methodCall->getAttribute('startLine');
+    }
+
     private function getEnclosingClass(): ClassInterface
     {
         if ($this->enclosingClass === null) {

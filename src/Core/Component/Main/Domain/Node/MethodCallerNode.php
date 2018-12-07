@@ -36,6 +36,11 @@ class MethodCallerNode implements DomainNodeInterface
      */
     protected $component;
 
+    /**
+     * @var int
+     */
+    protected $methodCallLine;
+
     protected function __construct()
     {
     }
@@ -50,13 +55,14 @@ class MethodCallerNode implements DomainNodeInterface
         $self->dispatcherClassCanonicalName = $methodCall->getEnclosingClassCanonicalName();
         $self->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
         $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
+        $self->methodCallLine = $methodCall->getLine();
 
         return $self;
     }
 
     public function getFullyQualifiedName(): string
     {
-        return $this->dispatcherClassFqcn . '::' . $this->getDispatcherMethod();
+        return $this->dispatcherClassFqcn . '::' . $this->getDispatcherMethod() . '::' . $this->methodCallLine;
     }
 
     public function getCanonicalName(): string
