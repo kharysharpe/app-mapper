@@ -115,16 +115,23 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
      */
     protected function executeUseCase(InputInterface $input, OutputInterface $output): void
     {
+        $this->io->comment('Started...');
+
+        $this->io->comment('Creating config...');
         $config = $this->configurationFactory->createConfig($input->getOption(self::OPT_CONFIG_FILE));
 
-        $this->contextMapService->printContextMap(
-            $this->contextMapService->createFromConfig($config),
-            $config
-        );
+        $this->io->comment('Creating context map...');
+        $contextMap = $this->contextMapService->createFromConfig($config);
+
+        $this->io->comment('Printing context map...');
+        $this->contextMapService->printContextMap($contextMap, $config);
 
         if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {
+            $this->io->comment('Displaying context map...');
             $this->display($config->getOutputFileAbsPath());
         }
+
+        $this->io->comment('Done!');
     }
 
     private function display(string $filePath): void
