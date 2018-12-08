@@ -66,6 +66,11 @@ final class NodeFactory
 
     private static function isFullyQualifiedName($string): bool
     {
-        return is_string($string);
+        return is_string($string)
+            && !in_array(
+                $string,
+                ['boolean', 'integer', 'float', 'string', 'array', 'object', 'callable', 'iterable', 'resource', 'null'],
+                true
+            );
     }
 }
