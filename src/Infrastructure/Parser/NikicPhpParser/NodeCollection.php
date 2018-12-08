@@ -39,9 +39,15 @@ use PhpParser\ParserFactory;
 use function array_key_exists;
 use function array_merge;
 use function array_values;
+use function uniqid;
 
 final class NodeCollection
 {
+    /**
+     * @var string
+     */
+    private $name;
+
     /** @var Namespace_[] */
     private $nodeList = [];
 
@@ -54,7 +60,7 @@ final class NodeCollection
         file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
     }
 
-    public static function constructFromFolder(string $folder): self
+    public static function constructFromFolder(string $folder, string $name = ''): self
     {
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
         $files = new \RegexIterator($files, '/\.php$/');
@@ -64,16 +70,18 @@ final class NodeCollection
         }
 
         $self = new self();
+        $self->name = $name ?: uniqid('', true);
         $self->nodeList = array_merge(...$nodeList);
         $self->enhanceAst();
 
         return $self;
     }
 
-    public static function unserializeFromFile(string $filePath): self
+    public static function unserializeFromFile(string $filePath, string $name = ''): self
     {
         $self = self::fromSerializedAst(file_get_contents($filePath));
         $self->enhanceAst();
+        $self->name = $name ?: uniqid('', true);
 
         return $self;
     }
@@ -101,6 +109,11 @@ final class NodeCollection
     public function toArray(): array
     {
         return $this->nodeList;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     private static function fromSerializedAst(string $serializedAst): self

@@ -64,7 +64,7 @@ final class ContextMapService
             $componentList[] = new Component(
                 $componentDto->getName(),
                 new DomainAstMap(
-                    $this->astMapFactory->constructFromPath($componentDto->getPath()),
+                    $this->astMapFactory->constructFromPath($componentDto->getPath(), $componentDto->getName()),
                     $useCaseCollector,
                     $listenerCollector,
                     $subscriberCollector,

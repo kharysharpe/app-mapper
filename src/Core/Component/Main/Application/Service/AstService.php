@@ -29,8 +29,11 @@ final class AstService
         $this->astMapFactory = $astMapFactory;
     }
 
-    public function createAstFileFromFolder(string $folder, string $filePath, bool $prettyPrint = false): void
-    {
+    public function createAstFileFromFolder(
+        string $folder,
+        string $filePath,
+        bool $prettyPrint = false
+    ): void {
         $this->astMapFactory->constructFromPath($folder)
             ->serializeToFile($filePath, $prettyPrint);
     }
