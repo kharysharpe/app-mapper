@@ -19,9 +19,12 @@ namespace Hgraca\ContextMapper\Core\Port\Printer;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
+use Psr\Log\LoggerInterface;
 
 interface PrinterInterface
 {
+    public function setLogger(LoggerInterface $logger): void;
+
     public function printToImage(ContextMap $contextMap, Configuration $config): string;
 
     public function printToDot(ContextMap $contextMap, Configuration $config): string;
