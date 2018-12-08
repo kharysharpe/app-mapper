@@ -24,9 +24,21 @@ final class Query
 
     private $singleResult = false;
 
+    private $componentName = '';
+
+    public function addComponentFilter(string $componentName): void
+    {
+        $this->componentName = $componentName;
+    }
+
     public function addFilter(callable $filter): void
     {
         $this->filterList[] = $filter;
+    }
+
+    public function getComponentFilter(): string
+    {
+        return $this->componentName;
     }
 
     /**

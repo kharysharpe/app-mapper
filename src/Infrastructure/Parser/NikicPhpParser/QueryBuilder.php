@@ -35,6 +35,13 @@ final class QueryBuilder
         return $this;
     }
 
+    public function selectComponent(string $componentName): self
+    {
+        $this->currentQuery->addComponentFilter($componentName);
+
+        return $this;
+    }
+
     public function selectClasses(): self
     {
         $this->selectNodeType(Class_::class);

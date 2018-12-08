@@ -23,10 +23,14 @@ interface AstMapInterface
 {
     public function serializeToFile(string $filePath, bool $prettyPrint = false): void;
 
-    public function findClassesWithFqcnMatchingRegex(string $fqcnRegex): AdapterNodeCollection;
+    public function findClassesWithFqcnMatchingRegex(
+        string $fqcnRegex,
+        string $componentName = ''
+    ): AdapterNodeCollection;
 
     public function findClassesCallingMethod(
         string $methodClassFqcnRegex,
-        string $methodNameRegex
+        string $methodNameRegex,
+        string $componentName = ''
     ): AdapterNodeCollection;
 }

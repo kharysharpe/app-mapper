@@ -25,33 +25,56 @@ use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
 use PhpParser\NodeVisitor\FirstFindingVisitor;
+use function array_values;
 
 final class AstMap implements AstMapInterface
 {
     /**
+     * @var NodeCollection[]
+     */
+    private $componentNodeCollectionList;
+
+    /**
      * @var NodeCollection
      */
-    private $nodeCollection;
+    private $completeNodeCollection;
 
     /**
      * @var QueryBuilder
      */
     private $queryBuilder;
 
-    private function __construct(NodeCollection $nodeCollection)
+    private function __construct()
     {
-        $this->nodeCollection = $nodeCollection;
-        $this->queryBuilder = new QueryBuilder();
+    }
+
+    public static function constructFromNodeCollectionList(NodeCollection ...$nodeCollectionList): self
+    {
+        $self = new self();
+
+        foreach ($nodeCollectionList as $nodeCollection) {
+            $self->componentNodeCollectionList[$nodeCollection->getName()] = $nodeCollection;
+        }
+        $self->completeNodeCollection = NodeCollection::constructFromNodeCollectionList(
+            ...array_values($self->componentNodeCollectionList)
+        );
+        $self->completeNodeCollection->enhance();
+        $self->queryBuilder = new QueryBuilder();
+
+        return $self;
     }
 
     public function serializeToFile(string $filePath, bool $prettyPrint = false): void
     {
-        $this->nodeCollection->serializeToFile($filePath, $prettyPrint);
+        $this->completeNodeCollection->serializeToFile($filePath, $prettyPrint);
     }
 
-    public function findClassesWithFqcnMatchingRegex(string $fqcnRegex): AdapterNodeCollection
-    {
+    public function findClassesWithFqcnMatchingRegex(
+        string $fqcnRegex,
+        string $componentName = ''
+    ): AdapterNodeCollection {
         $query = $this->queryBuilder->create()
+            ->selectComponent($componentName)
             ->selectClassesWithFqcnMatchingRegex($fqcnRegex)
             ->build();
 
@@ -60,27 +83,28 @@ final class AstMap implements AstMapInterface
 
     public function findClassesCallingMethod(
         string $methodClassFqcnRegex,
-        string $methodNameRegex
+        string $methodNameRegex,
+        string $componentName = ''
     ): AdapterNodeCollection {
         $query = $this->queryBuilder->create()
+            ->selectComponent($componentName)
             ->selectClassesCallingMethod($methodClassFqcnRegex, $methodNameRegex)
             ->build();
 
         return $this->query($query);
     }
 
-    public static function constructFromNodeCollection(NodeCollection $nodeCollection): self
-    {
-        return new self($nodeCollection);
-    }
-
     private function query(Query $query): AdapterNodeCollection
     {
-        $itemList = array_values($this->nodeCollection->toArray());
+        $nodeList = array_values(
+            $query->getComponentFilter()
+                ? $this->getComponentAstCollection($query->getComponentFilter())->toArray()
+                : $this->completeNodeCollection->toArray()
+        );
 
         $parserNodeList = $query->shouldReturnSingleResult()
-            ? [$this->findFirst($this->createFilter($query), ...$itemList)]
-            : $this->find($this->createFilter($query), ...$itemList);
+            ? [$this->findFirst($this->createFilter($query), ...$nodeList)]
+            : $this->find($this->createFilter($query), ...$nodeList);
 
         return $this->mapNodeList($parserNodeList);
     }
@@ -126,5 +150,10 @@ final class AstMap implements AstMapInterface
         $traverser->traverse($nodes);
 
         return $visitor->getFoundNode();
+    }
+
+    private function getComponentAstCollection(string $componentName): NodeCollection
+    {
+        return $this->componentNodeCollectionList[$componentName];
     }
 }

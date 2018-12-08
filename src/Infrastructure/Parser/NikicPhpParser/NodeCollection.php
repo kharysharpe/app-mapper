@@ -60,6 +60,14 @@ final class NodeCollection
         file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
     }
 
+    public static function constructFromNodeCollectionList(self ...$nodeCollectionList): self
+    {
+        $self = new self();
+        $self->addCollections(...$nodeCollectionList);
+
+        return $self;
+    }
+
     public static function constructFromFolder(string $folder, string $name = ''): self
     {
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
@@ -72,7 +80,6 @@ final class NodeCollection
         $self = new self();
         $self->name = $name ?: uniqid('', true);
         $self->nodeList = array_merge(...$nodeList);
-        $self->enhanceAst();
 
         return $self;
     }
@@ -80,7 +87,6 @@ final class NodeCollection
     public static function unserializeFromFile(string $filePath, string $name = ''): self
     {
         $self = self::fromSerializedAst(file_get_contents($filePath));
-        $self->enhanceAst();
         $self->name = $name ?: uniqid('', true);
 
         return $self;
@@ -114,6 +120,48 @@ final class NodeCollection
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function enhance(): void
+    {
+        $nodeList = array_values($this->nodeList);
+
+        // Add all nodes into the collection
+        // Add visitors here if they don't need the final collection
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new ParentConnectorVisitor());
+        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
+        $traverser->traverse($nodeList);
+
+        // First we need to set all nodes in the collection, then we can run the visitors that need the collection
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
+        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
+        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
+        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new PropertyDeclarationTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        // After setting the type in the properties declaration, we can copy it to every property call
+        // We need a separate traverse because a property might be set only in the end of the file,
+        // after the property is used
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $GLOBALS['nodes'] = $nodeList;
+    }
+
+    private function addCollections(self ...$nodeCollectionList): void
+    {
+        $newNodeList = [];
+        foreach ($nodeCollectionList as $nodeCollection) {
+            $newNodeList[] = $nodeCollection->nodeList;
+        }
+        $this->nodeList = array_merge($this->nodeList, ...$newNodeList);
     }
 
     private static function fromSerializedAst(string $serializedAst): self
@@ -176,31 +224,5 @@ final class NodeCollection
         throw new UnitNotFoundInNamespaceException(
             'Could not find a class in the namespace ' . $namespaceNode->name->toCodeString()
         );
-    }
-
-    private function enhanceAst(): void
-    {
-        $nodeList = array_values($this->nodeList);
-
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
-        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
-        $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
-        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // First we finish the previous swipe to set all variables
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyDeclarationTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // After setting the type in the properties declaration, we can copy it to every property call
-        // We need a separate traverse because a property might be set only in the end of the file,
-        // after the property is used
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
     }
 }

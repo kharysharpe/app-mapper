@@ -58,23 +58,23 @@ final class Component
         $this->name = $name;
         $this->astMap = $astMap;
 
-        $this->useCaseCollection = $astMap->findUseCases();
+        $this->useCaseCollection = $astMap->findUseCases($this->name);
         foreach ($this->useCaseCollection as $useCase) {
             $useCase->setComponent($this);
         }
 
-        $this->listenerCollection = $astMap->findListeners();
+        $this->listenerCollection = $astMap->findListeners($this->name);
         foreach ($this->listenerCollection as $listener) {
             $listener->setComponent($this);
         }
 
-        $this->subscriberCollection = $astMap->findSubscribers();
+        $this->subscriberCollection = $astMap->findSubscribers($this->name);
         foreach ($this->subscriberCollection as $subscriber) {
             $subscriber->setComponent($this);
         }
 
         $this->partialUseCaseNodeCollection = new DomainNodeCollection();
-        $this->eventDispatcherCollection = $astMap->findEventDispatchers();
+        $this->eventDispatcherCollection = $astMap->findEventDispatchers($this->name);
         foreach ($this->eventDispatcherCollection as $eventDispatcher) {
             $eventDispatcher->setComponent($this);
 

@@ -18,10 +18,15 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Port\Configuration\Collector;
 
 use Hgraca\ContextMapper\Core\Port\Configuration\Exception\ConfigurationException;
+use InvalidArgumentException;
 use function array_key_exists;
+use function array_keys;
 
 class CodeUnitCollector
 {
+    public const CRITERIA_CLASS_FQCN = 'classFqcn';
+    public const CRITERIA_METHOD_NAME = 'methodName';
+
     /**
      * @var array
      */
@@ -35,23 +40,26 @@ class CodeUnitCollector
     {
         $self = new self();
 
-        foreach ($collector as $criteria) {
+        foreach ($collector as $index => $criteria) {
             if (!isset($criteria['type'])) {
-                throw new \InvalidArgumentException('Collector needs a type.');
+                throw new InvalidArgumentException('Collector needs a type.');
             }
             switch (true) {
-                case $criteria['type'] === 'classFqcn'
+                case $criteria['type'] === self::CRITERIA_CLASS_FQCN
                     && array_key_exists('regex', $criteria):
-                    $self->criteriaList[] = new ClassFqcnRegexCriteria($criteria['regex']);
+                    $criteriaInstance = new ClassFqcnRegexCriteria($criteria['regex']);
                     break;
-                case $criteria['type'] === 'methodName'
+                case $criteria['type'] === self::CRITERIA_METHOD_NAME
                     && array_key_exists('regex', $criteria):
-                    $self->criteriaList[] = new MethodNameRegexCriteria($criteria['regex']);
+                    $criteriaInstance = new MethodNameRegexCriteria($criteria['regex']);
                     break;
                 default:
                     $criteriaType = $criteria['type'];
-                    throw new ConfigurationException("Unknown criteria type '$criteriaType'");
+                    throw new ConfigurationException(
+                        "Unknown or incomplete criteria with index '$index' and type '$criteriaType'"
+                    );
             }
+            $self->criteriaList[$criteria['type']] = $criteriaInstance;
         }
 
         return $self;
@@ -77,13 +85,15 @@ class CodeUnitCollector
         return false;
     }
 
-    public function getCriteriaListAsString(): array
+    public function getCriteriaByType(string $type): CriteriaInterface
     {
-        $list = [];
-        foreach ($this->criteriaList as $criteria) {
-            $list[] = (string) $criteria;
+        if (!isset($this->criteriaList[$type])) {
+            throw new InvalidArgumentException(
+                "This collector does not have the criteria type '$type'. Existing types are: "
+                . implode(', ', array_keys($this->criteriaList))
+            );
         }
 
-        return $list;
+        return $this->criteriaList[$type];
     }
 }

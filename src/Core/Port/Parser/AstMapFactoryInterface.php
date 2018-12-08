@@ -17,11 +17,15 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser;
 
+use Hgraca\ContextMapper\Core\Port\Configuration\ComponentDto;
+
 /**
  * This interface makes it possible to instantiate and AstMapInterface in the Core, without specifying the actual
  * class instantiated.
  */
 interface AstMapFactoryInterface
 {
-    public function constructFromPath(string $path, string $name = ''): AstMapInterface;
+    public function constructFromPath(string $path): AstMapInterface;
+
+    public function constructFromComponentDtoList(ComponentDto ...$componentDtoList): AstMapInterface;
 }

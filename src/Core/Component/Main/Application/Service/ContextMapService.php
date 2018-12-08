@@ -60,12 +60,16 @@ final class ContextMapService
         $subscriberCollector = $config->getSubscriberCollector();
         $eventDispatcherCollector = $config->getEventDispatcherCollector();
 
+        $completeAstMap = $this->astMapFactory->constructFromComponentDtoList(
+            ...array_values($config->getComponents())
+        );
+
         $componentList = [];
         foreach ($config->getComponents() as $componentDto) {
             $componentList[] = new Component(
                 $componentDto->getName(),
                 new DomainAstMap(
-                    $this->astMapFactory->constructFromPath($componentDto->getPath(), $componentDto->getName()),
+                    $completeAstMap,
                     $useCaseCollector,
                     $listenerCollector,
                     $subscriberCollector,

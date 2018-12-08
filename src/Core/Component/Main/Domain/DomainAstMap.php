@@ -65,19 +65,21 @@ final class DomainAstMap
         $this->eventDispatcherCollector = $eventDispatcherCollector;
     }
 
-    public function findUseCases(): DomainNodeCollection
+    public function findUseCases(string $component): DomainNodeCollection
     {
         $nodeCollection = $this->astMap->findClassesWithFqcnMatchingRegex(
-            ...$this->useCaseCollector->getCriteriaListAsString()
+            (string) $this->useCaseCollector->getCriteriaByType(CodeUnitCollector::CRITERIA_CLASS_FQCN),
+            $component
         );
 
         return $nodeCollection->decorateByDomainNode(UseCaseNode::class);
     }
 
-    public function findListeners(): DomainNodeCollection
+    public function findListeners(string $component): DomainNodeCollection
     {
         $nodeCollection = $this->astMap->findClassesWithFqcnMatchingRegex(
-            ...$this->listenerCollector->getCriteriaListAsString()
+            (string) $this->listenerCollector->getCriteriaByType(CodeUnitCollector::CRITERIA_CLASS_FQCN),
+            $component
         );
 
         $listenerList = [];
@@ -94,10 +96,11 @@ final class DomainAstMap
         return new DomainNodeCollection(...$listenerList);
     }
 
-    public function findSubscribers(): DomainNodeCollection
+    public function findSubscribers(string $component): DomainNodeCollection
     {
         $nodeCollection = $this->astMap->findClassesWithFqcnMatchingRegex(
-            ...$this->subscriberCollector->getCriteriaListAsString()
+            (string) $this->subscriberCollector->getCriteriaByType(CodeUnitCollector::CRITERIA_CLASS_FQCN),
+            $component
         );
 
         $subscriberList = [];
@@ -114,9 +117,13 @@ final class DomainAstMap
         return new DomainNodeCollection(...$subscriberList);
     }
 
-    public function findEventDispatchers(): DomainNodeCollection
+    public function findEventDispatchers(string $component): DomainNodeCollection
     {
-        return $this->astMap->findClassesCallingMethod(...$this->eventDispatcherCollector->getCriteriaListAsString())
+        return $this->astMap->findClassesCallingMethod(
+            (string) $this->eventDispatcherCollector->getCriteriaByType(CodeUnitCollector::CRITERIA_CLASS_FQCN),
+            (string) $this->eventDispatcherCollector->getCriteriaByType(CodeUnitCollector::CRITERIA_METHOD_NAME),
+            $component
+        )
             ->decorateByDomainNode(EventDispatcherNode::class);
     }
 }
