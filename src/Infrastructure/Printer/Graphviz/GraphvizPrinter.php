@@ -213,16 +213,16 @@ final class GraphvizPrinter implements PrinterInterface
             $config->getLegendPositionX() . ',' . $config->getLegendPositionY() . '!'
         );
 
-        $legendTable = '<table border="0" cellborder="1" cellspacing="0">'
-            . '<tr><td BGCOLOR="Gray"><b>' . $legendVertex->getId() . '</b></td></tr>'
-            . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b> Component </b></td></tr>'
-            . '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '"> Use Case </td></tr>'
-            . '<tr><td BGCOLOR="' . $config->getPartialUseCaseColor() . '"> Partial Use Case </td></tr>'
-            . '<tr><td BGCOLOR="' . $config->getListenerColor() . '"> Listener </td></tr>'
-            . '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '"> Subscriber </td></tr>';
-        // TODO add events style
-
-        $legendTable .= '</table>';
+        $legendTable = '<table border="1" cellborder="1" cellspacing="0">'
+            . '<tr><td border="0"><b>' . $legendVertex->getId() . '</b></td></tr>'
+            . '<tr><td border="0"> &nbsp; </td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getComponentColor() . '"><b> Component </b></td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getUseCaseColor() . '"> Use Case </td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getPartialUseCaseColor() . '"> Partial Use Case </td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getListenerColor() . '"> Listener </td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getSubscriberColor() . '"> Subscriber </td></tr>'
+            . '<tr><td border="0" BGCOLOR="' . $config->getEventColor() . '">Event</td></tr>'
+            . '</table>';
 
         $legendVertex->setAttribute(
             'graphviz.label',
