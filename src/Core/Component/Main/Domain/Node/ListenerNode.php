@@ -20,6 +20,7 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
+use Hgraca\PhpExtension\String\ClassService;
 
 final class ListenerNode implements DomainNodeInterface
 {
@@ -68,7 +69,7 @@ final class ListenerNode implements DomainNodeInterface
 
     public function getCanonicalName(): string
     {
-        return $this->methodName;
+        return ClassService::extractCanonicalClassName($this->fqcn) . '::' . $this->methodName;
     }
 
     public function listensTo(EventDispatcherNode $eventDispatcher): bool

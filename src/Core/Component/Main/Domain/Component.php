@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\PartialUseCaseNode;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 
 final class Component
@@ -41,6 +42,11 @@ final class Component
      * @var EventDispatcherNode[]|DomainNodeCollection
      */
     private $eventDispatcherCollection;
+
+    /**
+     * @var PartialUseCaseNode[]|DomainNodeCollection
+     */
+    private $partialUseCaseNodeCollection;
 
     /**
      * @var DomainAstMap
@@ -67,9 +73,20 @@ final class Component
             $subscriber->setComponent($this);
         }
 
+        $this->partialUseCaseNodeCollection = new DomainNodeCollection();
         $this->eventDispatcherCollection = $astMap->findEventDispatchers();
         foreach ($this->eventDispatcherCollection as $eventDispatcher) {
             $eventDispatcher->setComponent($this);
+
+            if (
+                !$this->hasUseCase($eventDispatcher->getDispatcherClassFqcn())
+                && !$this->hasListener($eventDispatcher->getDispatcherClassFqcn())
+                && !$this->hasSubscriber($eventDispatcher->getDispatcherClassFqcn())
+            ) {
+                $this->partialUseCaseNodeCollection->addNodes(
+                    PartialUseCaseNode::constructFromEventDispatcher($eventDispatcher)
+                );
+            }
         }
     }
 
@@ -89,6 +106,14 @@ final class Component
     public function getUseCaseCollection(): DomainNodeCollection
     {
         return $this->useCaseCollection;
+    }
+
+    /**
+     * @return UseCaseNode[]|DomainNodeCollection
+     */
+    public function getPartialUseCaseCollection(): DomainNodeCollection
+    {
+        return $this->partialUseCaseNodeCollection;
     }
 
     /**
@@ -113,5 +138,20 @@ final class Component
     public function getEventDispatcherCollection(): DomainNodeCollection
     {
         return $this->eventDispatcherCollection;
+    }
+
+    private function hasUseCase(string $fqcn): bool
+    {
+        return $this->useCaseCollection->hasNodeWithFqcn($fqcn);
+    }
+
+    private function hasListener(string $fqcn): bool
+    {
+        return $this->listenerCollection->hasNodeWithFqcn($fqcn);
+    }
+
+    private function hasSubscriber(string $fqcn): bool
+    {
+        return $this->subscriberCollection->hasNodeWithFqcn($fqcn);
     }
 }

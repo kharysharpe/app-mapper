@@ -167,6 +167,11 @@ class Configuration
         return $this->codeUnits['use_case']['color'];
     }
 
+    public function getPartialUseCaseColor()
+    {
+        return $this->codeUnits['partial_use_case']['color'];
+    }
+
     public function getListenerColor(): string
     {
         return $this->codeUnits['listener']['color'];
