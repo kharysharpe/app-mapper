@@ -22,6 +22,7 @@ use Graphp\GraphViz\GraphViz;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
+use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\StringService;
@@ -97,23 +98,32 @@ final class GraphvizPrinter implements PrinterInterface
 
         foreach ($component->getUseCaseCollection() as $useCase) {
             $componentStr .=
-                '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '" PORT="' . $this->createPortId($useCase) . '">'
+                '<tr><td BGCOLOR="' . $config->getUseCaseColor()
+                . '" PORT="' . $this->createPortId($useCase) . '">'
                 . $useCase->getCanonicalName()
+                . '</td></tr>';
+        }
+
+        foreach ($component->getPartialUseCaseCollection() as $partialUseCase) {
+            $componentStr .=
+                '<tr><td BGCOLOR="' . $config->getPartialUseCaseColor()
+                . '" PORT="' . $this->createPortId($partialUseCase) . '">'
+                . $partialUseCase->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getListenerCollection() as $listener) {
             $componentStr .=
-                '<tr><td BGCOLOR="' . $config->getListenerColor() . '" PORT="' . $this->createPortId($listener) . '">'
+                '<tr><td BGCOLOR="' . $config->getListenerColor()
+                . '" PORT="' . $this->createPortId($listener) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
         }
 
         foreach ($component->getSubscriberCollection() as $subscriber) {
             $componentStr .=
-                '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '" PORT="' . $this->createPortId(
-                    $subscriber
-                ) . '">'
+                '<tr><td BGCOLOR="' . $config->getSubscriberColor()
+                . '" PORT="' . $this->createPortId($subscriber) . '">'
                 . $subscriber->getCanonicalName()
                 . '</td></tr>';
         }
@@ -125,18 +135,17 @@ final class GraphvizPrinter implements PrinterInterface
 
     private function createPortId(DomainNodeInterface $node): string
     {
-        $id = StringService::replace('::', '.', $node->getFullyQualifiedName());
+        $fqn = $node->getFullyQualifiedName();
+        $id = StringService::replace('::', '.', $fqn);
         $id = StringService::replace('\\', '.', $id);
+        $id = $node instanceof EventDispatcherNode
+            ? mb_substr($id, 0, mb_strrpos($id, '.'))
+            : $id;
         $id = ltrim($id, '.');
         $useCaseTermination = 'Handler.'; // TODO refactor this in a more flexible way
         if (StringService::contains($useCaseTermination, $id)) {
             $id = mb_substr($id, 0, mb_strrpos($id, $useCaseTermination) + mb_strlen($useCaseTermination) - 1);
         }
-        $listenerTermination = 'Listener.'; // TODO refactor this in a more flexible way
-        if (StringService::contains($listenerTermination, $id)) {
-            $id = mb_substr($id, 0, mb_strrpos($id, $listenerTermination) + mb_strlen($listenerTermination) - 1);
-        }
-        $id = StringService::replaceFromEnd('Handler', 'Command', $id);
 
         return $id;
     }
@@ -174,6 +183,7 @@ final class GraphvizPrinter implements PrinterInterface
             . '<tr><td BGCOLOR="Gray"><b>' . $legendVertex->getId() . '</b></td></tr>'
             . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b> Component </b></td></tr>'
             . '<tr><td BGCOLOR="' . $config->getUseCaseColor() . '"> Use Case </td></tr>'
+            . '<tr><td BGCOLOR="' . $config->getPartialUseCaseColor() . '"> Partial Use Case </td></tr>'
             . '<tr><td BGCOLOR="' . $config->getListenerColor() . '"> Listener </td></tr>'
             . '<tr><td BGCOLOR="' . $config->getSubscriberColor() . '"> Subscriber </td></tr>';
         // TODO add events style
