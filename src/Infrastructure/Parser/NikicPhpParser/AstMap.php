@@ -69,18 +69,6 @@ final class AstMap implements AstMapInterface
         return $this->query($query);
     }
 
-    public static function constructFromAstMapList(self ...$astMapList): AstMapInterface
-    {
-        $nodeCollectionList = [];
-        foreach ($astMapList as $astMap) {
-            $nodeCollectionList[] = $astMap->nodeCollection;
-        }
-
-        return self::constructFromNodeCollection(
-            NodeCollection::constructFromNodeCollectionList(...$nodeCollectionList)
-        );
-    }
-
     public static function constructFromNodeCollection(NodeCollection $nodeCollection): self
     {
         return new self($nodeCollection);

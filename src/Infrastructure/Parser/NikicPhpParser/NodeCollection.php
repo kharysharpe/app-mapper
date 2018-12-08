@@ -54,15 +54,6 @@ final class NodeCollection
         file_put_contents($filePath, $this->toSerializedAst($prettyPrint));
     }
 
-    public static function constructFromNodeCollectionList(self ...$nodeCollectionList): self
-    {
-        $self = new self();
-        $self->addCollections(...$nodeCollectionList);
-        $self->enhanceAst();
-
-        return $self;
-    }
-
     public static function constructFromFolder(string $folder): self
     {
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($folder));
@@ -110,15 +101,6 @@ final class NodeCollection
     public function toArray(): array
     {
         return $this->nodeList;
-    }
-
-    private function addCollections(self ...$nodeCollectionList): void
-    {
-        $newNodeList = [];
-        foreach ($nodeCollectionList as $nodeCollection) {
-            $newNodeList[] = $nodeCollection->nodeList;
-        }
-        $this->nodeList = array_merge($this->nodeList, ...$newNodeList);
     }
 
     private static function fromSerializedAst(string $serializedAst): self

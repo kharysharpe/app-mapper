@@ -30,9 +30,4 @@ final class AstMapFactory implements AstMapFactoryInterface
                 : NodeCollection::unserializeFromFile($path)
         );
     }
-
-    public function constructFromAstMapList(AstMapInterface ...$astMapList): AstMapInterface
-    {
-        return AstMap::constructFromAstMapList(...$astMapList);
-    }
 }
