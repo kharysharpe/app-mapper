@@ -21,9 +21,10 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Interface_;
 use PhpParser\NodeVisitorAbstract;
 
-class ExtendsTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
+class ExtendedTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     /**
      * @var NodeCollection
@@ -38,16 +39,32 @@ class ExtendsTypeInjectorVisitor extends NodeVisitorAbstract implements AstConne
     public function enterNode(Node $node): void
     {
         switch (true) {
-            case $node instanceof Class_
-                && $node->extends !== null:
-                /** @var FullyQualified $fullyQualified */
-                $fullyQualified = $node->extends->getAttribute('resolvedName');
-                $fqcn = $fullyQualified->toCodeString();
-                $node->extends->setAttribute(
-                    self::KEY_AST,
-                    $this->ast->hasAstNode($fqcn) ? $this->ast->getAstNode($fqcn) : null
-                );
+            case $node instanceof Class_ && $node->extends !== null:
+                $this->addType($node->extends);
+                break;
+            case $node instanceof Interface_ && !empty($node->extends):
+                foreach ($node->extends as $parent) {
+                    $this->addType($parent);
+                }
                 break;
         }
+    }
+
+    /**
+     * @param Node|Class_|Interface_ $node
+     */
+    private function addType(Node $node): void
+    {
+        /** @var FullyQualified $fullyQualified */
+        $fullyQualified = $node->getAttribute('resolvedName');
+        $fqcn = $fullyQualified->toCodeString();
+
+        $node->setAttribute(
+            Type::getName(),
+            new Type(
+                $fqcn,
+                $this->ast->hasAstNode($fqcn) ? $this->ast->getAstNode($fqcn) : null
+            )
+        );
     }
 }
