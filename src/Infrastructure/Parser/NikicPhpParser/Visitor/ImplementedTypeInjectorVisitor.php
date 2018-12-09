@@ -20,10 +20,9 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Interface_;
 use PhpParser\NodeVisitorAbstract;
 
-class ExtendedTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
+class ImplementedTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
     use TypeInjectorVisitorTrait;
 
@@ -40,15 +39,12 @@ class ExtendedTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
 
     public function enterNode(Node $node): void
     {
-        switch (true) {
-            case $node instanceof Class_ && $node->extends !== null:
-                $this->addType($node->extends);
-                break;
-            case $node instanceof Interface_ && !empty($node->extends):
-                foreach ($node->extends as $parent) {
-                    $this->addType($parent);
-                }
-                break;
+        if (!$node instanceof Class_ || empty($node->implements)) {
+            return;
+        }
+
+        foreach ($node->implements as $interface) {
+            $this->addType($interface);
         }
     }
 }

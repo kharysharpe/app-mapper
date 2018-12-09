@@ -20,6 +20,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ExtendedTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ImplementedTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
@@ -137,6 +138,7 @@ final class NodeCollection
         // First we need to set all nodes in the collection, then we can run the visitors that need the collection
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new ExtendedTypeInjectorVisitor($this));
+        $traverser->addVisitor(new ImplementedTypeInjectorVisitor($this));
         $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
