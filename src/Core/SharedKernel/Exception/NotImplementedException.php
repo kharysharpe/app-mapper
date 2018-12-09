@@ -15,13 +15,8 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
+namespace Hgraca\ContextMapper\Core\SharedKernel\Exception;
 
-interface MethodArgumentInterface extends TypeNodeInterface
+final class NotImplementedException extends ContextMapperLogicException
 {
-    public function getArgumentNode(): TypeNodeInterface;
-
-    public function getFullyQualifiedType(): string;
-
-    public function getCanonicalType(): string;
 }

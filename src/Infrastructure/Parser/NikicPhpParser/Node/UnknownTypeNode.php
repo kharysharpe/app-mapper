@@ -22,6 +22,10 @@ use PhpParser\Node;
 use function get_class;
 use function is_string;
 
+/**
+ * This node is just for convenience.
+ * We don't know what is inside and we don't care.
+ */
 final class UnknownTypeNode implements TypeNodeInterface
 {
     /**
@@ -55,5 +59,10 @@ final class UnknownTypeNode implements TypeNodeInterface
     public function getCanonicalType(): string
     {
         return 'Unknown (' . $this->phpParserNodeType . ')';
+    }
+
+    public function getAllFamilyFullyQualifiedNameList(): array
+    {
+        return [];
     }
 }

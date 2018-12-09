@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
+use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 
 final class EventDispatcherNode extends MethodCallerNode
 {
@@ -26,6 +27,11 @@ final class EventDispatcherNode extends MethodCallerNode
 
     /** @var string */
     private $eventFqcn;
+
+    /**
+     * @var TypeNodeInterface
+     */
+    private $event;
 
     /**
      * @return static
@@ -39,6 +45,7 @@ final class EventDispatcherNode extends MethodCallerNode
         $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
         $self->eventCanonicalName = $methodCall->getArgumentCanonicalType();
         $self->eventFqcn = $methodCall->getArgumentFullyQualifiedType();
+        $self->event = $methodCall->getMethodArgument()->getArgumentNode();
         $self->methodCallLine = $methodCall->getLine();
 
         return $self;
@@ -52,5 +59,13 @@ final class EventDispatcherNode extends MethodCallerNode
     public function getEventFullyQualifiedName(): string
     {
         return $this->eventFqcn;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getEventFullyQualifiedNameAliases(): array
+    {
+        return $this->event->getAllFamilyFullyQualifiedNameList();
     }
 }

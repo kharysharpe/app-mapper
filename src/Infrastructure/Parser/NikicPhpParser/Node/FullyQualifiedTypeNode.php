@@ -20,6 +20,9 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use Hgraca\PhpExtension\String\ClassService;
 
+/**
+ * This represents a node for which we only have its FQCN, because it lives outside the AstMap namespaces
+ */
 final class FullyQualifiedTypeNode implements TypeNodeInterface
 {
     /**
@@ -40,5 +43,10 @@ final class FullyQualifiedTypeNode implements TypeNodeInterface
     public function getCanonicalType(): string
     {
         return ClassService::extractCanonicalClassName($this->fqcn);
+    }
+
+    public function getAllFamilyFullyQualifiedNameList(): array
+    {
+        return [];
     }
 }

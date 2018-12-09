@@ -73,6 +73,11 @@ final class MethodCallAdapter implements MethodCallInterface
         return $this->getEnclosingMethod()->getCanonicalName();
     }
 
+    public function getMethodArgument(int $argumentIndex = 0): MethodArgumentInterface
+    {
+        return $this->argumentList[$argumentIndex];
+    }
+
     public function getArgumentFullyQualifiedType(int $argumentIndex = 0): string
     {
         return $this->argumentList[$argumentIndex]->getFullyQualifiedType();

@@ -74,7 +74,8 @@ final class ListenerNode implements DomainNodeInterface
 
     public function listensTo(EventDispatcherNode $eventDispatcher): bool
     {
-        return $this->eventFqcn === $eventDispatcher->getEventFullyQualifiedName();
+        return $this->eventFqcn === $eventDispatcher->getEventFullyQualifiedName()
+            || in_array($this->eventFqcn, $eventDispatcher->getEventFullyQualifiedNameAliases(), true);
     }
 
     public function setComponent(Component $component): void

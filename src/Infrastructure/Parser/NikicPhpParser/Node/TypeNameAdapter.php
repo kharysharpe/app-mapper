@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node;
 use PhpParser\Node\Name;
@@ -51,5 +52,10 @@ final class TypeNameAdapter implements TypeNodeInterface
     public function getTypeNode(): Node
     {
         return $this->name->getAttribute('ast');
+    }
+
+    public function getAllFamilyFullyQualifiedNameList(): array
+    {
+        throw new NotImplementedException();
     }
 }

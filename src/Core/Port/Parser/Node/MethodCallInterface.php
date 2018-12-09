@@ -25,6 +25,8 @@ interface MethodCallInterface extends AdapterNodeInterface
 
     public function getEnclosingMethodCanonicalName(): string;
 
+    public function getMethodArgument(int $argumentIndex = 0): MethodArgumentInterface;
+
     public function getArgumentFullyQualifiedType(int $argumentIndex = 0): string;
 
     public function getArgumentCanonicalType(int $argumentIndex = 0): string;

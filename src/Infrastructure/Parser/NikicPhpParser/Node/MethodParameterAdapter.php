@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodParameterInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
 use PhpParser\Node\Param;
 
 final class MethodParameterAdapter implements TypeNodeInterface, MethodParameterInterface
@@ -41,5 +42,10 @@ final class MethodParameterAdapter implements TypeNodeInterface, MethodParameter
     public function getCanonicalType(): string
     {
         return $this->parameterType->getCanonicalType();
+    }
+
+    public function getAllFamilyFullyQualifiedNameList(): array
+    {
+        throw new NotImplementedException();
     }
 }

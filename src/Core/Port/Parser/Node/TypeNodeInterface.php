@@ -22,4 +22,9 @@ interface TypeNodeInterface extends AdapterNodeInterface
     public function getFullyQualifiedType(): string;
 
     public function getCanonicalType(): string;
+
+    /**
+     * @return string[]
+     */
+    public function getAllFamilyFullyQualifiedNameList(): array;
 }

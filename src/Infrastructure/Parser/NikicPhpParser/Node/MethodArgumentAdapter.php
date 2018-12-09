@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
@@ -55,6 +56,11 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
         }
     }
 
+    public function getArgumentNode(): TypeNodeInterface
+    {
+        return $this->argument;
+    }
+
     public function getFullyQualifiedType(): string
     {
         return $this->argument->getFullyQualifiedType();
@@ -63,5 +69,10 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
     public function getCanonicalType(): string
     {
         return $this->argument->getCanonicalType();
+    }
+
+    public function getAllFamilyFullyQualifiedNameList(): array
+    {
+        throw new NotImplementedException();
     }
 }
