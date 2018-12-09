@@ -59,7 +59,7 @@ class MethodReturnTypeInjectorVisitor extends NodeVisitorAbstract implements Ast
 
     private function getMethodClassNode(ClassMethod $method): Node
     {
-        return $method->getAttribute('parent');
+        return $method->getAttribute(ParentConnectorVisitor::PARENT_NODE);
     }
 
     private function resolveReturnTypeNode(ClassMethod $method)

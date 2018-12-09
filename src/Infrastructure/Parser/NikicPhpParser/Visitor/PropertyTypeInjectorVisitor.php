@@ -51,10 +51,10 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                 $this->addProperty($propertyName, $type);
                 break;
             case $node instanceof PropertyFetch
-                && $node->getAttribute('parent') instanceof Assign:
+                && $node->getAttribute(ParentConnectorVisitor::PARENT_NODE) instanceof Assign:
                 // isPropertyAssignment
                 /** @var Assign $assignment */
-                $assignment = $node->getAttribute('parent');
+                $assignment = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
                 if ($assignment->var instanceof ArrayDimFetch) {
                     return; // TODO add the type to the variables assigned with `list`
                 }

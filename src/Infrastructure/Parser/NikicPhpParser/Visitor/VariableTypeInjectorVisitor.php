@@ -65,7 +65,7 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                 }
                 break;
             case $node instanceof New_:
-                $assignment = $node->getAttribute('parent');
+                $assignment = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
                 if (
                     !$assignment instanceof Assign
                     || $assignment->var instanceof ArrayDimFetch // TODO add the type to the variables assigned with `list`

@@ -23,6 +23,8 @@ use function count;
 
 class ParentConnectorVisitor extends NodeVisitorAbstract
 {
+    public const PARENT_NODE = 'parentNode';
+
     private $stack;
 
     public function beforeTraverse(array $nodes): void
@@ -33,7 +35,7 @@ class ParentConnectorVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): void
     {
         if (!empty($this->stack)) {
-            $node->setAttribute('parent', $this->stack[count($this->stack) - 1]);
+            $node->setAttribute(self::PARENT_NODE, $this->stack[count($this->stack) - 1]);
         }
         $this->stack[] = $node;
     }

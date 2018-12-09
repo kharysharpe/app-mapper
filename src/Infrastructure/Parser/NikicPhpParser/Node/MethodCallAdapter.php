@@ -21,6 +21,7 @@ use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
@@ -92,7 +93,7 @@ final class MethodCallAdapter implements MethodCallInterface
         if ($this->enclosingClass === null) {
             $node = $this->methodCall;
             do {
-                $node = $node->getAttribute('parent');
+                $node = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
             } while (!$node instanceof Class_);
 
             $this->enclosingClass = new ClassAdapter($node);
@@ -106,7 +107,7 @@ final class MethodCallAdapter implements MethodCallInterface
         if ($this->enclosingMethod === null) {
             $node = $this->methodCall;
             do {
-                $node = $node->getAttribute('parent');
+                $node = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
             } while (!$node instanceof ClassMethod);
 
             $this->enclosingMethod = new MethodAdapter($node);

@@ -49,10 +49,10 @@ class PropertyDeclarationTypeInjectorVisitor extends NodeVisitorAbstract impleme
         // ie: NotifyServiceProAboutNewSavedSearchResultsLayoutGenerator::generate
         switch (true) {
             case $node instanceof PropertyFetch
-                && $node->getAttribute('parent') instanceof Assign:
+                && $node->getAttribute(ParentConnectorVisitor::PARENT_NODE) instanceof Assign:
                 // isPropertyAssignment
                 /** @var Assign $assignment */
-                $assignment = $node->getAttribute('parent');
+                $assignment = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
                 switch (true) {
                     case $assignment->expr instanceof Variable:
                     case $assignment->expr instanceof New_
