@@ -58,7 +58,7 @@ class PropertyDeclarationTypeInjectorVisitor extends NodeVisitorAbstract impleme
                     case $assignment->expr instanceof New_
                         && !$assignment->var instanceof ArrayDimFetch:
                         // TODO add the type to the variables assigned with `list`
-                        $this->propertyList[$node->name->name] = $assignment->expr->getAttribute(self::AST_KEY);
+                        $this->propertyList[$node->name->name] = $assignment->expr->getAttribute(self::KEY_AST);
                         break;
                 }
                 break;
@@ -75,7 +75,7 @@ class PropertyDeclarationTypeInjectorVisitor extends NodeVisitorAbstract impleme
                 $property instanceof Property
                 && $this->hasProperty($property->props[0]->name->name)
             ) {
-                $property->setAttribute(self::AST_KEY, $this->getProperty($property->props[0]->name->name));
+                $property->setAttribute(self::KEY_AST, $this->getProperty($property->props[0]->name->name));
             }
         }
         $this->resetPropertyList();

@@ -47,7 +47,7 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
         switch (true) {
             case $node instanceof Property:
                 $propertyName = $node->props[0]->name->name;
-                $type = $node->getAttribute(self::AST_KEY);
+                $type = $node->getAttribute(self::KEY_AST);
                 $this->addProperty($propertyName, $type);
                 break;
             case $node instanceof PropertyFetch
@@ -59,7 +59,7 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
                     return; // TODO add the type to the variables assigned with `list`
                 }
                 $node->setAttribute(
-                    self::AST_KEY,
+                    self::KEY_AST,
                     $this->getProperty($node->name->name)
                 );
                 break;
@@ -76,7 +76,7 @@ class PropertyTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
 //                    );
                 }
                 $node->var->setAttribute(
-                    self::AST_KEY,
+                    self::KEY_AST,
                     $this->propertyList[$node->var->name->name]
                 );
                 break;

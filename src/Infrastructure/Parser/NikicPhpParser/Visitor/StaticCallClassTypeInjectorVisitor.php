@@ -46,7 +46,7 @@ class StaticCallClassTypeInjectorVisitor extends NodeVisitorAbstract implements 
         $name = $class->getAttribute('resolvedName');
         $fqcn = $name->toCodeString();
         if ($this->astMap->hasAstNode($fqcn)) {
-            $class->setAttribute(self::AST_KEY, $this->astMap->getAstNode($fqcn));
+            $class->setAttribute(self::KEY_AST, $this->astMap->getAstNode($fqcn));
         }
     }
 }

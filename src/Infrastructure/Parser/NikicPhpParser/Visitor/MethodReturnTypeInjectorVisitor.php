@@ -50,10 +50,10 @@ class MethodReturnTypeInjectorVisitor extends NodeVisitorAbstract implements Ast
             case $returnType === null:
                 return;
             case $returnType instanceof Identifier:
-                $returnType->setAttribute(self::AST_KEY, $returnType->name);
+                $returnType->setAttribute(self::KEY_AST, $returnType->name);
                 break;
             default:
-                $returnType->setAttribute(self::AST_KEY, $this->resolveReturnTypeNode($method));
+                $returnType->setAttribute(self::KEY_AST, $this->resolveReturnTypeNode($method));
         }
     }
 

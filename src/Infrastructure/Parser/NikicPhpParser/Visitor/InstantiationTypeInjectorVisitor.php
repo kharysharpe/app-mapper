@@ -44,7 +44,7 @@ class InstantiationTypeInjectorVisitor extends NodeVisitorAbstract implements As
         $name = $node->class->getAttribute('resolvedName');
         $fqcn = $name->toCodeString();
         $node->class->setAttribute(
-            self::AST_KEY,
+            self::KEY_AST,
             $this->ast->hasAstNode($fqcn)
                 ? $this->ast->getAstNode($fqcn)
                 : $fqcn

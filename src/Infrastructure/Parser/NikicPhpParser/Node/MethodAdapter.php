@@ -45,8 +45,8 @@ final class MethodAdapter implements MethodInterface
         $returnType = $this->classMethod->getReturnType();
 
         return NodeFactory::constructTypeNodeAdapter(
-            $returnType !== null && $returnType->hasAttribute(AstConnectorVisitorInterface::AST_KEY)
-                ? $returnType->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+            $returnType !== null && $returnType->hasAttribute(AstConnectorVisitorInterface::KEY_AST)
+                ? $returnType->getAttribute(AstConnectorVisitorInterface::KEY_AST)
                 : null
         );
     }

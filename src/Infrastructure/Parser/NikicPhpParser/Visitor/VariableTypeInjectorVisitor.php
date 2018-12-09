@@ -61,7 +61,7 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
 
                     $variableName = $this->resolveVariableNameFromMethodParameter($methodParameter);
                     $this->setVariableTypeAst($variableName, $name->toCodeString());
-                    $methodParameter->type->setAttribute(self::AST_KEY, $this->getVariableTypeAst($variableName));
+                    $methodParameter->type->setAttribute(self::KEY_AST, $this->getVariableTypeAst($variableName));
                 }
                 break;
             case $node instanceof New_:
@@ -75,13 +75,13 @@ class VariableTypeInjectorVisitor extends NodeVisitorAbstract implements AstConn
 
                 $this->setVariableTypeAst(
                     $this->resolveVariableNameFromAssignment($assignment),
-                    $node->class->getAttribute(self::AST_KEY)
+                    $node->class->getAttribute(self::KEY_AST)
                 );
                 break;
             case $node instanceof Variable:
                 $variableName = $node->name;
                 try {
-                    $node->setAttribute(self::AST_KEY, $this->getVariableTypeAst($variableName));
+                    $node->setAttribute(self::KEY_AST, $this->getVariableTypeAst($variableName));
                 } catch (UnknownVariableException $e) {
                     // silently ignore unknown variables, because those were not instantiated nor injected
                     // TODO Also take into account variables assigned to the result of a method call

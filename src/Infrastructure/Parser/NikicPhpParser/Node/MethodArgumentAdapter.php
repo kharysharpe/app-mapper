@@ -37,16 +37,16 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
         switch (true) {
             case $argument instanceof New_:
                 $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    $argument->class->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                    $argument->class->getAttribute(AstConnectorVisitorInterface::KEY_AST)
                 );
                 break;
             case $argument instanceof Variable:
                 $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    $argument->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                    $argument->getAttribute(AstConnectorVisitorInterface::KEY_AST)
                 );
                 break;
             case $argument instanceof StaticCall:
-                $class = new ClassAdapter($argument->class->getAttribute(AstConnectorVisitorInterface::AST_KEY));
+                $class = new ClassAdapter($argument->class->getAttribute(AstConnectorVisitorInterface::KEY_AST));
                 $method = $class->getMethod($argument->name->toString());
                 $this->argument = $method->getReturnTypeNode();
                 break;

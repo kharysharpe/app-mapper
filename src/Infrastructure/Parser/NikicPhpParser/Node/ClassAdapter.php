@@ -39,7 +39,7 @@ final class ClassAdapter implements ClassInterface
 
     public static function constructFromNew(New_ $newExpression): self
     {
-        return new self($newExpression->getAttribute(AstConnectorVisitorInterface::AST_KEY));
+        return new self($newExpression->getAttribute(AstConnectorVisitorInterface::KEY_AST));
     }
 
     public function getFullyQualifiedType(): string

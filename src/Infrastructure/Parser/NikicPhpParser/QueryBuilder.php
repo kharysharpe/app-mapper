@@ -113,7 +113,7 @@ final class QueryBuilder
                     return false;
                 }
                 $dispatcherFqcn = NodeFactory::constructTypeNodeAdapter(
-                    $node->var->getAttribute(AstConnectorVisitorInterface::AST_KEY)
+                    $node->var->getAttribute(AstConnectorVisitorInterface::KEY_AST)
                 )->getFullyQualifiedType();
                 $dispatcherMethodName = $node->name->name;
 

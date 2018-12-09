@@ -19,5 +19,5 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 interface AstConnectorVisitorInterface
 {
-    public const AST_KEY = 'ast';
+    public const KEY_AST = 'ast';
 }
