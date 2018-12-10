@@ -81,7 +81,7 @@ final class NodeCollection
 
         $self = new self();
         $self->name = $name ?: uniqid('', true);
-        $self->nodeList = array_merge(...$nodeList);
+        $self->nodeList = !empty($nodeList) ? array_merge(...$nodeList) : [];
 
         return $self;
     }
