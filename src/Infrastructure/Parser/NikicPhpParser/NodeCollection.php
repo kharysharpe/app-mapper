@@ -19,15 +19,18 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ExtendedTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ImplementedTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InterfaceFamilyTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodParametersTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyDeclarationTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\VariableTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
@@ -131,29 +134,40 @@ final class NodeCollection
         // Add all nodes into the collection
         // Add visitors here if they don't need the final collection
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
+        $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->traverse($nodeList);
 
-        // First we need to set all nodes in the collection, then we can run the visitors that need the collection
+        // Run visitors that don't need any Types added before hand
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ExtendedTypeInjectorVisitor($this));
-        $traverser->addVisitor(new ImplementedTypeInjectorVisitor($this));
+        $traverser->addVisitor(new ClassTypeInjectorVisitor($this)); // TODO test
+        $traverser->addVisitor(new ClassFamilyTypeInjectorVisitor($this)); // TODO test
+        $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
+        $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
+        $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
-        $traverser->addVisitor(new VariableTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyDeclarationTypeInjectorVisitor($this));
+        $traverser->addVisitor(new AssignmentFromNewTypeInjectorVisitor($this)); // TODO test
+        $traverser->addVisitor(new AssignmentFromParameterTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
 
         // After setting the type in the properties declaration, we can copy it to every property call
         // We need a separate traverse because a property might be set only in the end of the file,
         // after the property is used
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyTypeInjectorVisitor($this));
+        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+//        $traverser = new NodeTraverser();
+        // TODO add AssignmentFromMethodCallTypeInjectorVisitor
+//        $traverser->traverse($nodeList);
+
+        $traverser = new NodeTraverser();
+        // TODO make a second pass with the PropertyFetchTypeInjectorVisitor
         $traverser->traverse($nodeList);
 
         $GLOBALS['nodes'] = $nodeList;

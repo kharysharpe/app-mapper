@@ -41,7 +41,7 @@ final class TypeNameAdapter implements TypeNodeInterface
         /** @var FullyQualified $resolvedName */
         $resolvedName = $this->name->getAttribute('resolvedName');
 
-        return $resolvedName->toCodeString();
+        return ltrim($resolvedName->toCodeString(), '\\');
     }
 
     public function getCanonicalType(): string
@@ -51,7 +51,7 @@ final class TypeNameAdapter implements TypeNodeInterface
 
     public function getTypeNode(): Node
     {
-        return $this->name->getAttribute('ast');
+        return $this->name->getAttribute('astCollection');
     }
 
     public function getAllFamilyFullyQualifiedNameList(): array

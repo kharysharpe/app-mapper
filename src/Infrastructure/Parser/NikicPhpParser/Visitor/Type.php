@@ -25,16 +25,16 @@ final class Type
     /**
      * @var string
      */
-    private $fqcn;
+    private $typeAsString;
 
     /**
      * @var null|Node
      */
     private $ast;
 
-    public function __construct(string $fqcn, ?Node $ast)
+    public function __construct(string $typeAsString, ?Node $ast = null)
     {
-        $this->fqcn = $fqcn;
+        $this->typeAsString = ltrim($typeAsString, '\\');
         $this->ast = $ast;
     }
 
@@ -43,12 +43,17 @@ final class Type
         return ClassService::extractCanonicalClassName(__CLASS__);
     }
 
-    public function getFqcn(): string
+    public function toString(): string
     {
-        return $this->fqcn;
+        return (string) $this;
     }
 
-    public function getAst(): Node
+    public function __toString(): string
+    {
+        return $this->typeAsString;
+    }
+
+    public function getAst(): ?Node
     {
         return $this->ast;
     }

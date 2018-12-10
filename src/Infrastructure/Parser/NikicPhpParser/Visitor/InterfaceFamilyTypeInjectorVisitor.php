@@ -18,23 +18,27 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Stmt\Interface_;
 
-final class StaticCallClassTypeInjectorVisitor extends AbstractTypeInjectorVisitor
+final class InterfaceFamilyTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     public function enterNode(Node $node): void
     {
         parent::enterNode($node);
-        if ($node instanceof StaticCall) {
-            $this->addTypeToStaticCallClass($node);
+        if ($node instanceof Interface_) {
+            $this->addTypeToParents($node);
         }
     }
 
-    private function addTypeToStaticCallClass(StaticCall $staticCall): void
+    private function addTypeToParents(Interface_ $interface): void
     {
-        $this->addTypeToNode(
-            $staticCall->class,
-            $this->buildType($staticCall->class)
-        );
+        if (!empty($interface->extends)) {
+            foreach ($interface->extends as $parent) {
+                $this->addTypeToNode(
+                    $parent,
+                    $this->buildType($parent)
+                );
+            }
+        }
     }
 }

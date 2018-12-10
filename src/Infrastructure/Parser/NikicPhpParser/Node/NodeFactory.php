@@ -19,12 +19,14 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
+use Hgraca\PhpExtension\Type\TypeService;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
-use function is_string;
 
 final class NodeFactory
 {
@@ -33,6 +35,7 @@ final class NodeFactory
      */
     public static function constructNodeAdapter($parserNode): AdapterNodeInterface
     {
+        $type = AbstractTypeInjectorVisitor::getTypeFromNode($parserNode);
         switch (true) {
             case $parserNode instanceof ClassMethod: // this needs to be above the `Expr`
                 return new MethodAdapter($parserNode);
@@ -40,37 +43,28 @@ final class NodeFactory
                 return new MethodCallAdapter($parserNode);
             case $parserNode instanceof Class_:
             case $parserNode instanceof Expr: // MethodArgument
-            case self::isFullyQualifiedName($parserNode):
-                return self::constructTypeNodeAdapter($parserNode);
+            case TypeService::isValidFQCN((string) $type):
+                return self::constructTypeNodeAdapter($type);
             default:
                 return new UnknownTypeNode($parserNode);
         }
     }
 
     /**
-     * @param null|string|Node $parserNode
+     * @param null|string|Node $type
      */
-    public static function constructTypeNodeAdapter($parserNode): TypeNodeInterface
+    public static function constructTypeNodeAdapter(Type $type): TypeNodeInterface
     {
+        $ast = $type->getAst();
         switch (true) {
-            case $parserNode instanceof Class_:
-                return new ClassAdapter($parserNode);
-            case $parserNode instanceof Expr:
-                return new MethodArgumentAdapter($parserNode);
-            case self::isFullyQualifiedName($parserNode):
-                return new FullyQualifiedTypeNode($parserNode);
+            case $ast instanceof Class_:
+                return ClassAdapter::constructFromClassNode($ast);
+            case $ast instanceof Expr:
+                return new MethodArgumentAdapter($ast);
+            case TypeService::isValidFQCN((string) $type):
+                return new FullyQualifiedTypeNode((string) $type);
             default:
-                return new UnknownTypeNode($parserNode);
+                return new UnknownTypeNode((string) $type);
         }
-    }
-
-    private static function isFullyQualifiedName($string): bool
-    {
-        return is_string($string)
-            && !in_array(
-                $string,
-                ['boolean', 'integer', 'float', 'string', 'array', 'object', 'callable', 'iterable', 'resource', 'null'],
-                true
-            );
     }
 }

@@ -17,6 +17,16 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-interface AstConnectorVisitorInterface
+use PhpParser\Node;
+use PhpParser\Node\Expr\Variable;
+
+final class ThisTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
+    public function enterNode(Node $node): void
+    {
+        parent::enterNode($node);
+        if ($node instanceof Variable && $node->name === 'this') {
+            $this->addTypeToNode($node, $this->self);
+        }
+    }
 }

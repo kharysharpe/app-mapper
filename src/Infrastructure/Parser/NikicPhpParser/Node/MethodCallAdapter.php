@@ -101,7 +101,7 @@ final class MethodCallAdapter implements MethodCallInterface
                 $node = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
             } while (!$node instanceof Class_);
 
-            $this->enclosingClass = new ClassAdapter($node);
+            $this->enclosingClass = ClassAdapter::constructFromClassNode($node);
         }
 
         return $this->enclosingClass;

@@ -17,8 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
@@ -112,12 +111,11 @@ final class QueryBuilder
                 if (!$node instanceof MethodCall) {
                     return false;
                 }
-                $dispatcherFqcn = NodeFactory::constructTypeNodeAdapter(
-                    $node->var->getAttribute(AstConnectorVisitorInterface::KEY_AST)
-                )->getFullyQualifiedType();
-                $dispatcherMethodName = $node->name->name;
+                $methodCall = $node;
+                $dispatcherFqcn = (string) AbstractTypeInjectorVisitor::getTypeFromNode($methodCall->var);
+                $dispatcherMethodName = (string) $methodCall->name;
 
-                return $node instanceof MethodCall
+                return $methodCall instanceof MethodCall
                     && preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
                     && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName);
             }

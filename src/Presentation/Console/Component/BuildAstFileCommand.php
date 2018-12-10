@@ -29,11 +29,11 @@ use function getcwd;
 
 class BuildAstFileCommand extends AbstractCommandStopwatchDecorator
 {
-    private const NAME = 'cmap:ast:build';
+    private const NAME = 'cmap:astCollection:build';
     private const ARG_ROOT_PATH = 'rootPath';
     private const ARG_FILE_PATH = 'filePath';
     private const OPT_PRETTY_PRINT = 'prettyPrint';
-    private const DEFAULT_FILE_NAME = 'cmap.ast.json';
+    private const DEFAULT_FILE_NAME = 'cmap.astCollection.json';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,

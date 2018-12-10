@@ -15,8 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
+namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-interface AstConnectorVisitorInterface
+use Hgraca\PhpExtension\Exception\RuntimeException;
+
+final class UnknownFqcnException extends RuntimeException
 {
 }

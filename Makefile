@@ -85,7 +85,7 @@ dep-update:
 	./bin/docker-run.sh ${CONTAINER_NAME} composer update
 
 .test:
-	- $(MAKE) cs-fix
+	- $(MAKE) .cs-fix
 	bin/phpunit
 	$(MAKE) .test-dep
 

@@ -21,7 +21,7 @@ use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
@@ -50,19 +50,30 @@ final class ClassAdapter implements ClassInterface
      */
     private $implementedList;
 
-    public function __construct(Class_ $class)
+    private function __construct()
     {
-        $this->class = $class;
+    }
+
+    public static function constructFromClassNode(Class_ $class): self
+    {
+        $self = new self();
+
+        $self->class = $class;
+
+        return $self;
     }
 
     public static function constructFromNew(New_ $newExpression): self
     {
-        return new self($newExpression->getAttribute(AstConnectorVisitorInterface::KEY_AST));
+        /** @var Class_ $class */
+        $class = AbstractTypeInjectorVisitor::getTypeFromNode($newExpression)->getAst();
+
+        return self::constructFromClassNode($class);
     }
 
     public function getFullyQualifiedType(): string
     {
-        return '\\' . ltrim($this->class->namespacedName->toCodeString(), '\\');
+        return ltrim($this->class->namespacedName->toCodeString(), '\\');
     }
 
     public function getCanonicalType(): string
@@ -130,7 +141,7 @@ final class ClassAdapter implements ClassInterface
                 /** @var Type $interfaceType */
                 $interfaceType = $interfaceNameNode->getAttribute(Type::getName());
                 $implementedList[] = [
-                    $interfaceType->getFqcn() => $interfaceType->hasAst() ? $interfaceType->getAst() : null,
+                    $interfaceType->toString() => $interfaceType->hasAst() ? $interfaceType->getAst() : null,
                 ];
                 if ($interfaceType->hasAst()) {
                     $implementedList[] = $this->findAllParentsFullyQualifiedNameListRecursively(
@@ -167,7 +178,7 @@ final class ClassAdapter implements ClassInterface
             /** @var Type $parentType */
             $parentType = $parentNameNode->getAttribute(Type::getName());
             $parentList[] = [
-                $parentType->getFqcn() => $parentType->hasAst() ? $parentType->getAst() : null,
+                $parentType->toString() => $parentType->hasAst() ? $parentType->getAst() : null,
             ];
 
             if (!$parentType->hasAst()) {

@@ -17,34 +17,16 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\NodeVisitorAbstract;
 
-class ImplementedTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
+final class ClassTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    use TypeInjectorVisitorTrait;
-
-    /**
-     * @var NodeCollection
-     */
-    private $ast;
-
-    public function __construct(NodeCollection $ast)
-    {
-        /* @noinspection UnusedConstructorDependenciesInspection Used in trait */
-        $this->ast = $ast;
-    }
-
     public function enterNode(Node $node): void
     {
-        if (!$node instanceof Class_ || empty($node->implements)) {
-            return;
-        }
-
-        foreach ($node->implements as $interface) {
-            $this->addType($interface);
+        parent::enterNode($node);
+        if ($node instanceof Class_) {
+            $this->addTypeToNode($node, $this->buildType($node));
         }
     }
 }

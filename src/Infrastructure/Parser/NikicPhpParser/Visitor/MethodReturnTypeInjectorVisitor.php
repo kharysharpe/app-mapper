@@ -17,68 +17,29 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name\FullyQualified;
-use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\NodeVisitorAbstract;
 
-class MethodReturnTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
+final class MethodReturnTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    /**
-     * @var NodeCollection
-     */
-    private $astMap;
-
-    public function __construct(NodeCollection $astMap)
+    public function enterNode(Node $node): void
     {
-        $this->astMap = $astMap;
+        parent::enterNode($node);
+        if ($node instanceof ClassMethod) {
+            $this->addTypeToClassMethodReturnTypeNode($node);
+        }
     }
 
-    public function enterNode(Node $method): void
+    private function addTypeToClassMethodReturnTypeNode(ClassMethod $classMethod): void
     {
-        if (!$method instanceof ClassMethod) {
+        $returnType = $classMethod->getReturnType();
+        if ($returnType === null) {
             return;
         }
-        $returnType = $method->getReturnType();
-        if ($returnType instanceof NullableType) {
-            $returnType = $returnType->type;
-        }
-        switch (true) {
-            case $returnType === null:
-                return;
-            case $returnType instanceof Identifier:
-                $returnType->setAttribute(self::KEY_AST, $returnType->name);
-                break;
-            default:
-                $returnType->setAttribute(self::KEY_AST, $this->resolveReturnTypeNode($method));
-        }
-    }
 
-    private function getMethodClassNode(ClassMethod $method): Node
-    {
-        return $method->getAttribute(ParentConnectorVisitor::PARENT_NODE);
-    }
-
-    private function resolveReturnTypeNode(ClassMethod $method)
-    {
-        $returnType = $method->getReturnType();
-        if ($returnType instanceof NullableType) {
-            $returnType = $returnType->type;
-        }
-        /** @var FullyQualified $name */
-        $name = $returnType->getAttribute('resolvedName');
-        $fqcn = $name->toCodeString();
-
-        switch (true) {
-            case $fqcn === 'self':
-                return $this->getMethodClassNode($method);
-            case $this->astMap->hasAstNode($fqcn):
-                return $this->astMap->getAstNode($fqcn);
-            default:
-                return $fqcn;
-        }
+        $this->addTypeToNode(
+            $returnType,
+            $this->buildType($returnType)
+        );
     }
 }

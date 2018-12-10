@@ -20,11 +20,12 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AstConnectorVisitorInterface;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Stmt\Class_;
 
 final class MethodArgumentAdapter implements MethodArgumentInterface
 {
@@ -38,16 +39,16 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
         switch (true) {
             case $argument instanceof New_:
                 $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    $argument->class->getAttribute(AstConnectorVisitorInterface::KEY_AST)
+                    AbstractTypeInjectorVisitor::getTypeFromNode($argument)
                 );
                 break;
             case $argument instanceof Variable:
                 $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    $argument->getAttribute(AstConnectorVisitorInterface::KEY_AST)
+                    AbstractTypeInjectorVisitor::getTypeFromNode($argument)
                 );
                 break;
-            case $argument instanceof StaticCall:
-                $class = new ClassAdapter($argument->class->getAttribute(AstConnectorVisitorInterface::KEY_AST));
+            case $argument instanceof StaticCall && $this->staticCallClassAstIsKnown($argument):
+                $class = ClassAdapter::constructFromClassNode($this->getStaticCallClassAst($argument));
                 $method = $class->getMethod($argument->name->toString());
                 $this->argument = $method->getReturnTypeNode();
                 break;
@@ -74,5 +75,18 @@ final class MethodArgumentAdapter implements MethodArgumentInterface
     public function getAllFamilyFullyQualifiedNameList(): array
     {
         throw new NotImplementedException();
+    }
+
+    private function staticCallClassAstIsKnown(StaticCall $argument): bool
+    {
+        return AbstractTypeInjectorVisitor::getTypeFromNode($argument->class)->hasAst();
+    }
+
+    private function getStaticCallClassAst(StaticCall $argument): Class_
+    {
+        /** @var Class_ $class */
+        $class = AbstractTypeInjectorVisitor::getTypeFromNode($argument->class)->getAst();
+
+        return $class;
     }
 }
