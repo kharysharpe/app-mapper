@@ -105,4 +105,11 @@ final class XxxAaaService
     {
         return CccEvent::namedConstructor();
     }
+
+    public function methodM(EventInterface $event = null): void
+    {
+        $event = $event ?? CccEvent::namedConstructor();
+
+        $this->eventDispatcher->dispatch($event);
+    }
 }
