@@ -19,8 +19,10 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromStaticMethodCallTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
@@ -151,6 +153,7 @@ final class NodeCollection
         $traverser->traverse($nodeList);
 
         $traverser = new NodeTraverser();
+        $traverser->addVisitor(new AssignmentFromStaticMethodCallTypeInjectorVisitor($this));
         $traverser->addVisitor(new AssignmentFromNewTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new AssignmentFromParameterTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
@@ -162,12 +165,14 @@ final class NodeCollection
         $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
-//        $traverser = new NodeTraverser();
-        // TODO add AssignmentFromMethodCallTypeInjectorVisitor
-//        $traverser->traverse($nodeList);
-
         $traverser = new NodeTraverser();
-        // TODO make a second pass with the PropertyFetchTypeInjectorVisitor
+        // This one needs the properties to already be set
+        $traverser->addVisitor(new AssignmentFromMethodCallTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        /** Make a second pass to make sure we got all properties, including the ones captured in the last visitor */
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
         $GLOBALS['nodes'] = $nodeList;

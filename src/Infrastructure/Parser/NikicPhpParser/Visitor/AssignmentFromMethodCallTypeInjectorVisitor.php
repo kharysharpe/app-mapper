@@ -19,13 +19,13 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class AssignmentFromNewTypeInjectorVisitor extends AbstractTypeInjectorVisitor
+final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use PropertyBufferTrait;
     use VariableBufferTrait;
@@ -36,22 +36,23 @@ final class AssignmentFromNewTypeInjectorVisitor extends AbstractTypeInjectorVis
         switch (true) {
             case $node instanceof Assign:
                 $assignment = $node;
-
-                if (!$assignment->expr instanceof New_) {
+                if (!$assignment->expr instanceof MethodCall) {
                     return;
                 }
                 $var = $assignment->var;
-                $new = $assignment->expr;
+                $methodCall = $assignment->expr;
+
+                $this->addTypeToMethodCall($methodCall);
+
+                // Assignment of a StaticCall to variable or property
+                $type = self::getTypeFromNode($methodCall);
+                $this->addTypeToNode($var, $type);
 
                 switch (true) {
                     case $var instanceof Variable: // Assignment of a new instance to variable
-                        $type = self::getTypeFromNode($new);
-                        $this->addTypeToNode($var, $type);
                         $this->addVariableTypeToBuffer($this->getVariableName($var), $type);
                         break;
                     case $var instanceof PropertyFetch: // Assignment of a new instance to property
-                        $type = self::getTypeFromNode($new);
-                        $this->addTypeToNode($var, $type);
                         $this->addPropertyTypeToBuffer($this->getPropertyName($var), $type);
                         break;
                 }
@@ -74,6 +75,21 @@ final class AssignmentFromNewTypeInjectorVisitor extends AbstractTypeInjectorVis
         }
         if ($node instanceof ClassMethod) {
             $this->resetVariableTypeBuffer();
+        }
+    }
+
+    private function addTypeToMethodCall(MethodCall $methodCall): void
+    {
+        $varType = self::getTypeFromNode($methodCall->var);
+
+        if ($varType->hasAst()) {
+            $classMethodReturnType = self::getTypeFromNode(
+                self::getTypeFromNode($methodCall->var)
+                    ->getAstMethod((string) $methodCall->name)
+                    ->returnType
+            );
+
+            $this->addTypeToNode($methodCall, $classMethodReturnType);
         }
     }
 }

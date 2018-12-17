@@ -21,8 +21,10 @@ use DateTime;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\ContextMapper\Test\Framework\AbstractIntegrationTest;
 use Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
+use Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxBbbService;
 use Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntity;
 use Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbEntity;
+use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 use Hgraca\PhpExtension\Reflection\ReflectionService;
 use PhpParser\Node\Param;
@@ -45,7 +47,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         if (!self::$nodeCollection) {
             self::$nodeCollection = NodeCollection::constructFromFolder(
-                __DIR__ . '/../../../../StubProjectSrc/Core/Component/X'
+                __DIR__ . '/../../../../StubProjectSrc'
             );
             self::$nodeCollection->enhance();
         }
@@ -204,7 +206,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      *
      * @throws \ReflectionException
      */
-    public function instantiation_have_type(): void
+    public function instantiation_has_type(): void
     {
         $this->createNodeCollection();
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
@@ -247,7 +249,8 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $this->createNodeCollection();
         $methodNode = $this->getMethod('methodD', XxxAaaService::class);
-        self::assertNull(
+        self::assertInstanceOf(
+            Class_::class,
             ReflectionService::getNestedProperty(
                 'stmts.1.expr.args.0.value.attributes.Type.ast',
                 $methodNode
@@ -257,6 +260,156 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
             DddEvent::class,
             ReflectionService::getNestedProperty(
                 'stmts.1.expr.args.0.value.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function static_method_call_has_type(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodK', XxxAaaService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function variable_has_type_assigned_from_static_method_call(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodK', XxxAaaService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.1.expr.args.0.value.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.1.expr.args.0.value.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function method_call_has_type(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodC', XxxBbbService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.var.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.var.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function variable_has_type_assigned_from_method_call(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodC', XxxBbbService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.var.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.var.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function local_method_call_has_type(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodD', XxxBbbService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.typeAsString',
+                $methodNode
+            )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function variable_has_type_assigned_from_local_method_call(): void
+    {
+        $this->createNodeCollection();
+        $methodNode = $this->getMethod('methodD', XxxBbbService::class);
+        self::assertInstanceOf(
+            Class_::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.ast',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            CccEvent::class,
+            ReflectionService::getNestedProperty(
+                'stmts.0.expr.expr.attributes.Type.typeAsString',
                 $methodNode
             )
         );

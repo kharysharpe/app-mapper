@@ -81,4 +81,28 @@ final class XxxAaaService
     {
         $this->eventDispatcher->dispatch(UnknownEvent::namedConstructor());
     }
+
+    public function methodI(): void
+    {
+        $this->methodJ(new BbbEvent());
+    }
+
+    public function methodJ(EventInterface $event = null): void
+    {
+        $event = $event ? new AaaEvent() : CccEvent::namedConstructor();
+
+        $this->eventDispatcher->dispatch($event);
+    }
+
+    public function methodK(): void
+    {
+        $event = CccEvent::namedConstructor();
+
+        $this->eventDispatcher->dispatch($event);
+    }
+
+    public function methodL(): CccEvent
+    {
+        return CccEvent::namedConstructor();
+    }
 }

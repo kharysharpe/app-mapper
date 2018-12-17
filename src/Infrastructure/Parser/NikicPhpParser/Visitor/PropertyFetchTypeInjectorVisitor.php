@@ -24,6 +24,10 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 
+/**
+ * This visitor makes a swipe injecting the types from the property declarations into the property usages
+ * (PropertyFetch)
+ */
 final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use PropertyBufferTrait;
@@ -34,7 +38,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
         switch (true) {
             // TODO should follow family and traits up and set their property types in this buffer
             case $node instanceof Property:
-                // Properties declared at the top of the class
+                // Properties declared at the top of the class are added to buffer
                 try {
                     $this->addPropertyTypeToBuffer((string) $node->props[0]->name, self::getTypeFromNode($node));
                 } catch (TypeNotFoundInNodeException $e) {
@@ -42,7 +46,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 }
                 break;
             case $node instanceof PropertyFetch:
-                // Properties used within the class
+                // Properties used within the class are injected with type from buffer
                 try {
                     $this->addTypeToNode($node, $this->getPropertyTypeFromBuffer((string) $node->name));
                 } catch (UnknownPropertyException $e) {

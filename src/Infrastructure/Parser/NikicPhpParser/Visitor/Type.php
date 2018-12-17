@@ -17,8 +17,12 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Interface_;
 
 final class Type
 {
@@ -28,7 +32,7 @@ final class Type
     private $typeAsString;
 
     /**
-     * @var null|Node
+     * @var null|Class_|Interface_
      */
     private $ast;
 
@@ -36,6 +40,11 @@ final class Type
     {
         $this->typeAsString = ltrim($typeAsString, '\\');
         $this->ast = $ast;
+    }
+
+    public static function constructUnknownFromNode(Node $node): self
+    {
+        return new self('Unknown (' . get_class($node) . ')');
     }
 
     public static function getName(): string
@@ -61,5 +70,19 @@ final class Type
     public function hasAst(): bool
     {
         return $this->ast !== null;
+    }
+
+    public function getAstMethod(string $methodName): ClassMethod
+    {
+        foreach ($this->ast->stmts as $stmt) {
+            if (
+                $stmt instanceof ClassMethod
+                && (string) $stmt->name === $methodName
+            ) {
+                return $stmt;
+            }
+        }
+
+        throw new MethodNotFoundInClassException($methodName, $this->typeAsString);
     }
 }

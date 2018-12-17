@@ -173,8 +173,8 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
     public static function getTypeFromNode(Node $node): Type
     {
         if (!$node->hasAttribute(Type::getName())) {
-            return new Type('Unknown (' . get_class($node) . ')');
-            // throw new TypeNotFoundInNodeException("Can't find type in node " . get_class($node));
+            return Type::constructUnknownFromNode($node);
+//             throw new TypeNotFoundInNodeException("Can't find type in node " . get_class($node));
         }
 
         return $node->getAttribute(Type::getName());

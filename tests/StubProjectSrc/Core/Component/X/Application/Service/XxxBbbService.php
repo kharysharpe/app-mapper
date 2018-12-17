@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Application\Service;
 
 use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
+use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 
 final class XxxBbbService
 {
@@ -34,5 +35,25 @@ final class XxxBbbService
     public function methodA(): void
     {
         $this->xxxAaaService->methodC(new CccEvent());
+    }
+
+    public function methodB(): void
+    {
+        $this->xxxAaaService->methodJ(new DddEvent());
+    }
+
+    public function methodC(): void
+    {
+        $event = $this->xxxAaaService->methodL();
+    }
+
+    public function methodD(): void
+    {
+        $event = $this->methodL();
+    }
+
+    public function methodL(): CccEvent
+    {
+        return CccEvent::namedConstructor();
     }
 }
