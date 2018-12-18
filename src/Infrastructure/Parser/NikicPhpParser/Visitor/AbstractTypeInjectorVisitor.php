@@ -19,6 +19,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\PhpExtension\Type\TypeService;
 use PhpParser\Node;
@@ -31,6 +32,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeVisitorAbstract;
 use function is_string;
+use function json_encode;
 
 abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
@@ -56,35 +58,6 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
             $this->self = $this->buildType($node->namespacedName);
         }
     }
-
-    // TODO create a new AssignmentFromMethodCallTypeInjectorVisitor and put this there
-    // TODO create a new AssignmentFromStaticCallTypeInjectorVisitor and put this there
-//    protected function handleAssignmentNode(Assign $assignment): void
-//    {
-//        $expression = $assignment->expr;
-//        $var = $assignment->var;
-//        switch (true) {
-//            case $expression instanceof MethodCall:
-//                // MethodCall on property
-//                $methodCall = $expression;
-//                $newType = $this->buildType($methodCall);
-//                $this->addTypeToNode($methodCall->class, $newType);
-//                switch (true) {
-//                    case $var instanceof Variable:
-//                        // Assignment of method return type to variable
-//                        $this->addTypeToNode($var, $newType);
-//                        $this->addVariableTypeToBuffer((string) $var->name, $newType);
-//                        break;
-//                    case $var instanceof PropertyFetch:
-//                        // Assignment of method return type to property
-//                        $property = $var;
-//                        $this->addTypeToNode($property, $newType);
-//                        $this->addPropertyTypeToBuffer((string) $property->name, $newType);
-//                        break;
-//                }
-//                break;
-//        }
-//    }
 
     protected function buildType($node): Type
     {

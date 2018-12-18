@@ -152,6 +152,7 @@ final class NodeCollection
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
+        // These need the other to run first until the end
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new AssignmentFromStaticMethodCallTypeInjectorVisitor($this));
         $traverser->addVisitor(new AssignmentFromNewTypeInjectorVisitor($this)); // TODO test
@@ -170,12 +171,10 @@ final class NodeCollection
         $traverser->addVisitor(new AssignmentFromMethodCallTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
-        /** Make a second pass to make sure we got all properties, including the ones captured in the last visitor */
+        // Make a second pass to make sure we got all properties, including the ones captured in the last visitor
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
-
-        $GLOBALS['nodes'] = $nodeList;
     }
 
     private function addCollections(self ...$nodeCollectionList): void
