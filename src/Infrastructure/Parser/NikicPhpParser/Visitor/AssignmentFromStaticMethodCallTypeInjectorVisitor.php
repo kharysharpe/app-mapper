@@ -42,8 +42,6 @@ final class AssignmentFromStaticMethodCallTypeInjectorVisitor extends AbstractTy
                 $var = $assignment->var;
                 $staticCall = $assignment->expr;
 
-                $this->addTypeToStaticCall($staticCall);
-
                 // Assignment of a StaticCall to variable or property
                 $type = self::getTypeFromNode($staticCall);
                 $this->addTypeToNode($var, $type);
@@ -75,24 +73,6 @@ final class AssignmentFromStaticMethodCallTypeInjectorVisitor extends AbstractTy
         }
         if ($node instanceof ClassMethod) {
             $this->resetVariableTypeBuffer();
-        }
-    }
-
-    private function addTypeToStaticCall(StaticCall $staticCall): void
-    {
-        $classType = self::getTypeFromNode($staticCall->class);
-
-        if ($classType->hasAst()) {
-            $classMethodReturnType = self::getTypeFromNode(
-                self::getTypeFromNode($staticCall->class)
-                    ->getAstMethod((string) $staticCall->name)
-                    ->returnType
-            );
-
-            $this->addTypeToNode(
-                $staticCall,
-                $classMethodReturnType
-            );
         }
     }
 }

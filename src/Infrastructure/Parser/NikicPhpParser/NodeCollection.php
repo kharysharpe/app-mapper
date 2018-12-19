@@ -32,6 +32,7 @@ use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodRetu
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticMethodCallTypeInjectorVisitor;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
@@ -158,6 +159,10 @@ final class NodeCollection
         $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
         $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new StaticMethodCallTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
 
         // These need the other to run first until the end
