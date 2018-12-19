@@ -129,6 +129,13 @@ final class NodeCollection
         return $this->name;
     }
 
+    /**
+     * TODO This whole method can and should be refactored to a better design.
+     *      We can
+     *          1. Use resolver `callable`s instead of injecting the type
+     *          2. Make better use of the Visitor::leaveNode(), when we need to first visit inner
+     *              nodes to resolve an outer node, as in the Assign nodes
+     */
     public function enhance(): void
     {
         $nodeList = array_values($this->nodeList);
@@ -138,17 +145,18 @@ final class NodeCollection
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $traverser->addVisitor(new ParentConnectorVisitor());
+        $traverser->addVisitor(new ClassTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
 
+        // Visitors that need the final collection set up
         // Run visitors that don't need any Types added before hand
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ClassTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new ClassFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
-        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
-        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
-        $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
+        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
+        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
+        $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
