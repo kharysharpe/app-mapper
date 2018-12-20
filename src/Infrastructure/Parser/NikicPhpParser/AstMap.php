@@ -44,6 +44,11 @@ final class AstMap implements AstMapInterface
      */
     private $queryBuilder;
 
+    /**
+     * @var bool
+     */
+    private $hasTypeInformation = false;
+
     private function __construct()
     {
     }
@@ -58,7 +63,6 @@ final class AstMap implements AstMapInterface
         $self->completeNodeCollection = NodeCollection::constructFromNodeCollectionList(
             ...array_values($self->componentNodeCollectionList)
         );
-        $self->completeNodeCollection->enhance();
         $self->queryBuilder = new QueryBuilder();
 
         return $self;
@@ -96,6 +100,8 @@ final class AstMap implements AstMapInterface
 
     private function query(Query $query): AdapterNodeCollection
     {
+        $this->addTypesToAstCollection();
+
         $nodeList = array_values(
             $query->getComponentFilter()
                 ? $this->getComponentAstCollection($query->getComponentFilter())->toArray()
@@ -155,5 +161,14 @@ final class AstMap implements AstMapInterface
     private function getComponentAstCollection(string $componentName): NodeCollection
     {
         return $this->componentNodeCollectionList[$componentName];
+    }
+
+    private function addTypesToAstCollection(): void
+    {
+        if ($this->hasTypeInformation) {
+            return;
+        }
+        $this->completeNodeCollection->enhance();
+        $this->hasTypeInformation = true;
     }
 }
