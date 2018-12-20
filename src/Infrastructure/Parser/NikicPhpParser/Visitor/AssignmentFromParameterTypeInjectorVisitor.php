@@ -45,12 +45,12 @@ final class AssignmentFromParameterTypeInjectorVisitor extends AbstractTypeInjec
         try {
             switch (true) {
                 case $var instanceof Variable: // Assignment of variable to variable
-                    $this->addTypeToNode($var, self::getTypeFromNode($exprVar));
+                    $this->addTypeCollectionToNode($var, self::getTypeCollectionFromNode($exprVar));
                     break;
                 case $var instanceof PropertyFetch: // Assignment of variable to property
-                    $type = self::getTypeFromNode($exprVar);
-                    $this->addTypeToNode($var, $type);
-                    $this->addPropertyTypeToBuffer($this->getPropertyName($var), $type);
+                    $typeCollection = self::getTypeCollectionFromNode($exprVar);
+                    $this->addTypeCollectionToNode($var, $typeCollection);
+                    $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
                     break;
             }
         } catch (TypeNotFoundInNodeException $e) {

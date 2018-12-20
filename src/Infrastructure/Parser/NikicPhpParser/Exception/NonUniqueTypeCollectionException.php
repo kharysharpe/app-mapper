@@ -17,12 +17,17 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\ContextMapperLogicException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
+use function array_keys;
 
-final class MethodNotFoundInClassException extends ParserException
+final class NonUniqueTypeCollectionException extends ContextMapperLogicException
 {
-    public function __construct(string $methodName, string $classFqcn)
+    public function __construct(TypeCollection $typeCollection)
     {
-        parent::__construct("Method '$methodName' not found in class '$classFqcn'.");
+        parent::__construct(
+            "The type collection contains more than one type: \n"
+            . implode("\n", array_keys($typeCollection->toArray()))
+        );
     }
 }

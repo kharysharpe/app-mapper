@@ -17,11 +17,15 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
 
-interface MethodArgumentInterface extends TypeNodeInterface
+use IteratorAggregate;
+
+/**
+ * This interface represents a method argument, in the sense of a collection of the types that argument can have
+ */
+interface MethodArgumentInterface extends IteratorAggregate
 {
-    public function getArgumentNode(): TypeNodeInterface;
-
-    public function getFullyQualifiedType(): string;
-
-    public function getCanonicalType(): string;
+    /**
+     * @return AdapterNodeInterface[]
+     */
+    public function toArray(): array;
 }

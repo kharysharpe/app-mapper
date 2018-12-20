@@ -54,7 +54,7 @@ final class MethodCallAdapter implements MethodCallInterface
         $this->methodCall = $methodCall;
         /** @var Arg $argument */
         foreach ($methodCall->args as $argument) {
-            $this->argumentList[] = new MethodArgumentAdapter($argument->value);
+            $this->argumentList[] = new MethodArgumentAdapter($argument);
         }
     }
 
@@ -76,16 +76,6 @@ final class MethodCallAdapter implements MethodCallInterface
     public function getMethodArgument(int $argumentIndex = 0): MethodArgumentInterface
     {
         return $this->argumentList[$argumentIndex];
-    }
-
-    public function getArgumentFullyQualifiedType(int $argumentIndex = 0): string
-    {
-        return $this->argumentList[$argumentIndex]->getFullyQualifiedType();
-    }
-
-    public function getArgumentCanonicalType(int $argumentIndex = 0): string
-    {
-        return $this->argumentList[$argumentIndex]->getCanonicalType();
     }
 
     public function getLine(): int

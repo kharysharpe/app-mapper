@@ -28,7 +28,7 @@ trait PropertyBufferTrait
 {
     private $propertyTypeBuffer = [];
 
-    private function addPropertyTypeToBuffer(string $propertyName, Type $propertyType): void
+    private function addPropertyTypeToBuffer(string $propertyName, TypeCollection $propertyType): void
     {
         $this->propertyTypeBuffer[$propertyName] = $propertyType;
     }
@@ -38,7 +38,7 @@ trait PropertyBufferTrait
         return array_key_exists($propertyName, $this->propertyTypeBuffer);
     }
 
-    private function getPropertyTypeFromBuffer(string $propertyName): Type
+    private function getPropertyTypeFromBuffer(string $propertyName): TypeCollection
     {
         if (!$this->hasPropertyTypeInBuffer($propertyName)) {
             throw new UnknownPropertyException($propertyName);
@@ -76,7 +76,7 @@ trait PropertyBufferTrait
                 $property instanceof Property
                 && $this->hasPropertyTypeInBuffer($propertyName = $this->getPropertyName($property))
             ) {
-                $this->addTypeToNode($property, $this->getPropertyTypeFromBuffer($propertyName));
+                $this->addTypeCollectionToNode($property, $this->getPropertyTypeFromBuffer($propertyName));
             }
         }
         $this->resetPropertyTypeBuffer();

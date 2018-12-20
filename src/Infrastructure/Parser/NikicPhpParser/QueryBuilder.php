@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
@@ -112,12 +113,28 @@ final class QueryBuilder
                     return false;
                 }
                 $methodCall = $node;
-                $dispatcherFqcn = (string) AbstractTypeInjectorVisitor::getTypeFromNode($methodCall->var);
-                $dispatcherMethodName = (string) $methodCall->name;
+                try {
+                    $dispatcherTypeCollection = AbstractTypeInjectorVisitor::getTypeCollectionFromNode(
+                        $methodCall->var
+                    );
 
-                return $methodCall instanceof MethodCall
-                    && preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
-                    && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName);
+                    foreach ($dispatcherTypeCollection as $type) {
+                        $dispatcherFqcn = (string) $type;
+                        $dispatcherMethodName = (string) $methodCall->name;
+
+                        if (
+                            preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
+                            && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName)
+                        ) {
+                            return true;
+                        }
+                    }
+                } catch (TypeNotFoundInNodeException $e) {
+                    // Silently ignore this because the type is not in the node so it can't pass the filter
+                    // TODO log this only as notice, cozz this should be fixed in the type addition visitors
+                }
+
+                return false;
             }
         );
 

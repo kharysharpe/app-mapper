@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
+use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node;
 use function get_class;
 use function is_string;
@@ -64,5 +65,10 @@ final class UnknownTypeNode implements TypeNodeInterface
     public function getAllFamilyFullyQualifiedNameList(): array
     {
         return [];
+    }
+
+    public function __toString(): string
+    {
+        return ClassService::extractCanonicalClassName(__CLASS__) . ' - ' . $this->phpParserNodeType;
     }
 }

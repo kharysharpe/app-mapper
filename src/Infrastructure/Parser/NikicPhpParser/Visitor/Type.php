@@ -47,9 +47,19 @@ final class Type
         return new self('Unknown (' . get_class($node) . ')');
     }
 
+    public static function constructVoid(): self
+    {
+        return new self('void');
+    }
+
     public static function getName(): string
     {
         return ClassService::extractCanonicalClassName(__CLASS__);
+    }
+
+    public function getFcqn(): string
+    {
+        return $this->typeAsString;
     }
 
     public function toString(): string

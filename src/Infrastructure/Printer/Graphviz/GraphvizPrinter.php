@@ -25,6 +25,7 @@ use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
+use Hgraca\PhpExtension\String\ClassService;
 use Hgraca\PhpExtension\String\StringService;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -194,7 +195,10 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge->setAttribute('graphviz.dir', 'forward'); // force the edge direction
                     $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
                     $eventEdge->setAttribute('graphviz.color', $config->getEventColor());
-                    $eventEdge->setAttribute('graphviz.xlabel', $eventDispatcher->getEventCanonicalName());
+                    $eventEdge->setAttribute(
+                        'graphviz.xlabel',
+                        ClassService::extractCanonicalClassName($listener->getListenedFqcn())
+                    );
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
                     $this->logger->debug(
                         $this->createPortId($eventDispatcher) . ' --> ' . $this->createPortId($listener)

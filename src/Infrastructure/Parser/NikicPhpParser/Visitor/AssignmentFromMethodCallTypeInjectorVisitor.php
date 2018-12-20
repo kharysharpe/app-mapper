@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
+use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
@@ -24,6 +27,7 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use function get_class;
 
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
@@ -44,23 +48,32 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
 
                 $this->addTypeToMethodCall($methodCall);
 
-                // Assignment of a StaticCall to variable or property
-                $type = self::getTypeFromNode($methodCall);
-                $this->addTypeToNode($var, $type);
+                try {
+                    // TODO This is failing for nested method calls like
+                    //      `$invoice->servicePro = $invoice->transactions->first()->getServicePro();`
+                    // Assignment of a StaticCall to variable or property
+                    $typeCollection = self::getTypeCollectionFromNode($methodCall);
+                    $this->addTypeCollectionToNode($var, $typeCollection);
 
-                switch (true) {
-                    case $var instanceof Variable: // Assignment of a new instance to variable
-                        $this->addVariableTypeToBuffer($this->getVariableName($var), $type);
-                        break;
-                    case $var instanceof PropertyFetch: // Assignment of a new instance to property
-                        $this->addPropertyTypeToBuffer($this->getPropertyName($var), $type);
-                        break;
+                    switch (true) {
+                        case $var instanceof Variable: // Assignment of a new instance to variable
+                            $this->addVariableTypeToBuffer($this->getVariableName($var), $typeCollection);
+                            break;
+                        case $var instanceof PropertyFetch: // Assignment of a new instance to property
+                            $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
+                            break;
+                    }
+                } catch (TypeNotFoundInNodeException $e) {
+                    // TODO we silently ignore for now, but this needs to be improved, otherwise we might be missing events
                 }
                 break;
             case $node instanceof Variable:
                 // After collecting the variable types, inject it in the following variable nodes
                 if ($this->hasVariableTypeInBuffer($this->getVariableName($node))) {
-                    $this->addTypeToNode($node, $this->getVariableTypeFromBuffer($this->getVariableName($node)));
+                    $this->addTypeCollectionToNode(
+                        $node,
+                        $this->getVariableTypeFromBuffer($this->getVariableName($node))
+                    );
                 }
                 break;
         }
@@ -80,16 +93,32 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
 
     private function addTypeToMethodCall(MethodCall $methodCall): void
     {
-        $varType = self::getTypeFromNode($methodCall->var);
+        try {
+            $varCollectionType = self::getTypeCollectionFromNode($methodCall->var);
 
-        if ($varType->hasAst()) {
-            $classMethodReturnType = self::getTypeFromNode(
-                self::getTypeFromNode($methodCall->var)
-                    ->getAstMethod((string) $methodCall->name)
-                    ->returnType
-            );
+            /** @var Type $methodCallVarType */
+            foreach ($varCollectionType as $methodCallVarType) {
+                if (!$methodCallVarType->hasAst()) {
+                    $this->addTypeToNode($methodCall, Type::constructUnknownFromNode($methodCall));
+                    continue;
+                }
 
-            $this->addTypeToNode($methodCall, $classMethodReturnType);
+                $returnTypeNode = $methodCallVarType->getAstMethod((string) $methodCall->name)->returnType;
+                if ($returnTypeNode === null) {
+                    $this->addTypeToNode($methodCall, Type::constructVoid());
+                } else {
+                    $classMethodReturnTypeCollection = self::getTypeCollectionFromNode($returnTypeNode);
+                    $this->addTypeCollectionToNode($methodCall, $classMethodReturnTypeCollection);
+                }
+            }
+        } catch (TypeNotFoundInNodeException $e) {
+            // TODO This is failing for nested method calls like
+            //      `$invoice->servicePro = $invoice->transactions->first()->getServicePro();`
+            //      We silently ignore for now, but this needs to be improved, otherwise we might be missing events
+            echo ClassService::extractCanonicalClassName(get_class($e)) . ': ' . $e->getMessage() . "\n";
+        } catch (MethodNotFoundInClassException $e) {
+            // TODO we silently ignore for now, but this needs to be improved, otherwise we might be missing events
+            echo ClassService::extractCanonicalClassName(get_class($e)) . ': ' . $e->getMessage() . "\n";
         }
     }
 }

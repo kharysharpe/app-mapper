@@ -45,4 +45,12 @@ final class AdapterNodeCollection extends Collection
 
         return new DomainNodeCollection(...$domainNodeList);
     }
+
+    /**
+     * @return AdapterNodeInterface[]
+     */
+    public function toArray(): array
+    {
+        return $this->itemList;
+    }
 }

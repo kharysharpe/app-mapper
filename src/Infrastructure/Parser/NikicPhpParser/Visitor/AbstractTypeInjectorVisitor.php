@@ -138,18 +138,52 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
         return implode('\\', $name->parts);
     }
 
-    public function addTypeToNode(Node $node, Type $type): void
+    public function addTypeCollectionToNode(Node $node, TypeCollection $newTypeCollection): void
     {
-        $node->setAttribute(Type::getName(), $type);
-    }
+        if (!$node->hasAttribute(TypeCollection::getName())) {
+            $node->setAttribute(TypeCollection::getName(), $newTypeCollection);
 
-    public static function getTypeFromNode(Node $node): Type
-    {
-        if (!$node->hasAttribute(Type::getName())) {
-            return Type::constructUnknownFromNode($node);
-//             throw new TypeNotFoundInNodeException("Can't find type in node " . get_class($node));
+            return;
         }
 
-        return $node->getAttribute(Type::getName());
+        /** @var TypeCollection $typeCollection */
+        $typeCollection = $node->getAttribute(TypeCollection::getName());
+        $typeCollection->addTypeCollection($newTypeCollection);
+    }
+
+    public function addTypeToNode(Node $node, Type ...$typeList): void
+    {
+        if (!$node->hasAttribute(TypeCollection::getName())) {
+            $typeCollection = new TypeCollection($node);
+            $node->setAttribute(TypeCollection::getName(), $typeCollection);
+        } else {
+            $typeCollection = $node->getAttribute(TypeCollection::getName());
+        }
+
+        foreach ($typeList as $type) {
+            $typeCollection->addType($type);
+        }
+    }
+
+    public static function getTypeCollectionFromNode(Node $node): TypeCollection
+    {
+        if (!$node->hasAttribute(TypeCollection::getName())) {
+            $relevantInfo = [];
+            $loopNode = $node;
+            while ($loopNode->hasAttribute('parentNode')) {
+                $relevantInfo[] = get_class($loopNode) . ' => '
+                    . (property_exists($loopNode, 'name')
+                        ? $loopNode->name
+                        : 'no_name'
+                    );
+                $loopNode = $loopNode->getAttribute('parentNode');
+            }
+            throw new TypeNotFoundInNodeException(
+                "Can't find type collection in node:\n"
+                . json_encode($relevantInfo, JSON_PRETTY_PRINT)
+            );
+        }
+
+        return $node->getAttribute(TypeCollection::getName());
     }
 }

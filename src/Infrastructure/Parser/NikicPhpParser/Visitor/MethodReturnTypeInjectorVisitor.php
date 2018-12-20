@@ -37,9 +37,6 @@ final class MethodReturnTypeInjectorVisitor extends AbstractTypeInjectorVisitor
             return;
         }
 
-        $this->addTypeToNode(
-            $returnType,
-            $this->buildType($returnType)
-        );
+        $this->addTypeToNode($returnType, $this->buildType($returnType));
     }
 }

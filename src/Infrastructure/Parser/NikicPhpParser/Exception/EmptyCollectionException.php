@@ -17,12 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\ContextMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\ContextMapper\Core\SharedKernel\Exception\ContextMapperLogicException;
 
-final class MethodNotFoundInClassException extends ParserException
+final class EmptyCollectionException extends ContextMapperLogicException
 {
-    public function __construct(string $methodName, string $classFqcn)
-    {
-        parent::__construct("Method '$methodName' not found in class '$classFqcn'.");
-    }
 }

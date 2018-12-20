@@ -124,7 +124,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
                 if (
                     $eventDispatcherNode->getDispatcherClassFqcn() === $dispatcherNodeFqcn
                     && $eventDispatcherNode->getDispatcherMethod() === $dispatcherNodeMethodName
-                    && $eventDispatcherNode->getEventFullyQualifiedName() === $eventFqcn
+                    && $eventDispatcherNode->dispatches($eventFqcn)
                 ) {
                     self::assertTrue(true);
 
@@ -133,7 +133,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
                 $eventDispatcherNodeList[] =
                     $eventDispatcherNode->getDispatcherClassFqcn()
                     . '::' . $eventDispatcherNode->getDispatcherMethod() . '()'
-                    . ' => ' . $eventDispatcherNode->getEventFullyQualifiedName();
+                    . ' => ' . implode(' | ', $eventDispatcherNode->getEventTypeList());
             }
         }
 

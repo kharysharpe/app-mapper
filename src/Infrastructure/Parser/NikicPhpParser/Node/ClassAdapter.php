@@ -22,7 +22,7 @@ use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Stmt\Class_;
@@ -66,7 +66,7 @@ final class ClassAdapter implements ClassInterface
     public static function constructFromNew(New_ $newExpression): self
     {
         /** @var Class_ $class */
-        $class = AbstractTypeInjectorVisitor::getTypeFromNode($newExpression)->getAst();
+        $class = AbstractTypeInjectorVisitor::getTypeCollectionFromNode($newExpression)->getAst();
 
         return self::constructFromClassNode($class);
     }
@@ -124,6 +124,11 @@ final class ClassAdapter implements ClassInterface
         );
     }
 
+    public function __toString(): string
+    {
+        return $this->getFullyQualifiedType();
+    }
+
     private function getAllParentsFullyQualifiedNameList(): array
     {
         if ($this->parentList === null) {
@@ -138,8 +143,9 @@ final class ClassAdapter implements ClassInterface
         if ($this->implementedList === null) {
             $implementedList = [];
             foreach ($class->implements as $interfaceNameNode) {
-                /** @var Type $interfaceType */
-                $interfaceType = $interfaceNameNode->getAttribute(Type::getName());
+                /** @var TypeCollection $interfaceTypeCollection */
+                $interfaceTypeCollection = $interfaceNameNode->getAttribute(TypeCollection::getName());
+                $interfaceType = $interfaceTypeCollection->getUniqueType();
                 $implementedList[] = [
                     $interfaceType->toString() => $interfaceType->hasAst() ? $interfaceType->getAst() : null,
                 ];
@@ -175,8 +181,9 @@ final class ClassAdapter implements ClassInterface
 
         $parentList = [];
         foreach ($parentNameNodeList as $parentNameNode) {
-            /** @var Type $parentType */
-            $parentType = $parentNameNode->getAttribute(Type::getName());
+            /** @var TypeCollection $parentTypeCollection */
+            $parentTypeCollection = $parentNameNode->getAttribute(TypeCollection::getName());
+            $parentType = $parentTypeCollection->getUniqueType();
             $parentList[] = [
                 $parentType->toString() => $parentType->hasAst() ? $parentType->getAst() : null,
             ];

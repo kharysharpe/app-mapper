@@ -21,6 +21,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\ClassMethod;
+use function array_values;
 
 final class MethodParametersTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
@@ -39,7 +40,7 @@ final class MethodParametersTypeInjectorVisitor extends AbstractTypeInjectorVisi
                 if ($this->hasVariableTypeInBuffer((string) $node->name)) {
                     $this->addTypeToNode(
                         $node,
-                        $this->getVariableTypeFromBuffer((string) $node->name)
+                        ...array_values($this->getVariableTypeFromBuffer((string) $node->name)->toArray())
                     );
                 }
                 break;
@@ -57,7 +58,10 @@ final class MethodParametersTypeInjectorVisitor extends AbstractTypeInjectorVisi
     {
         foreach ($methodParameterList as $methodParameter) {
             $this->addTypeToNode($methodParameter, $this->buildType($methodParameter));
-            $this->addVariableTypeToBuffer($methodParameter->var->name, self::getTypeFromNode($methodParameter));
+            $this->addVariableTypeToBuffer(
+                $methodParameter->var->name,
+                self::getTypeCollectionFromNode($methodParameter)
+            );
         }
     }
 }

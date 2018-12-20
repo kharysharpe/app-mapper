@@ -40,7 +40,10 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof Property:
                 // Properties declared at the top of the class are added to buffer
                 try {
-                    $this->addPropertyTypeToBuffer((string) $node->props[0]->name, self::getTypeFromNode($node));
+                    $this->addPropertyTypeToBuffer(
+                        (string) $node->props[0]->name,
+                        self::getTypeCollectionFromNode($node)
+                    );
                 } catch (TypeNotFoundInNodeException $e) {
                     // If the property does not have the type, we ignore it
                 }
@@ -48,7 +51,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof PropertyFetch:
                 // Properties used within the class are injected with type from buffer
                 try {
-                    $this->addTypeToNode($node, $this->getPropertyTypeFromBuffer((string) $node->name));
+                    $this->addTypeCollectionToNode($node, $this->getPropertyTypeFromBuffer((string) $node->name));
                 } catch (UnknownPropertyException $e) {
                     // If the buffer does not have the property, we ignore it
                 }

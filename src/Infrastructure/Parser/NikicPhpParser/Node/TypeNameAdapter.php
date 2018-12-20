@@ -58,4 +58,9 @@ final class TypeNameAdapter implements TypeNodeInterface
     {
         throw new NotImplementedException();
     }
+
+    public function __toString(): string
+    {
+        return ClassService::extractCanonicalClassName(__CLASS__) . ' - ' . $this->name;
+    }
 }

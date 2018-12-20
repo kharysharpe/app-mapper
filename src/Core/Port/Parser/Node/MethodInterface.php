@@ -21,9 +21,7 @@ interface MethodInterface extends AdapterNodeInterface
 {
     public function getCanonicalName(): string;
 
-    public function getReturnTypeNode(): TypeNodeInterface;
-
-    public function getReturnType(): string;
+    public function getReturnTypeCollection(): AdapterNodeCollection;
 
     public function getParameter(int $int): MethodParameterInterface;
 

@@ -20,7 +20,7 @@ namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 use Closure;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeCollection;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeFactory;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeAdapterFactory;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\FindingVisitor;
@@ -113,7 +113,7 @@ final class AstMap implements AstMapInterface
     {
         $nodeList = [];
         foreach ($parserNodeList as $parserNode) {
-            $nodeList[] = NodeFactory::constructNodeAdapter($parserNode);
+            $nodeList[] = NodeAdapterFactory::constructFromNode($parserNode);
         }
 
         return new AdapterNodeCollection(...$nodeList);

@@ -43,22 +43,25 @@ final class AssignmentFromStaticMethodCallTypeInjectorVisitor extends AbstractTy
                 $staticCall = $assignment->expr;
 
                 // Assignment of a StaticCall to variable or property
-                $type = self::getTypeFromNode($staticCall);
-                $this->addTypeToNode($var, $type);
+                $typeCollection = self::getTypeCollectionFromNode($staticCall);
+                $this->addTypeCollectionToNode($var, $typeCollection);
 
                 switch (true) {
                     case $var instanceof Variable: // Assignment of a new instance to variable
-                        $this->addVariableTypeToBuffer($this->getVariableName($var), $type);
+                        $this->addVariableTypeToBuffer($this->getVariableName($var), $typeCollection);
                         break;
                     case $var instanceof PropertyFetch: // Assignment of a new instance to property
-                        $this->addPropertyTypeToBuffer($this->getPropertyName($var), $type);
+                        $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
                         break;
                 }
                 break;
             case $node instanceof Variable:
                 // After collecting the variable types, inject it in the following variable nodes
                 if ($this->hasVariableTypeInBuffer($this->getVariableName($node))) {
-                    $this->addTypeToNode($node, $this->getVariableTypeFromBuffer($this->getVariableName($node)));
+                    $this->addTypeCollectionToNode(
+                        $node,
+                        $this->getVariableTypeFromBuffer($this->getVariableName($node))
+                    );
                 }
                 break;
         }

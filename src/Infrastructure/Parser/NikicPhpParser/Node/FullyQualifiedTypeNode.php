@@ -49,4 +49,9 @@ final class FullyQualifiedTypeNode implements TypeNodeInterface
     {
         return [];
     }
+
+    public function __toString(): string
+    {
+        return $this->getFullyQualifiedType();
+    }
 }

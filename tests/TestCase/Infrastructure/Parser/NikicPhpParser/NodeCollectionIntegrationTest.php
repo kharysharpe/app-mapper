@@ -71,14 +71,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         $methodXxxMethodNode = $this->getMethod('methodXxx', AaaEntity::class);
         self::assertNull(
             ReflectionService::getNestedProperty(
-                'returnType.attributes.Type.ast',
+                'returnType.attributes.TypeCollection.itemList.void.ast',
                 $methodXxxMethodNode
             )
         );
         self::assertEquals(
             'void',
             ReflectionService::getNestedProperty(
-                'returnType.attributes.Type.typeAsString',
+                'returnType.attributes.TypeCollection.itemList.void.typeAsString',
                 $methodXxxMethodNode
             )
         );
@@ -86,14 +86,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'returnType.attributes.Type.ast',
+                'returnType.attributes.TypeCollection.itemList.' . BbbEntity::class . '.ast',
                 $methodYyyMethodNode
             )
         );
         self::assertEquals(
             BbbEntity::class,
             ReflectionService::getNestedProperty(
-                'returnType.attributes.Type.typeAsString',
+                'returnType.attributes.TypeCollection.itemList.' . BbbEntity::class . '.typeAsString',
                 $methodYyyMethodNode
             )
         );
@@ -111,14 +111,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.var.attributes.Type.ast',
+                'stmts.0.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.ast',
                 $constructorMethodNode
             )
         );
         self::assertEquals(
             AaaEntity::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.var.attributes.Type.typeAsString',
+                'stmts.0.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.typeAsString',
                 $constructorMethodNode
             )
         );
@@ -126,14 +126,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.Type.ast',
+                'stmts.0.expr.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.ast',
                 $methodXxxMethodNode
             )
         );
         self::assertEquals(
             AaaEntity::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.Type.typeAsString',
+                'stmts.0.expr.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.typeAsString',
                 $methodXxxMethodNode
             )
         );
@@ -151,14 +151,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'attributes.Type.ast',
+                'attributes.TypeCollection.itemList.' . BbbEntity::class . '.ast',
                 $constructorBbbEntityParameter
             )
         );
         self::assertEquals(
             BbbEntity::class,
             ReflectionService::getNestedProperty(
-                'attributes.Type.typeAsString',
+                'attributes.TypeCollection.itemList.' . BbbEntity::class . '.typeAsString',
                 $constructorBbbEntityParameter
             )
         );
@@ -175,27 +175,27 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'attributes.Type.ast',
+                'attributes.TypeCollection.itemList.' . BbbEntity::class . '.ast',
                 $this->getProperty('bbbEntity', AaaEntity::class)
             )
         );
         self::assertEquals(
             BbbEntity::class,
             ReflectionService::getNestedProperty(
-                'attributes.Type.typeAsString',
+                'attributes.TypeCollection.itemList.' . BbbEntity::class . '.typeAsString',
                 $this->getProperty('bbbEntity', AaaEntity::class)
             )
         );
         self::assertNull(
             ReflectionService::getNestedProperty(
-                'attributes.Type.ast',
+                'attributes.TypeCollection.itemList.DateTime.ast',
                 $this->getProperty('createdAt', AaaEntity::class)
             )
         );
         self::assertEquals(
             DateTime::class,
             ReflectionService::getNestedProperty(
-                'attributes.Type.typeAsString',
+                'attributes.TypeCollection.itemList.DateTime.typeAsString',
                 $this->getProperty('createdAt', AaaEntity::class)
             )
         );
@@ -212,14 +212,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertNull(
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.expr.attributes.Type.ast',
+                'stmts.1.expr.expr.attributes.TypeCollection.itemList.DateTime.ast',
                 $constructorMethodNode
             )
         );
         self::assertEquals(
             DateTime::class,
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.expr.attributes.Type.typeAsString',
+                'stmts.1.expr.expr.attributes.TypeCollection.itemList.DateTime.typeAsString',
                 $constructorMethodNode
             )
         );
@@ -227,14 +227,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.Type.ast',
+                'stmts.0.expr.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.ast',
                 $methodXxxMethodNode
             )
         );
         self::assertEquals(
             AaaEntity::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.Type.typeAsString',
+                'stmts.0.expr.expr.var.var.attributes.TypeCollection.itemList.' . AaaEntity::class . '.typeAsString',
                 $methodXxxMethodNode
             )
         );
@@ -252,14 +252,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.Type.ast',
+                'stmts.1.expr.args.0.value.attributes.TypeCollection.itemList.' . DddEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             DddEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.Type.typeAsString',
+                'stmts.1.expr.args.0.value.attributes.TypeCollection.itemList.' . DddEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -277,14 +277,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.ast',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.typeAsString',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -302,14 +302,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.Type.ast',
+                'stmts.1.expr.args.0.value.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.Type.typeAsString',
+                'stmts.1.expr.args.0.value.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -327,14 +327,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.attributes.Type.ast',
+                'stmts.0.expr.var.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.attributes.Type.typeAsString',
+                'stmts.0.expr.var.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -352,14 +352,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.attributes.Type.ast',
+                'stmts.0.expr.var.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.var.attributes.Type.typeAsString',
+                'stmts.0.expr.var.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -377,14 +377,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.ast',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.typeAsString',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );
@@ -402,14 +402,14 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertInstanceOf(
             Class_::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.ast',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.ast',
                 $methodNode
             )
         );
         self::assertEquals(
             CccEvent::class,
             ReflectionService::getNestedProperty(
-                'stmts.0.expr.expr.attributes.Type.typeAsString',
+                'stmts.0.expr.expr.attributes.TypeCollection.itemList.' . CccEvent::class . '.typeAsString',
                 $methodNode
             )
         );

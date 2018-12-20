@@ -24,7 +24,7 @@ trait VariableBufferTrait
 {
     private $variableTypeBuffer = [];
 
-    private function addVariableTypeToBuffer(string $variableName, Type $variableType): void
+    private function addVariableTypeToBuffer(string $variableName, TypeCollection $variableType): void
     {
         $this->variableTypeBuffer[$variableName] = $variableType;
     }
@@ -34,7 +34,7 @@ trait VariableBufferTrait
         return array_key_exists($variableName, $this->variableTypeBuffer);
     }
 
-    private function getVariableTypeFromBuffer(string $variableName): Type
+    private function getVariableTypeFromBuffer(string $variableName): TypeCollection
     {
         if (!$this->hasVariableTypeInBuffer($variableName)) {
             throw new UnknownVariableException($variableName);

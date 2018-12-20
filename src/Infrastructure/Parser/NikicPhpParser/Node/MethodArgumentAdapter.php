@@ -17,76 +17,41 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
+use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\Node\TypeNodeInterface;
-use Hgraca\ContextMapper\Core\SharedKernel\Exception\NotImplementedException;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Stmt\Class_;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
+use Hgraca\PhpExtension\Collection\Collection;
+use PhpParser\Node\Arg;
 
-final class MethodArgumentAdapter implements MethodArgumentInterface
+final class MethodArgumentAdapter extends Collection implements MethodArgumentInterface
 {
-    /**
-     * @var TypeNodeInterface
-     */
-    private $argument;
-
-    public function __construct(Expr $argument)
+    public function __construct(Arg $argument)
     {
-        switch (true) {
-            case $argument instanceof New_:
-                $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    AbstractTypeInjectorVisitor::getTypeFromNode($argument)
-                );
-                break;
-            case $argument instanceof Variable:
-                $this->argument = NodeFactory::constructTypeNodeAdapter(
-                    AbstractTypeInjectorVisitor::getTypeFromNode($argument)
-                );
-                break;
-            case $argument instanceof StaticCall && $this->staticCallClassAstIsKnown($argument):
-                $class = ClassAdapter::constructFromClassNode($this->getStaticCallClassAst($argument));
-                $method = $class->getMethod($argument->name->toString());
-                $this->argument = $method->getReturnTypeNode();
-                break;
-            default:
-                $this->argument = new UnknownTypeNode($argument);
+        $argumentValue = $argument->value;
+
+        try {
+            $this->itemList = array_unique(
+                NodeAdapterFactory::constructFromTypeCollection(
+                    AbstractTypeInjectorVisitor::getTypeCollectionFromNode($argumentValue)
+                )->toArray()
+            );
+        } catch (TypeNotFoundInNodeException $e) {
+            // TODO log this, as it means a node type was not inferred by the visitors and should be improved
+            $this->itemList =
+                NodeAdapterFactory::constructFromTypeCollection(
+                    new TypeCollection($argument, Type::constructUnknownFromNode($argumentValue))
+                )->toArray();
         }
     }
 
-    public function getArgumentNode(): TypeNodeInterface
+    /**
+     * @return AdapterNodeInterface[]
+     */
+    public function toArray(): array
     {
-        return $this->argument;
-    }
-
-    public function getFullyQualifiedType(): string
-    {
-        return $this->argument->getFullyQualifiedType();
-    }
-
-    public function getCanonicalType(): string
-    {
-        return $this->argument->getCanonicalType();
-    }
-
-    public function getAllFamilyFullyQualifiedNameList(): array
-    {
-        throw new NotImplementedException();
-    }
-
-    private function staticCallClassAstIsKnown(StaticCall $argument): bool
-    {
-        return AbstractTypeInjectorVisitor::getTypeFromNode($argument->class)->hasAst();
-    }
-
-    private function getStaticCallClassAst(StaticCall $argument): Class_
-    {
-        /** @var Class_ $class */
-        $class = AbstractTypeInjectorVisitor::getTypeFromNode($argument->class)->getAst();
-
-        return $class;
+        return $this->itemList;
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 
@@ -26,20 +27,32 @@ final class StaticMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisi
     {
         parent::enterNode($node);
         if ($node instanceof StaticCall) {
-            $staticCall = $node;
-            $classType = self::getTypeFromNode($staticCall->class);
+            $this->addTypeCollectionToStaticCall($node);
+        }
+    }
 
-            if ($classType->hasAst()) {
-                $classMethodReturnType = self::getTypeFromNode(
-                    self::getTypeFromNode($staticCall->class)
-                        ->getAstMethod((string) $staticCall->name)
-                        ->returnType
-                );
+    private function addTypeCollectionToStaticCall(StaticCall $staticCall): void
+    {
+        $classTypeCollection = self::getTypeCollectionFromNode($staticCall->class);
 
-                $this->addTypeToNode(
-                    $staticCall,
-                    $classMethodReturnType
-                );
+        /** @var Type $classType */
+        foreach ($classTypeCollection as $classType) {
+            if (!$classType->hasAst()) {
+                $this->addTypeToNode($staticCall, Type::constructUnknownFromNode($staticCall));
+                continue;
+            }
+            try {
+                $returnTypeNode = $classType->getAstMethod((string) $staticCall->name)->returnType;
+                if ($returnTypeNode === null) {
+                    $this->addTypeToNode($staticCall, Type::constructVoid());
+                } else {
+                    $classMethodReturnTypeCollection = self::getTypeCollectionFromNode($returnTypeNode);
+                    $this->addTypeCollectionToNode($staticCall, $classMethodReturnTypeCollection);
+                }
+            } catch (MethodNotFoundInClassException $e) {
+                // TODO We get exceptions when trying to get a method but it is defined in a parent class or trait
+                //      For now we ignore it, but it must be improved
+                $this->addTypeToNode($staticCall, Type::constructUnknownFromNode($staticCall));
             }
         }
     }
