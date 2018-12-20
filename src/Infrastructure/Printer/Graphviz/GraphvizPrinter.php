@@ -28,26 +28,9 @@ use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\ClassService;
 use Hgraca\PhpExtension\String\StringService;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 final class GraphvizPrinter implements PrinterInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger = null)
-    {
-        $this->logger = $logger ?? new NullLogger();
-    }
-
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
     public function printToImage(ContextMap $contextMap, Configuration $config): string
     {
         return (new GraphViz())
@@ -112,52 +95,54 @@ final class GraphvizPrinter implements PrinterInterface
 
     private function printComponent(Component $component, Configuration $config): string
     {
-        $this->logger->debug($component->getName());
-        $this->logger->debug('VERTICES');
-        $this->logger->debug('=============================');
+        StaticLoggerFacade::debug($component->getName());
+        StaticLoggerFacade::debug('VERTICES');
+        StaticLoggerFacade::debug('=============================');
         $componentStr = '<table border="0" cellborder="1" cellspacing="0">'
             . '<tr><td BGCOLOR="' . $config->getComponentColor() . '"><b>' . $component->getName() . '</b></td></tr>';
 
-        $this->logger->debug('-----------------------------');
+        StaticLoggerFacade::debug('-----------------------------');
         foreach ($component->getUseCaseCollection() as $useCase) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getUseCaseColor()
                 . '" PORT="' . $this->createPortId($useCase) . '">'
                 . $useCase->getCanonicalName()
                 . '</td></tr>';
-            $this->logger->debug($this->createPortId($useCase) . ' | ' . $useCase->getCanonicalName());
+            StaticLoggerFacade::debug($this->createPortId($useCase) . ' | ' . $useCase->getCanonicalName());
         }
 
-        $this->logger->debug('-----------------------------');
+        StaticLoggerFacade::debug('-----------------------------');
         foreach ($component->getPartialUseCaseCollection() as $partialUseCase) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getPartialUseCaseColor()
                 . '" PORT="' . $this->createPortId($partialUseCase) . '">'
                 . $partialUseCase->getCanonicalName()
                 . '</td></tr>';
-            $this->logger->debug($this->createPortId($partialUseCase) . ' | ' . $partialUseCase->getCanonicalName());
+            StaticLoggerFacade::debug(
+                $this->createPortId($partialUseCase) . ' | ' . $partialUseCase->getCanonicalName()
+            );
         }
 
-        $this->logger->debug('-----------------------------');
+        StaticLoggerFacade::debug('-----------------------------');
         foreach ($component->getListenerCollection() as $listener) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getListenerColor()
                 . '" PORT="' . $this->createPortId($listener) . '">'
                 . $listener->getCanonicalName()
                 . '</td></tr>';
-            $this->logger->debug($this->createPortId($listener) . ' | ' . $listener->getCanonicalName());
+            StaticLoggerFacade::debug($this->createPortId($listener) . ' | ' . $listener->getCanonicalName());
         }
 
-        $this->logger->debug('-----------------------------');
+        StaticLoggerFacade::debug('-----------------------------');
         foreach ($component->getSubscriberCollection() as $subscriber) {
             $componentStr .=
                 '<tr><td BGCOLOR="' . $config->getSubscriberColor()
                 . '" PORT="' . $this->createPortId($subscriber) . '">'
                 . $subscriber->getCanonicalName()
                 . '</td></tr>';
-            $this->logger->debug($this->createPortId($subscriber) . ' | ' . $subscriber->getCanonicalName());
+            StaticLoggerFacade::debug($this->createPortId($subscriber) . ' | ' . $subscriber->getCanonicalName());
         }
-        $this->logger->debug('=============================');
+        StaticLoggerFacade::debug('=============================');
 
         $componentStr .= '</table>';
 
@@ -188,8 +173,8 @@ final class GraphvizPrinter implements PrinterInterface
 
     private function addEdgesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
     {
-        $this->logger->debug('EDGES');
-        $this->logger->debug('=============================');
+        StaticLoggerFacade::debug('EDGES');
+        StaticLoggerFacade::debug('=============================');
         foreach ($contextMap->getComponentList() as $component) {
             foreach ($component->getEventDispatcherCollection() as $eventDispatcher) {
                 $originComponentVertex = $graph->getVertex($component->getName());
@@ -206,7 +191,7 @@ final class GraphvizPrinter implements PrinterInterface
                         ClassService::extractCanonicalClassName($listener->getListenedFqcn())
                     );
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
-                    $this->logger->debug(
+                    StaticLoggerFacade::debug(
                         $this->createPortId($eventDispatcher) . ' --> ' . $this->createPortId($listener)
                     );
                 }

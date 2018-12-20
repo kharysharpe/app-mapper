@@ -23,7 +23,6 @@ use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainAstMap;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
 use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
-use Psr\Log\LoggerInterface;
 
 final class ContextMapService
 {
@@ -79,10 +78,5 @@ final class ContextMapService
         }
 
         return ContextMap::construct($config->getTitle(), ...$componentList);
-    }
-
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->printer->setLogger($logger);
     }
 }
