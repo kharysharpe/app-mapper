@@ -25,15 +25,11 @@ if (!isset($_ENV['APP_ENV'])) {
 
 $input = new ArgvInput();
 $env = $input->getParameterOption(['--env', '-e'], $_ENV['APP_ENV'] ?? 'dev', true);
-$debug = (bool) ($_ENV['APP_DEBUG'] ?? ('prod' !== $env)) && !$input->hasParameterOption('--no-debug', true);
 
-if ($debug) {
+if ('dev' === $env && class_exists(Debug::class)) {
     umask(0000);
-
-    if (class_exists(Debug::class)) {
-        Debug::enable();
-    }
+    Debug::enable();
 }
 
-$kernel = new CliKernel($env, $debug);
+$kernel = new CliKernel($env);
 $kernel->runApplication($input);

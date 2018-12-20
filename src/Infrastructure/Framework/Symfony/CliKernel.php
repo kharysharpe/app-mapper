@@ -77,22 +77,12 @@ class CliKernel
     /**
      * @var bool
      */
-    private $isDebug;
-
-    /**
-     * @var bool
-     */
     protected $isBooted = false;
 
     /**
      * @var string
      */
     private $name;
-
-    /**
-     * @var float
-     */
-    private $startTime;
 
     /**
      * @var string
@@ -104,10 +94,9 @@ class CliKernel
      */
     protected $resetServices = false;
 
-    public function __construct(string $environment, bool $debug)
+    public function __construct(string $environment)
     {
         $this->environment = $environment;
-        $this->isDebug = $debug;
         $this->rootDir = $this->getRootDir();
         $this->name = $this->getName();
     }
@@ -123,19 +112,9 @@ class CliKernel
                     $this->container->get('services_resetter')->reset();
                 }
                 $this->resetServices = false;
-                if ($this->isDebug) {
-                    $this->startTime = microtime(true);
-                }
             }
 
             return;
-        }
-        if ($this->isDebug) {
-            $this->startTime = microtime(true);
-        }
-        if ($this->isDebug && !isset($_ENV['SHELL_VERBOSITY'])) {
-            putenv('SHELL_VERBOSITY=3');
-            $_ENV['SHELL_VERBOSITY'] = 3;
         }
 
         $this->container = $this->getContainerBuilder();
@@ -268,7 +247,6 @@ class CliKernel
             'kernel.root_dir' => realpath($this->rootDir) ?: $this->rootDir,
             'kernel.project_dir' => realpath($this->getProjectDir()) ?: $this->getProjectDir(),
             'kernel.environment' => $this->environment,
-            'kernel.isDebug' => $this->isDebug,
             'kernel.name' => $this->name,
             'kernel.container_class' => $this->getContainerClass(),
         ];
