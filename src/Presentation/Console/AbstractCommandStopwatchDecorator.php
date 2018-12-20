@@ -17,13 +17,15 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Presentation\Console;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\ContextMapper\Infrastructure\Logger\SymfonyStyle\ConsoleLogger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
-use const PHP_EOL;
 use function class_exists;
+use const PHP_EOL;
 
 abstract class AbstractCommandStopwatchDecorator extends Command
 {
@@ -37,6 +39,7 @@ abstract class AbstractCommandStopwatchDecorator extends Command
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);
+        StaticLoggerFacade::setLogger(new ConsoleLogger($this->io));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): void

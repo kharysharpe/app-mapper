@@ -20,7 +20,6 @@ namespace Hgraca\ContextMapper\Presentation\Console\Component;
 use Exception;
 use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService;
 use Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
-use Hgraca\ContextMapper\Infrastructure\Logger\SymfonyStyle\ConsoleLogger;
 use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -111,9 +110,6 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         parent::initialize($input, $output);
-        if ($this->io->isDebug()) {
-            $this->contextMapService->setLogger(new ConsoleLogger($this->io));
-        }
     }
 
     /**
