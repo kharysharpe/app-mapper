@@ -83,11 +83,17 @@ class BuildAstFileCommand extends AbstractCommandStopwatchDecorator
     protected function executeUseCase(InputInterface $input, OutputInterface $output): void
     {
         try {
+            $this->io->title('GENERATING AST MAP');
+            $this->io->text(
+                'Creating ast map from folder ' . $input->getArgument(self::ARG_ROOT_PATH)
+                . ' into file \'' . $input->getArgument(self::ARG_FILE_PATH) . '\' ...'
+            );
             $this->astService->createAstFileFromFolder(
                 $input->getArgument(self::ARG_ROOT_PATH),
                 $input->getArgument(self::ARG_FILE_PATH),
                 $input->getOption(self::OPT_PRETTY_PRINT)
             );
+            $this->io->success('Done!');
         } catch (Error $e) {
             $this->io->warning('Parsing error: ' . $e->getMessage());
         }
