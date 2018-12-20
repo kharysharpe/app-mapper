@@ -24,6 +24,7 @@ use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\ClassService;
 use Hgraca\PhpExtension\String\StringService;
@@ -172,7 +173,12 @@ final class GraphvizPrinter implements PrinterInterface
             ? mb_substr($id, 0, mb_strrpos($id, '.'))
             : $id;
         $id = ltrim($id, '.');
-        $useCaseTermination = 'Handler.'; // TODO refactor this in a more flexible way
+        $useCaseTermination = 'Handler.';
+        StaticLoggerFacade::notice(
+            "We currently assume the use cases FQN contains '$useCaseTermination'.\n"
+            . "We need to make this more flexible.\n",
+            [__METHOD__]
+        );
         if (StringService::contains($useCaseTermination, $id)) {
             $id = mb_substr($id, 0, mb_strrpos($id, $useCaseTermination) + mb_strlen($useCaseTermination) - 1);
         }

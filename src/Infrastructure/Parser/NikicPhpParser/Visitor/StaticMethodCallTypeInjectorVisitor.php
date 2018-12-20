@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
@@ -50,8 +51,13 @@ final class StaticMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisi
                     $this->addTypeCollectionToNode($staticCall, $classMethodReturnTypeCollection);
                 }
             } catch (MethodNotFoundInClassException $e) {
-                // TODO We get exceptions when trying to get a method but it is defined in a parent class or trait
-                //      For now we ignore it, but it must be improved
+                StaticLoggerFacade::warning(
+                    "Silently ignoring a MethodNotFoundInClassException in this visitor.\n"
+                    . "We get exceptions when trying to get a method but it is defined in a parent class or trait.\n"
+                    . "This should be fixed in the type addition visitors.\n"
+                    . $e->getMessage(),
+                    [__METHOD__]
+                );
                 $this->addTypeToNode($staticCall, Type::constructUnknownFromNode($staticCall));
             }
         }

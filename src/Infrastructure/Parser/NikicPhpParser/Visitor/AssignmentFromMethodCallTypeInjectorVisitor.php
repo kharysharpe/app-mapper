@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
-use Hgraca\PhpExtension\String\ClassService;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
@@ -27,7 +27,6 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
-use function get_class;
 
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
@@ -49,8 +48,6 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                 $this->addTypeToMethodCall($methodCall);
 
                 try {
-                    // TODO This is failing for nested method calls like
-                    //      `$invoice->servicePro = $invoice->transactions->first()->getServicePro();`
                     // Assignment of a StaticCall to variable or property
                     $typeCollection = self::getTypeCollectionFromNode($methodCall);
                     $this->addTypeCollectionToNode($var, $typeCollection);
@@ -64,7 +61,14 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                             break;
                     }
                 } catch (TypeNotFoundInNodeException $e) {
-                    // TODO we silently ignore for now, but this needs to be improved, otherwise we might be missing events
+                    StaticLoggerFacade::warning(
+                        "Silently ignoring a TypeNotFoundInNodeException in this filter.\n"
+                        . 'This is failing, at least, for nested method calls like'
+                        . '`$invoice->transactions->first()->getServicePro();`.' . "\n"
+                        . "This should be fixed in the type addition visitors.\n"
+                        . $e->getMessage(),
+                        [__METHOD__]
+                    );
                 }
                 break;
             case $node instanceof Variable:
@@ -83,7 +87,11 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
     {
         if ($node instanceof Class_) {
             $this->addPropertiesTypeToTheirDeclaration($node);
-            // TODO should follow family and traits up and set the types to those properties
+            StaticLoggerFacade::notice(
+                "We are only adding properties types in the class itself.\n"
+                . "We should fix this by adding them also to the super classes and traits.\n",
+                [__METHOD__]
+            );
             $this->resetPropertyTypeBuffer();
         }
         if ($node instanceof ClassMethod) {
@@ -112,13 +120,21 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                 }
             }
         } catch (TypeNotFoundInNodeException $e) {
-            // TODO This is failing for nested method calls like
-            //      `$invoice->servicePro = $invoice->transactions->first()->getServicePro();`
-            //      We silently ignore for now, but this needs to be improved, otherwise we might be missing events
-            echo ClassService::extractCanonicalClassName(get_class($e)) . ': ' . $e->getMessage() . "\n";
+            StaticLoggerFacade::warning(
+                "Silently ignoring a TypeNotFoundInNodeException.\n"
+                . 'This is failing, at least, for nested method calls like'
+                . '`$invoice->transactions->first()->getServicePro();`.' . "\n"
+                . "This should be fixed in the type addition visitors, otherwise we might be missing events.\n"
+                . $e->getMessage(),
+                [__METHOD__]
+            );
         } catch (MethodNotFoundInClassException $e) {
-            // TODO we silently ignore for now, but this needs to be improved, otherwise we might be missing events
-            echo ClassService::extractCanonicalClassName(get_class($e)) . ': ' . $e->getMessage() . "\n";
+            StaticLoggerFacade::warning(
+                "Silently ignoring a MethodNotFoundInClassException.\n"
+                . "This should be fixed, otherwise we might be missing events.\n"
+                . $e->getMessage(),
+                [__METHOD__]
+            );
         }
     }
 }

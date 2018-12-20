@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
@@ -65,6 +66,10 @@ final class AssignmentFromParameterTypeInjectorVisitor extends AbstractTypeInjec
             return;
         }
         $this->addPropertiesTypeToTheirDeclaration($node);
-        // TODO should follow family and traits up and set the types to those properties
+        StaticLoggerFacade::notice(
+            "We are only adding properties types in the class itself.\n"
+            . "We should fix this by adding them also to the super classes and traits.\n",
+            [__METHOD__]
+        );
     }
 }

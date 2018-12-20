@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownPropertyException;
 use PhpParser\Node;
@@ -36,7 +37,6 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
     {
         parent::enterNode($node);
         switch (true) {
-            // TODO should follow family and traits up and set their property types in this buffer
             case $node instanceof Property:
                 // Properties declared at the top of the class are added to buffer
                 try {
@@ -50,10 +50,21 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 break;
             case $node instanceof PropertyFetch:
                 // Properties used within the class are injected with type from buffer
+                StaticLoggerFacade::notice(
+                    "We are only adding types to properties in the class itself.\n"
+                    . "We should fix this by adding them also to the super classes and traits.\n",
+                    [__METHOD__]
+                );
                 try {
                     $this->addTypeCollectionToNode($node, $this->getPropertyTypeFromBuffer((string) $node->name));
                 } catch (UnknownPropertyException $e) {
-                    // If the buffer does not have the property, we ignore it
+                    StaticLoggerFacade::warning(
+                        "Silently ignoring a UnknownPropertyException in this visitor.\n"
+                        . "The property is not in the buffer, so we can't add it to the PropertyFetch.\n"
+                        . "This should be fixed in the type addition visitors.\n"
+                        . $e->getMessage(),
+                        [__METHOD__]
+                    );
                 }
                 break;
         }

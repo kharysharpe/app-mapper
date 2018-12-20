@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodCallInterface;
@@ -39,8 +40,11 @@ final class EventDispatcherNode extends MethodCallerNode
         $self->dispatcherClassCanonicalName = $methodCall->getEnclosingClassCanonicalName();
         $self->dispatcherClassFqcn = $methodCall->getEnclosingClassFullyQualifiedName();
         $self->dispatcherMethod = $methodCall->getEnclosingMethodCanonicalName();
-        // TODO we assume events are always the first argument
-        //      but this will need to be improved to accommodate projects that don't follow this coding standard
+        StaticLoggerFacade::notice(
+            'TODO Currently we assume events are always the first argument. '
+            . 'But this will need to be improved to accommodate projects that don\'t follow this coding standard',
+            [__METHOD__]
+        );
         $self->event = $methodCall->getMethodArgument(0);
         $self->methodCallLine = $methodCall->getLine();
 

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
 use PhpParser\Node;
@@ -53,7 +54,12 @@ final class QueryBuilder
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcn) {
-                // TODO recursive checking to see if it extends somewhere in the hierarchy tree
+                StaticLoggerFacade::notice(
+                    'TODO Currently we only select classes that extend the given class directly. '
+                    . 'We need to implement recursive checking to see if it extends somewhere in the hierarchy tree',
+                    [__METHOD__]
+                );
+
                 return $node instanceof Class_
                     && $node->extends !== null
                     && $node->extends->toCodeString() === $fqcn;
@@ -67,7 +73,12 @@ final class QueryBuilder
     {
         $this->currentQuery->addFilter(
             function (Node $node) use ($fqcn) {
-                // TODO recursive checking to see if it extends somewhere in the hierarchy tree
+                StaticLoggerFacade::notice(
+                    'TODO Currently we only select classes that implement the given class directly. '
+                    . 'We need to implement recursive checking to see if it implements somewhere in the hierarchy tree',
+                    [__METHOD__]
+                );
+
                 return $node instanceof Class_
                     && $node->implements !== null
                     && $node->implements->toCodeString() === $fqcn;
@@ -130,8 +141,13 @@ final class QueryBuilder
                         }
                     }
                 } catch (TypeNotFoundInNodeException $e) {
-                    // Silently ignore this because the type is not in the node so it can't pass the filter
-                    // TODO log this only as notice, cozz this should be fixed in the type addition visitors
+                    StaticLoggerFacade::warning(
+                        "Silently ignoring a TypeNotFoundInNodeException in this filter.\n"
+                        . "The type is not in the node so it can't pass the filter.\n"
+                        . "This should be fixed in the type addition visitors.\n"
+                        . $e->getMessage(),
+                        [__METHOD__]
+                    );
                 }
 
                 return false;

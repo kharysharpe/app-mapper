@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
@@ -39,7 +40,12 @@ final class MethodArgumentAdapter extends Collection implements MethodArgumentIn
                 )->toArray()
             );
         } catch (TypeNotFoundInNodeException $e) {
-            // TODO log this, as it means a node type was not inferred by the visitors and should be improved
+            StaticLoggerFacade::warning(
+                "Silently ignoring a TypeNotFoundInNodeException in this adapter.\n"
+                . "This should be fixed in the type addition visitors.\n"
+                . $e->getMessage(),
+                [__METHOD__]
+            );
             $this->itemList =
                 NodeAdapterFactory::constructFromTypeCollection(
                     new TypeCollection($argument, Type::constructUnknownFromNode($argumentValue))

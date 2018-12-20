@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\ContextMapper\Core\Component\Main\Domain\Node;
 
 use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\PhpExtension\String\ClassService;
@@ -54,8 +55,11 @@ final class ListenerNode implements DomainNodeInterface
         $self->fqcn = $class->getFullyQualifiedType();
         $self->canonicalClassName = $class->getCanonicalType();
         $self->methodName = $method->getCanonicalName();
-        // TODO we assume the event is always the 1st parameter,
-        // but should actually search for the first parameter that is an event
+        StaticLoggerFacade::notice(
+            'TODO Currently we assume events are always the first argument. '
+            . 'But this will need to be improved to accommodate projects that don\'t follow this coding standard',
+            [__METHOD__]
+        );
         $self->event = $method->getParameter(0)->getCanonicalType();
         $self->eventFqcn = $method->getParameter(0)->getFullyQualifiedType();
 

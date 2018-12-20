@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\New_;
@@ -72,7 +73,11 @@ final class AssignmentFromNewTypeInjectorVisitor extends AbstractTypeInjectorVis
     {
         if ($node instanceof Class_) {
             $this->addPropertiesTypeToTheirDeclaration($node);
-            // TODO should follow family and traits up and set the types to those properties
+            StaticLoggerFacade::notice(
+                "We are only adding properties types in the class itself.\n"
+                . "We should fix this by adding them also to the super classes and traits.\n",
+                [__METHOD__]
+            );
             $this->resetPropertyTypeBuffer();
         }
         if ($node instanceof ClassMethod) {

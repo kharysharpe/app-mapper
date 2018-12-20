@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
 
+use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
@@ -130,15 +131,16 @@ final class NodeCollection
         return $this->name;
     }
 
-    /**
-     * TODO This whole method can and should be refactored to a better design.
-     *      We can
-     *          1. Use resolver `callable`s instead of injecting the type
-     *          2. Make better use of the Visitor::leaveNode(), when we need to first visit inner
-     *              nodes to resolve an outer node, as in the Assign nodes
-     */
     public function enhance(): void
     {
+        StaticLoggerFacade::notice(
+            "TODO This whole method can and should be refactored to a better design. \n"
+            . "We can: \n"
+            . "      1. Use resolver `callable`s instead of injecting the type \n"
+            . "      2. Make better use of the Visitor::leaveNode(), when we need to first visit inner \n"
+            . '         nodes to resolve an outer node, as in the Assign nodes',
+            [__METHOD__]
+        );
         $nodeList = array_values($this->nodeList);
 
         // Add all nodes into the collection
