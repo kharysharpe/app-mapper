@@ -55,6 +55,8 @@ use function dirname;
  */
 class CliKernel
 {
+    public const FACADE_ARG_ORIGIN_CONTAINER = 'container';
+    public const FACADE_ARG_ORIGIN_RAW = 'raw';
     private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
@@ -145,9 +147,13 @@ class CliKernel
         $this->isBooted = true;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function runApplication(InputInterface $input = null, OutputInterface $output = null): void
     {
         $this->boot();
+        $this->initializeCrossCuttingFacades();
         $cliApplication = $this->container->get(CliApplication::class);
         $cliApplication->setKernel($this);
         $cliApplication->run($input, $output);
@@ -205,6 +211,23 @@ class CliKernel
         foreach ($contents as $compilerPass => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
                 $containerBuilder->addCompilerPass(new $compilerPass());
+            }
+        }
+    }
+
+    private function initializeCrossCuttingFacades(): void
+    {
+        /** @var string[][][] $contents */
+        $contents = require $this->getConfDir() . '/cross_cutting_facades.php';
+        foreach ($contents as $facade => $initializationMethodList) {
+            foreach ($initializationMethodList as $methodName => $rawArgumentList) {
+                $argumentList = [];
+                foreach ($rawArgumentList as $rawArgument => $origin) {
+                    $argumentList[] = $origin === self::FACADE_ARG_ORIGIN_CONTAINER
+                        ? $this->container->get($rawArgument)
+                        : $rawArgument;
+                }
+                $facade::$methodName(...$argumentList);
             }
         }
     }
