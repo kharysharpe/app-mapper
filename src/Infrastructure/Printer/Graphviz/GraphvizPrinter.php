@@ -33,19 +33,75 @@ final class GraphvizPrinter implements PrinterInterface
 {
     public function printToImage(ContextMap $contextMap, Configuration $config): string
     {
-        return (new GraphViz())
-            ->setFormat($config->getOutputFileFormat())
-            ->createImageData($this->printContextMap($contextMap, $config));
+        return $this->createImageData($this->printToDot($contextMap, $config), $config->getOutputFileFormat());
     }
 
     public function printToDot(ContextMap $contextMap, Configuration $config): string
     {
-        return (new GraphViz())->createScript($this->printContextMap($contextMap, $config));
+        return $this->forceEdgesForward(
+            (new GraphViz())->createScript($this->printContextMap($contextMap, $config))
+        );
     }
 
     public function printToHtml(ContextMap $contextMap, Configuration $config): string
     {
-        return (new GraphViz())->createImageHtml($this->printContextMap($contextMap, $config));
+        $format = $config->getOutputFileFormat();
+
+        $format = ($format === 'svg' || $format === 'svgz') ? 'svg+xml' : $format;
+
+        $imgSrc = 'data:image/' . $format . ';base64,'
+            . base64_encode(
+                $this->createImageData(
+                    $this->printToDot($contextMap, $config),
+                    $config->getOutputFileFormat()
+                )
+            );
+
+        if ($format === 'svg' || $format === 'svgz') {
+            return '<object type="image/svg+xml" data="' . $imgSrc . '"></object>';
+        }
+
+        return '<img src="' . $imgSrc . '" />';
+    }
+
+    private function forceEdgesForward(string $dot): string
+    {
+        return preg_replace('/dir *= *"?none"?/', 'dir=forward', $dot);
+    }
+
+    private function createImageData(string $dot, string $format): string
+    {
+        $dotTmpFile = tempnam(sys_get_temp_dir(), 'graphviz');
+        if ($dotTmpFile === false) {
+            throw new GraphvizException('Unable to get temporary file name for graphviz script');
+        }
+
+        if (file_put_contents($dotTmpFile, $dot, LOCK_EX) === false) {
+            throw new GraphvizException('Unable to write graphviz script to temporary file');
+        }
+
+        $ret = 0;
+
+        $executable = (new GraphViz())->getExecutable();
+        $imageTmpFile = $dotTmpFile . '.' . $format;
+        system(
+            escapeshellarg($executable)
+            . ' -T ' . escapeshellarg($format)
+            . ' ' . escapeshellarg($dotTmpFile)
+            . ' -o ' . escapeshellarg($imageTmpFile),
+            $ret
+        );
+        if ($ret !== 0) {
+            throw new GraphvizException(
+                'Unable to invoke "' . $executable . '" to create image file (code ' . $ret . ')'
+            );
+        }
+        unlink($dotTmpFile);
+
+        $data = file_get_contents($imageTmpFile);
+        unlink($imageTmpFile);
+
+        return $data;
     }
 
     private function printContextMap(ContextMap $contextMap, Configuration $config): Graph
@@ -57,8 +113,9 @@ final class GraphvizPrinter implements PrinterInterface
         $graph->setAttribute('graphviz.graph.label', $contextMap->getName());
         $graph->setAttribute('graphviz.graph.fontname', 'arial');
         $graph->setAttribute('graphviz.graph.fontsize', $config->getTitleFontSize());
-        $graph->setAttribute('graphviz.graph.nodesep', '2'); // without this, we get straight lines
+        $graph->setAttribute('graphviz.graph.nodesep', '4'); // the higher, the curvier the lines
         $graph->setAttribute('graphviz.graph.splines', 'true'); // for rounded edges around nodes
+        $graph->setAttribute('graphviz.graph.overlap', 'false'); // so edges don't overlap nodes
 
         $graph->setAttribute('graphviz.node.fontname', 'arial');
 
