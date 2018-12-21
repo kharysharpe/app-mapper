@@ -51,7 +51,7 @@ final class GraphvizPrinter implements PrinterInterface
     private function printContextMap(ContextMap $contextMap, Configuration $config): Graph
     {
         $graph = new Graph();
-        $graph->setAttribute('graphviz.graph.layout', 'fdp');
+        $graph->setAttribute('graphviz.graph.layout', $config->isUseHtml() ? 'fdp' : 'sfdp');
         $graph->setAttribute('graphviz.graph.rankdir', 'LR');
         $graph->setAttribute('graphviz.graph.labelloc', 't'); // label location in the top
         $graph->setAttribute('graphviz.graph.label', $contextMap->getName());
@@ -76,7 +76,6 @@ final class GraphvizPrinter implements PrinterInterface
     {
         foreach ($contextMap->getComponentList() as $component) {
             $graphComponent = $graph->createVertex($component->getName());
-            $graphComponent->setAttribute('graphviz.shape', 'none');
             $graphComponent->setAttribute(
                 'graphviz.pos',
                 $config->getComponentPositionX($component->getName())
@@ -84,16 +83,65 @@ final class GraphvizPrinter implements PrinterInterface
                 . $config->getComponentPositionY($component->getName())
                 . '!'
             );
-            $graphComponent->setAttribute(
-                'graphviz.label',
-                GraphViz::raw(
-                    '<' . $this->printComponent($component, $config) . '>'
-                )
-            );
+
+            if ($config->isUseHtml()) {
+                $graphComponent->setAttribute('graphviz.shape', 'none');
+                $graphComponent->setAttribute(
+                    'graphviz.label',
+                    GraphViz::raw(
+                        '<' . $this->printComponentUsingHtml($component, $config) . '>'
+                    )
+                );
+            } else {
+                $graphComponent->setAttribute('graphviz.shape', 'record');
+                $graphComponent->setAttribute(
+                    'graphviz.label',
+                    GraphViz::raw(
+                        '"' . $this->printComponent($component) . '"'
+                    )
+                );
+            }
         }
     }
 
-    private function printComponent(Component $component, Configuration $config): string
+    private function printComponent(Component $component): string
+    {
+        StaticLoggerFacade::debug($component->getName());
+        StaticLoggerFacade::debug('VERTICES');
+        StaticLoggerFacade::debug('=============================');
+        $componentPieces[] = '== ' . mb_strtoupper($component->getName()) . ' == ';
+
+        StaticLoggerFacade::debug('-----------------------------');
+        foreach ($component->getUseCaseCollection() as $useCase) {
+            $componentPieces[] = "<{$this->createPortId($useCase)}> * {$useCase->getCanonicalName()}";
+            StaticLoggerFacade::debug($this->createPortId($useCase) . ' | ' . $useCase->getCanonicalName());
+        }
+
+        StaticLoggerFacade::debug('-----------------------------');
+        foreach ($component->getPartialUseCaseCollection() as $partialUseCase) {
+            $componentPieces[] = "<{$this->createPortId($partialUseCase)}> + {$partialUseCase->getCanonicalName()}";
+            StaticLoggerFacade::debug(
+                $this->createPortId($partialUseCase) . ' | ' . $partialUseCase->getCanonicalName()
+            );
+        }
+
+        StaticLoggerFacade::debug('-----------------------------');
+        foreach ($component->getListenerCollection() as $listener) {
+            $componentPieces[] = "<{$this->createPortId($listener)}> - {$listener->getCanonicalName()}";
+            StaticLoggerFacade::debug($this->createPortId($listener) . ' | ' . $listener->getCanonicalName());
+        }
+
+        StaticLoggerFacade::debug('-----------------------------');
+        foreach ($component->getSubscriberCollection() as $subscriber) {
+            $componentPieces[] = "<{$this->createPortId($subscriber)}> = {$subscriber->getCanonicalName()}";
+            StaticLoggerFacade::debug($this->createPortId($subscriber) . ' | ' . $subscriber->getCanonicalName());
+        }
+        StaticLoggerFacade::debug('=============================');
+
+        return implode('|', $componentPieces);
+    }
+
+    private function printComponentUsingHtml(Component $component, Configuration $config): string
     {
         StaticLoggerFacade::debug($component->getName());
         StaticLoggerFacade::debug('VERTICES');
@@ -183,7 +231,7 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
                     $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));
                     $eventEdge->setAttribute('graphviz.headport', $this->createPortId($listener));
-                    $eventEdge->setAttribute('graphviz.dir', 'forward'); // force the edge direction
+                    $eventEdge->setAttribute('graphviz.dir', 'forward'); // force the edge direction [DOESN'T WORK]
                     $eventEdge->setAttribute('graphviz.style', $config->getEventLine());
                     $eventEdge->setAttribute('graphviz.color', $config->getEventColor());
                     $eventEdge->setAttribute(

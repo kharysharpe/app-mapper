@@ -45,6 +45,7 @@ final class ConfigurationFactory implements ConfigurationFactoryInterface
             ->setDefault('out_file', './var/cmap.svg')
             ->setDefault('title', ['text' => 'Context Map', 'font_size' => 30])
             ->setDefault('legend', ['position' => ['x' => 90, 'y' => 90]])
+            ->setDefault('use_html', true)
             ->setDefault(
                 'code_units',
                 [
@@ -104,6 +105,7 @@ final class ConfigurationFactory implements ConfigurationFactoryInterface
             $options['title'],
             $options['legend'],
             $options['code_units'],
+            $options['use_html'],
             $options['components']
         );
     }

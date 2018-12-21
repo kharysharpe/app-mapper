@@ -20,6 +20,8 @@ legend:
     x: 90
     y: 90
 
+use_html: true
+
 code_units:
 
   component:

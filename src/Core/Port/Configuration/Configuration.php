@@ -56,6 +56,11 @@ class Configuration
      */
     private $components = [];
 
+    /**
+     * @var bool
+     */
+    private $useHtml;
+
     public function __construct(
         array $paths,
         array $includeFiles,
@@ -63,6 +68,7 @@ class Configuration
         array $title,
         array $legend,
         array $codeUnits,
+        bool $useHtml,
         array $componentList
     ) {
         $this->paths = $paths;
@@ -71,6 +77,7 @@ class Configuration
         $this->title = $title;
         $this->legend = $legend;
         $this->codeUnits = $codeUnits;
+        $this->useHtml = $useHtml;
 
         foreach ($componentList as $component) {
             $componentName = $component['name'];
@@ -205,5 +212,10 @@ class Configuration
     public function getComponentPositionY(string $name): int
     {
         return $this->getComponent($name)->getLocationY();
+    }
+
+    public function isUseHtml(): bool
+    {
+        return $this->useHtml;
     }
 }
