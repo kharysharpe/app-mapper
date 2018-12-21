@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,11 +15,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Presentation\Console\Component;
+namespace Hgraca\AppMapper\Presentation\Console\Component;
 
 use Exception;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Service\AstService;
-use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
+use Hgraca\AppMapper\Core\Component\Main\Application\Service\AstService;
+use Hgraca\AppMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
 use PhpParser\Error;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,11 +29,11 @@ use function getcwd;
 
 class BuildAstFileCommand extends AbstractCommandStopwatchDecorator
 {
-    private const NAME = 'cmap:astCollection:build';
+    private const NAME = 'appmap:astCollection:build';
     private const ARG_ROOT_PATH = 'rootPath';
     private const ARG_FILE_PATH = 'filePath';
     private const OPT_PRETTY_PRINT = 'prettyPrint';
-    private const DEFAULT_FILE_NAME = 'cmap.astCollection.json';
+    private const DEFAULT_FILE_NAME = 'appmap.astCollection.json';
 
     /**
      * To make your command lazily loaded, configure the $defaultName static property,

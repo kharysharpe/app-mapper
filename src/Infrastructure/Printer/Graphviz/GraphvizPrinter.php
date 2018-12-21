@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,35 +15,35 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Printer\Graphviz;
+namespace Hgraca\AppMapper\Infrastructure\Printer\Graphviz;
 
 use Fhaculty\Graph\Graph;
 use Graphp\GraphViz\GraphViz;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
-use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
-use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
+use Hgraca\AppMapper\Core\Component\Main\Domain\AppMap;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Component;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\DomainNodeInterface;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
+use Hgraca\AppMapper\Core\Port\Configuration\Configuration;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Core\Port\Printer\PrinterInterface;
 use Hgraca\PhpExtension\String\ClassService;
 use Hgraca\PhpExtension\String\StringService;
 
 final class GraphvizPrinter implements PrinterInterface
 {
-    public function printToImage(ContextMap $contextMap, Configuration $config): string
+    public function printToImage(AppMap $appMap, Configuration $config): string
     {
-        return $this->createImageData($this->printToDot($contextMap, $config), $config->getOutputFileFormat());
+        return $this->createImageData($this->printToDot($appMap, $config), $config->getOutputFileFormat());
     }
 
-    public function printToDot(ContextMap $contextMap, Configuration $config): string
+    public function printToDot(AppMap $appMap, Configuration $config): string
     {
         return $this->forceEdgesForward(
-            (new GraphViz())->createScript($this->printContextMap($contextMap, $config))
+            (new GraphViz())->createScript($this->printAppmap($appMap, $config))
         );
     }
 
-    public function printToHtml(ContextMap $contextMap, Configuration $config): string
+    public function printToHtml(AppMap $appMap, Configuration $config): string
     {
         $format = $config->getOutputFileFormat();
 
@@ -52,7 +52,7 @@ final class GraphvizPrinter implements PrinterInterface
         $imgSrc = 'data:image/' . $format . ';base64,'
             . base64_encode(
                 $this->createImageData(
-                    $this->printToDot($contextMap, $config),
+                    $this->printToDot($appMap, $config),
                     $config->getOutputFileFormat()
                 )
             );
@@ -104,13 +104,13 @@ final class GraphvizPrinter implements PrinterInterface
         return $data;
     }
 
-    private function printContextMap(ContextMap $contextMap, Configuration $config): Graph
+    private function printAppmap(AppMap $appMap, Configuration $config): Graph
     {
         $graph = new Graph();
         $graph->setAttribute('graphviz.graph.layout', $config->isUseHtml() ? 'fdp' : 'sfdp');
         $graph->setAttribute('graphviz.graph.rankdir', 'LR');
         $graph->setAttribute('graphviz.graph.labelloc', 't'); // label location in the top
-        $graph->setAttribute('graphviz.graph.label', $contextMap->getName());
+        $graph->setAttribute('graphviz.graph.label', $appMap->getName());
         $graph->setAttribute('graphviz.graph.fontname', 'arial');
         $graph->setAttribute('graphviz.graph.fontsize', $config->getTitleFontSize());
         $graph->setAttribute('graphviz.graph.nodesep', '4'); // the higher, the curvier the lines
@@ -119,19 +119,19 @@ final class GraphvizPrinter implements PrinterInterface
 
         $graph->setAttribute('graphviz.node.fontname', 'arial');
 
-        $this->addVertexesToGraph($graph, $contextMap, $config);
+        $this->addVertexesToGraph($graph, $appMap, $config);
 
         // Only after adding all components, can we start adding the edges (links)
-        $this->addEdgesToGraph($graph, $contextMap, $config);
+        $this->addEdgesToGraph($graph, $appMap, $config);
 
         $this->addLegendToGraph($graph, $config);
 
         return $graph;
     }
 
-    private function addVertexesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
+    private function addVertexesToGraph(Graph $graph, AppMap $appMap, Configuration $config): void
     {
-        foreach ($contextMap->getComponentList() as $component) {
+        foreach ($appMap->getComponentList() as $component) {
             $graphComponent = $graph->createVertex($component->getName());
             $graphComponent->setAttribute(
                 'graphviz.pos',
@@ -276,14 +276,14 @@ final class GraphvizPrinter implements PrinterInterface
         return $id;
     }
 
-    private function addEdgesToGraph(Graph $graph, ContextMap $contextMap, Configuration $config): void
+    private function addEdgesToGraph(Graph $graph, AppMap $appMap, Configuration $config): void
     {
         StaticLoggerFacade::debug('EDGES');
         StaticLoggerFacade::debug('=============================');
-        foreach ($contextMap->getComponentList() as $component) {
+        foreach ($appMap->getComponentList() as $component) {
             foreach ($component->getEventDispatcherCollection() as $eventDispatcher) {
                 $originComponentVertex = $graph->getVertex($component->getName());
-                foreach ($contextMap->getListenersOf($eventDispatcher) as $listener) {
+                foreach ($appMap->getListenersOf($eventDispatcher) as $listener) {
                     $destinationComponentVertex = $graph->getVertex($listener->getComponent()->getName());
                     $eventEdge = $originComponentVertex->createEdgeTo($destinationComponentVertex);
                     $eventEdge->setAttribute('graphviz.tailport', $this->createPortId($eventDispatcher));

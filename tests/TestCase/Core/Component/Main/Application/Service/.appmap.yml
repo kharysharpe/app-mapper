@@ -1,0 +1,89 @@
+paths:
+    - ./tests/StubProjectSrc
+
+include_files:
+    -   type: filePath
+        regex: .*\.php$
+
+out_file: ./var/appmap.svg # svg, jpg, jpeg, git, png, bmp, jp2, dot
+
+title:
+    text: "Application Map"
+    font_size: 60
+
+legend:
+    position:
+        x: 95
+        y: -10
+
+code_units:
+
+    component:
+        color:  "Lavender"  # any color pattern used in the HTML `bgcolor` attribute
+
+    use_case:
+        collector:
+            -   type: classFqcn
+                regex: /.*Handler$/
+        color: "Lightsalmon"
+
+    partial_use_case:
+        color: "LightPink"
+
+    listener:
+        collector:
+            -   type: classFqcn
+                regex: /.*Listener$/
+        color: "Honeydew"
+
+    subscriber:
+        collector:
+            -   type: classFqcn
+                regex: /.*Subscriber$/
+        color: "Lightcyan"
+
+    event:
+        collector:
+            # The order of the collector criteria list needs to match the arguments
+            # of the queries at src/Core/Component/Main/Application/Query
+            -   type: classFqcn
+                regex: /.*EventDispatcherInterface$/
+            # AND/OR depends on the query itself
+            -   type: methodName
+                regex: /^dispatch$/
+        color: "Grey"
+        line: "dashed"      # "dashed", "dotted", "solid", "invis", "bold"
+
+components:
+
+    -   name: X
+        path: tests/StubProjectSrc/Core/Component/X
+        position:
+            x: 10
+            y: 5
+
+    -   name: Y
+        path: tests/StubProjectSrc/Core/Component/Y
+        position:
+            x: 10
+            y: -5
+
+    -   name: Z
+        path: tests/StubProjectSrc/Core/Component/Z
+        position:
+            x: 30
+            y: 0
+
+    -   name: Port
+        path: tests/StubProjectSrc/Core/Port
+        position:
+            x: 30
+            y: 0
+
+    -   name: SharedKernel
+        path: tests/StubProjectSrc/Core/SharedKernel
+        position:
+            x: 30
+            y: 0
+
+        # ...

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,12 +15,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Presentation\Console\Component;
+namespace Hgraca\AppMapper\Presentation\Console\Component;
 
 use Exception;
-use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService;
-use Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
-use Hgraca\ContextMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
+use Hgraca\AppMapper\Core\Component\Main\Application\Service\AppMapService;
+use Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
+use Hgraca\AppMapper\Presentation\Console\AbstractCommandStopwatchDecorator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +31,7 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
 {
     private const DELAY_OPEN = 2.0;
 
-    private const NAME = 'cmap:map:generate';
+    private const NAME = 'appmap:map:generate';
     private const OPT_CONFIG_FILE = 'configFilePath';
     private const OPT_OUT_FILE = 'outFile';
     private const OPT_OPEN_OUT_FILE = 'openOutFile';
@@ -50,17 +50,17 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
     private $configurationFactory;
 
     /**
-     * @var ContextMapService
+     * @var AppMapService
      */
-    private $contextMapService;
+    private $appMapService;
 
     public function __construct(
         ConfigurationFactoryInterface $configurationFactory,
-        ContextMapService $contextMapService
+        AppMapService $appMapService
     ) {
         parent::__construct();
         $this->configurationFactory = $configurationFactory;
-        $this->contextMapService = $contextMapService;
+        $this->appMapService = $appMapService;
     }
 
     protected function configure(): void
@@ -71,14 +71,14 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
                 'f',
                 InputOption::VALUE_OPTIONAL,
                 'The configuration file absolute or relative path.',
-                '.cmap.yml'
+                '.appmap.yml'
             )
             ->addOption(
                 self::OPT_OUT_FILE,
                 'i',
                 InputOption::VALUE_OPTIONAL,
                 'The file path for the image.',
-                'var/cmap.png'
+                'var/appmap.png'
             )
             ->addOption(
                 self::OPT_OPEN_OUT_FILE,
@@ -125,14 +125,14 @@ class GenerateCommand extends AbstractCommandStopwatchDecorator
         $this->io->text('Creating config...');
         $config = $this->configurationFactory->createConfig($input->getOption(self::OPT_CONFIG_FILE));
 
-        $this->io->text('Creating context map...');
-        $contextMap = $this->contextMapService->createFromConfig($config);
+        $this->io->text('Creating application map...');
+        $appMap = $this->appMapService->createFromConfig($config);
 
-        $this->io->text('Printing context map...');
-        $this->contextMapService->printContextMap($contextMap, $config);
+        $this->io->text('Printing application map...');
+        $this->appMapService->printAppmap($appMap, $config);
 
         if ($input->getOption(self::OPT_OPEN_OUT_FILE)) {
-            $this->io->text('Displaying context map...');
+            $this->io->text('Displaying application map...');
             $this->display($config->getOutputFileAbsPath());
         }
 

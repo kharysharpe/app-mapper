@@ -1,8 +1,8 @@
-# Context Mapper
-[![build status](https://gitlab.com/hgraca/context-mapper/badges/master/build.svg)](https://gitlab.com/hgraca/context-mapper/commits/master)
-[![coverage report](https://gitlab.com/hgraca/context-mapper/badges/master/coverage.svg)](https://gitlab.com/hgraca/context-mapper/commits/master)
+# Application mapper
+[![build status](https://gitlab.com/hgraca/app-mapper/badges/master/build.svg)](https://gitlab.com/hgraca/app-mapper/commits/master)
+[![coverage report](https://gitlab.com/hgraca/app-mapper/badges/master/coverage.svg)](https://gitlab.com/hgraca/app-mapper/commits/master)
 
-This is a CLI tool to gather information about a codebase which can help draw the application context map.
+This is a CLI static analysis tool to draw an application map, which is similar to a application map but more exact and detailed.
 
 ## Container
 

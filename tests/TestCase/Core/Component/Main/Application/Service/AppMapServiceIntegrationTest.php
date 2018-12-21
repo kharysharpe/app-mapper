@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,34 +15,34 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Test\TestCase\Core\Component\Main\Application\Service;
+namespace Hgraca\AppMapper\Test\TestCase\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
-use Hgraca\ContextMapper\Test\Framework\AbstractIntegrationTest;
-use Hgraca\ContextMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
-use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
-use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
-use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
-use Hgraca\ContextMapper\Test\StubProjectSrc\Core\SharedKernel\Event\EeeEvent;
+use Hgraca\AppMapper\Core\Component\Main\Application\Service\AppMapService;
+use Hgraca\AppMapper\Core\Component\Main\Domain\AppMap;
+use Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
+use Hgraca\AppMapper\Test\Framework\AbstractIntegrationTest;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\EeeEvent;
 
-final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
+final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
 {
     /**
-     * @var ContextMap
+     * @var AppMap
      */
-    private static $contextMap;
+    private static $appMap;
 
     /**
      * This needs to be run inside the test so it counts for coverage.
      * Nevertheless, it will only actually run once.
      */
-    public function createContextMap(): void
+    public function createAppmap(): void
     {
-        if (!self::$contextMap) {
-            self::$contextMap = $this->getContextMapService()->createFromConfig(
-                $this->getConfigurationFactory()->createConfig(__DIR__ . '/.cmap.yml')
+        if (!self::$appMap) {
+            self::$appMap = $this->getAppMapService()->createFromConfig(
+                $this->getConfigurationFactory()->createConfig(__DIR__ . '/.appmap.yml')
             );
         }
     }
@@ -52,7 +52,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
 //     */
 //    public function event_type_is_inferred_correctly_when_injected_but_type_hinted_interface(): void
 //    {
-//        $this->createContextMap();
+//        $this->createAppmap();
 //        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', BbbEvent::class);
 //    }
 //
@@ -61,7 +61,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
 //     */
 //    public function event_type_is_inferred_correctly_when_ternary_operator_is_used(): void
 //    {
-//        $this->createContextMap();
+//        $this->createAppmap();
 //        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', CccEvent::class);
 //    }
 
@@ -70,7 +70,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_variable_is_used(): void
     {
-        $this->createContextMap();
+        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodD', DddEvent::class);
     }
 
@@ -79,7 +79,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_instantiation_is_used(): void
     {
-        $this->createContextMap();
+        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodE', EeeEvent::class);
     }
 
@@ -88,7 +88,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_injected_into_method(): void
     {
-        $this->createContextMap();
+        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodF', AaaEvent::class);
     }
 
@@ -97,7 +97,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_named_constructor(): void
     {
-        $this->createContextMap();
+        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodG', CccEvent::class);
     }
 
@@ -106,9 +106,9 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
         return $this->getService(ConfigurationFactoryInterface::class);
     }
 
-    private function getContextMapService(): ContextMapService
+    private function getAppMapService(): AppMapService
     {
-        return $this->getService(ContextMapService::class);
+        return $this->getService(AppMapService::class);
     }
 
     private function assertMethodDispatchesEvent(
@@ -119,7 +119,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
         $dispatcherNodeFqcn = ltrim($dispatcherNodeFqcn, '\\');
         $eventFqcn = ltrim($eventFqcn, '\\');
         $eventDispatcherNodeList = [];
-        foreach (self::$contextMap->getComponentList() as $component) {
+        foreach (self::$appMap->getComponentList() as $component) {
             foreach ($component->getEventDispatcherCollection() as $eventDispatcherNode) {
                 if (
                     $eventDispatcherNode->getDispatcherClassFqcn() === $dispatcherNodeFqcn
@@ -159,7 +159,7 @@ final class ContextMapServiceIntegrationTest extends AbstractIntegrationTest
 //
 //    private function getComponent(string $componentName): Component
 //    {
-//        $componentList = self::$contextMap->getComponentList();
+//        $componentList = self::$appMap->getComponentList();
 //        foreach ($componentList as $component) {
 //            $componentNameList[] = $component->getName();
 //            if ($component->getName() === $componentName) {

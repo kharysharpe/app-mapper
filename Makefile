@@ -31,7 +31,7 @@ help:
 
 ########################################################################################################################
 
-CONTAINER_NAME="hgraca/context-mapper"
+CONTAINER_NAME="hgraca/app-mapper"
 COVERAGE_REPORT_PATH="var/coverage.clover.xml"
 
 box-build:

@@ -1,4 +1,4 @@
-image: hgraca/context-mapper
+image: hgraca/app-mapper
 
 Test:
   stage: test

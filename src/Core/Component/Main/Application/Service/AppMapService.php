@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,16 +15,16 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Application\Service;
+namespace Hgraca\AppMapper\Core\Component\Main\Application\Service;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Component;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\ContextMap;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainAstMap;
-use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
-use Hgraca\ContextMapper\Core\Port\Parser\AstMapFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Printer\PrinterInterface;
+use Hgraca\AppMapper\Core\Component\Main\Domain\AppMap;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Component;
+use Hgraca\AppMapper\Core\Component\Main\Domain\DomainAstMap;
+use Hgraca\AppMapper\Core\Port\Configuration\Configuration;
+use Hgraca\AppMapper\Core\Port\Parser\AstMapFactoryInterface;
+use Hgraca\AppMapper\Core\Port\Printer\PrinterInterface;
 
-final class ContextMapService
+final class AppMapService
 {
     /**
      * @var PrinterInterface
@@ -44,15 +44,15 @@ final class ContextMapService
         $this->astMapFactory = $astMapFactory;
     }
 
-    public function printContextMap(ContextMap $contextMap, Configuration $config): void
+    public function printAppmap(AppMap $appMap, Configuration $config): void
     {
         file_put_contents(
             $config->getOutputFileAbsPath(),
-            $this->printer->printToImage($contextMap, $config)
+            $this->printer->printToImage($appMap, $config)
         );
     }
 
-    public function createFromConfig(Configuration $config): ContextMap
+    public function createFromConfig(Configuration $config): AppMap
     {
         $useCaseCollector = $config->getUseCaseCollector();
         $listenerCollector = $config->getListenerCollector();
@@ -77,6 +77,6 @@ final class ContextMapService
             );
         }
 
-        return ContextMap::construct($config->getTitle(), ...$componentList);
+        return AppMap::construct($config->getTitle(), ...$componentList);
     }
 }

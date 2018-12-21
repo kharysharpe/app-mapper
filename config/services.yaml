@@ -20,7 +20,7 @@ services:
 
   # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    Hgraca\ContextMapper\:
+    Hgraca\AppMapper\:
         resource: '../src/*'
         exclude: '../src/{Entity,CliKernel.php}'
 
@@ -31,7 +31,7 @@ services:
   # INDIVIDUAL AUTO-WIRING
   ####################################################################################################################
 
-    Hgraca\ContextMapper\Infrastructure\Framework\Symfony\CliApplication:
+    Hgraca\AppMapper\Infrastructure\Framework\Symfony\CliApplication:
       public: true # why public? so we can get it from container in bin file via `$container->get(Application::class)`
 
     Symfony\Component\EventDispatcher\EventDispatcherInterface:

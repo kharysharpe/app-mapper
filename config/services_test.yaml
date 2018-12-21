@@ -2,5 +2,5 @@ parameters:
     # All services in this list will be added to the container used in tests
     # This is specially useful for the services provided by 3rd party bundles
     test.container.service_list:
-        - 'Hgraca\ContextMapper\Core\Component\Main\Application\Service\ContextMapService'
-        - 'Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface'
+        - 'Hgraca\AppMapper\Core\Component\Main\Application\Service\AppMapService'
+        - 'Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface'

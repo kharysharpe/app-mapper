@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,26 +15,26 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromStaticMethodCallTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InterfaceFamilyTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodParametersTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticMethodCallTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromStaticMethodCallTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InterfaceFamilyTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodParametersTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticMethodCallTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;

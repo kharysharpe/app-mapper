@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,15 +15,15 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Node;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
-use Hgraca\ContextMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\ContextMapper\Core\Port\Parser\Node\AdapterNodeInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\Node\MethodArgumentInterface;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
-use Hgraca\ContextMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
+use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\PhpExtension\Collection\Collection;
 use PhpParser\Node\Arg;
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,12 +15,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Infrastructure\Configuration\Symfony;
+namespace Hgraca\AppMapper\Infrastructure\Configuration\Symfony;
 
-use Hgraca\ContextMapper\Core\Port\Configuration\Configuration;
-use Hgraca\ContextMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
-use Hgraca\ContextMapper\Core\Port\Configuration\Exception\ConfigurationException;
-use Hgraca\ContextMapper\Infrastructure\Configuration\Symfony\Yaml\Loader;
+use Hgraca\AppMapper\Core\Port\Configuration\Configuration;
+use Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
+use Hgraca\AppMapper\Core\Port\Configuration\Exception\ConfigurationException;
+use Hgraca\AppMapper\Infrastructure\Configuration\Symfony\Yaml\Loader;
 use Hgraca\PhpExtension\String\StringService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -42,8 +42,8 @@ final class ConfigurationFactory implements ConfigurationFactoryInterface
             ->setRequired(['components'])
             ->setDefault('paths', ['./src'])
             ->setDefault('include_files', ['type' => 'filePath', 'regex' => '.*\.php$'])
-            ->setDefault('out_file', './var/cmap.svg')
-            ->setDefault('title', ['text' => 'Context Map', 'font_size' => 30])
+            ->setDefault('out_file', './var/appmap.svg')
+            ->setDefault('title', ['text' => 'Application map', 'font_size' => 30])
             ->setDefault('legend', ['position' => ['x' => 90, 'y' => 90]])
             ->setDefault('use_html', true)
             ->setDefault(

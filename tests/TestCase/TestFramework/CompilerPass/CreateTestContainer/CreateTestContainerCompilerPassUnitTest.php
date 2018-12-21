@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,10 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Test\TestCase\TestFramework\CompilerPass\CreateTestContainer;
+namespace Hgraca\AppMapper\Test\TestCase\TestFramework\CompilerPass\CreateTestContainer;
 
-use Hgraca\ContextMapper\Test\Framework\AbstractUnitTest;
-use Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
+use Hgraca\AppMapper\Test\Framework\AbstractUnitTest;
+use Hgraca\AppMapper\Test\Framework\CompilerPass\CreateTestContainer\CreateTestContainerCompilerPass;
 use Mockery;
 use Mockery\MockInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -69,7 +69,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\DuplicateServiceInTestContainerException
+     * @expectedException \Hgraca\AppMapper\Test\Framework\CompilerPass\CreateTestContainer\DuplicateServiceInTestContainerException
      */
     public function process_throws_exception_if_duplicated_service_in_test_container(): void
     {
@@ -81,7 +81,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\AbstractServiceInTestContainerException
+     * @expectedException \Hgraca\AppMapper\Test\Framework\CompilerPass\CreateTestContainer\AbstractServiceInTestContainerException
      */
     public function process_throws_exception_if_abstract_service_in_test_container(): void
     {
@@ -96,7 +96,7 @@ final class CreateTestContainerCompilerPassUnitTest extends AbstractUnitTest
     /**
      * @test
      *
-     * @expectedException \Hgraca\ContextMapper\Test\Framework\CompilerPass\CreateTestContainer\ServiceInTestContainerNotFoundInProductionContainerException
+     * @expectedException \Hgraca\AppMapper\Test\Framework\CompilerPass\CreateTestContainer\ServiceInTestContainerNotFoundInProductionContainerException
      */
     public function process_throws_exception_if_inexistent_service_in_test_container(): void
     {

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,12 +15,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Port\Parser\Node;
+namespace Hgraca\AppMapper\Core\Port\Parser\Node;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\DomainNodeCollection;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\MethodCallerNode;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
+use Hgraca\AppMapper\Core\Component\Main\Domain\DomainNodeCollection;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\MethodCallerNode;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\UseCaseNode;
 use Hgraca\PhpExtension\Collection\Collection;
 
 final class AdapterNodeCollection extends Collection

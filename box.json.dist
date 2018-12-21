@@ -1,6 +1,6 @@
 {
     "banner": [
-        "This file is part of the Context Mapper project.",
+        "This file is part of the Application mapper project.",
         "",
         "(c) Herberto Graça <herberto.graca@gmail.com>",
         "",
@@ -16,5 +16,5 @@
     ],
     "force-autodiscovery": true,
     "main": "bin/console",
-    "output": "cmapper.phar"
+    "output": "appmapper.phar"
 }

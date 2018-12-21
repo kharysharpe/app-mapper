@@ -1,0 +1,110 @@
+paths:
+    - ./src
+
+include_files:
+    -   type: filePath
+        regex: .*\.php$
+
+out_file: ./var/appmap.svg # svg, jpg, jpeg, git, png, bmp, jp2, dot
+
+title:
+    text: "Application Map"
+    font_size: 60
+
+legend:
+    position:
+        x: 95
+        y: -12
+
+#use_html: true
+
+code_units:
+
+    component:
+        color:  "Lavender"  # any color pattern used in the HTML `bgcolor` attribute
+
+    use_case:
+        collector:
+            -   type: classFqcn
+                regex: /.*Handler$/
+        color: "Lightsalmon"
+
+    partial_use_case:
+        color: "LightPink"
+
+    listener:
+        collector:
+            -   type: classFqcn
+                regex: /.*Listener$/
+        color: "Honeydew"
+
+    subscriber:
+        collector:
+            -   type: classFqcn
+                regex: /.*Subscriber$/
+        color: "Lightcyan"
+
+    event:
+        collector:
+            # The order of the collector criteria list needs to match the arguments
+            # of the queries at src/Core/Component/Main/Application/Query
+            -   type: classFqcn
+                regex: /.*EventDispatcherInterface$/
+            # AND/OR depends on the query itself
+            -   type: methodName
+                regex: /^dispatch$/
+        color: "Grey"
+        line: "dashed"      # "dashed", "dotted", "solid", "invis", "bold"
+
+components:
+
+    -   name: Invoice
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/Invoice
+        path: var/ast/Invoice.appmap.astCollection.json
+        position:
+            x: 10
+            y: 5
+
+    -   name: Payment
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/Payment
+        path: var/ast/Payment.appmap.astCollection.json
+        position:
+            x: 10
+            y: -5
+
+    -   name: ServicePro
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/ServicePro
+        path: var/ast/ServicePro.appmap.astCollection.json
+        position:
+            x: 30
+            y: 0
+
+    -   name: Consumer
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/Consumer
+        path: var/ast/Consumer.appmap.astCollection.json
+        position:
+            x: 50
+            y: 0
+
+    -   name: Review
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/Review
+        path: var/ast/Review.appmap.astCollection.json
+        position:
+            x: 70
+            y: 5
+
+    -   name: ServiceRequest
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/ServiceRequest
+        path: var/ast/ServiceRequest.appmap.astCollection.json
+        position:
+            x: 70
+            y: -5
+
+    -   name: Proposal
+        #    path: /home/herberto/Development/workspace/04-werkspot/Repos/werkspot.com/instapro/src/Core/Proposal
+        path: var/ast/Proposal.appmap.astCollection.json
+        position:
+            x: 90
+            y: 0
+
+        # ...

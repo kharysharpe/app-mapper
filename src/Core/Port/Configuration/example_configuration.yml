@@ -5,14 +5,14 @@ include_files:
   - type: filePath
     regex: .*\.php$
 
-out_file: ./var/cmap.svg # svg, jpg, jpeg, git, png, bmp, jp2
+out_file: ./var/appmap.svg # svg, jpg, jpeg, git, png, bmp, jp2
 
 size:
   x: 100
   y: 100
 
 title:
-  text: "Context Map"
+  text: "Application Map"
   size: 30
 
 legend:
@@ -65,8 +65,8 @@ components:
       x: 10
       y: 10
 
-  - name: Crm
-    path: Core/Component/Crm.cmap.json
+  -   name: Crm
+      path: Core/Component/Crm.appmap.json
     position:
       x: 30
       y: 10

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Context Mapper application,
+ * This file is part of the Application mapper application,
  * following the Explicit Architecture principles.
  *
  * @link https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together
@@ -15,14 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\ContextMapper\Core\Component\Main\Domain;
+namespace Hgraca\AppMapper\Core\Component\Main\Domain;
 
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\ListenerNode;
-use Hgraca\ContextMapper\Core\Component\Main\Domain\Node\UseCaseNode;
-use Hgraca\ContextMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
-use Hgraca\ContextMapper\Core\Port\Parser\AstMapInterface;
-use Hgraca\ContextMapper\Core\Port\Parser\Node\ClassInterface;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\ListenerNode;
+use Hgraca\AppMapper\Core\Component\Main\Domain\Node\UseCaseNode;
+use Hgraca\AppMapper\Core\Port\Configuration\Collector\CodeUnitCollector;
+use Hgraca\AppMapper\Core\Port\Parser\AstMapInterface;
+use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 
 final class DomainAstMap
 {
