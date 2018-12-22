@@ -7,4 +7,5 @@ docker run --rm \
   -v ~/.cache/composer:/.composer/cache/ \
   -v $(pwd):/$(basename $(pwd)) \
   -w /$(basename $(pwd)) \
+  -u $(id -u):$(id -g) \
   $@
