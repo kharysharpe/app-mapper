@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain;
 
 use DateTime;
+use function array_unique;
 
 final class BbbEntity
 {
@@ -40,5 +41,25 @@ final class BbbEntity
     public function methodYyy(): AaaEntity
     {
         return new AaaEntity($this);
+    }
+
+    public function testSprintf(): void
+    {
+        $var = sprintf('something-%s.%s', 'a', 'b');
+    }
+
+    public function testBool(): void
+    {
+        $var = true;
+    }
+
+    public function testArrayUnique(): void
+    {
+        $var = array_unique([]);
+    }
+
+    public function testNull(): void
+    {
+        $var = null;
     }
 }

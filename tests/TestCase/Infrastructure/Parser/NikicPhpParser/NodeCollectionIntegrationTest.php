@@ -32,6 +32,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
+use function array_keys;
 
 final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
 {
@@ -52,6 +53,74 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
             );
             self::$nodeCollection->enhance();
         }
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_of_array(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('testArrayUnique', BbbEntity::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey('array', $methodTypes, implode(', ', array_keys($methodTypes)));
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_of_null(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('testNull', BbbEntity::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey('null', $methodTypes, implode(', ', array_keys($methodTypes)));
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_native_function_call(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('testSprintf', BbbEntity::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey('string', $methodTypes);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_of_bool(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('testBool', BbbEntity::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey('bool', $methodTypes);
     }
 
     /**
