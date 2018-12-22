@@ -24,6 +24,7 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\Xx
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxBbbService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 use Hgraca\PhpExtension\Reflection\ReflectionHelper;
@@ -51,6 +52,50 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
             );
             self::$nodeCollection->enhance();
         }
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_from_ternary_adds_all_expr_types_to_var(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('methodC', XxxAaaService::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey(EventInterface::class, $methodTypes);
+        self::assertArrayHasKey(CccEvent::class, $methodTypes);
+
+        $methodNode = $this->getMethod('methodJ', XxxAaaService::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey(EventInterface::class, $methodTypes);
+        self::assertArrayHasKey(CccEvent::class, $methodTypes);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function assignment_from_coalesce_adds_all_expr_types_to_var(): void
+    {
+        $this->createNodeCollection();
+
+        $methodNode = $this->getMethod('methodM', XxxAaaService::class);
+        $methodTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey(EventInterface::class, $methodTypes);
+        self::assertArrayHasKey(CccEvent::class, $methodTypes);
     }
 
     /**

@@ -20,6 +20,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromConditionalTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
@@ -189,6 +190,10 @@ final class NodeCollection
         // Make a second pass to make sure we got all properties, including the ones captured in the last visitor
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
+        $traverser->traverse($nodeList);
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new AssignmentFromConditionalTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
     }
 
