@@ -47,7 +47,7 @@ final class TypeCollection extends Collection
      */
     private $id;
 
-    public function __construct(Node $node, Type ...$itemList)
+    public function __construct(?Node $node = null, Type ...$itemList)
     {
         parent::__construct($itemList);
         $this->node = $node;
