@@ -182,7 +182,8 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
                 $loopNode = $loopNode->getAttribute('parentNode');
             }
             throw new TypeNotFoundInNodeException(
-                "Can't find type collection in node:\n"
+                'Class: ' . static::class . "\n"
+                . "Can't find type collection in node:\n"
                 . json_encode($relevantInfo, JSON_PRETTY_PRINT)
             );
         }
