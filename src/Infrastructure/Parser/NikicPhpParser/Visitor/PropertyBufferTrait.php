@@ -68,6 +68,10 @@ trait PropertyBufferTrait
         }
     }
 
+    /**
+     * TODO We are only adding properties types in the class itself.
+     *      We should fix this by adding them also to the super classes and traits.
+     */
     private function addPropertiesTypeToTheirDeclaration(Class_ $node): void
     {
         // After collecting app possible class properties, we inject them in their declaration
