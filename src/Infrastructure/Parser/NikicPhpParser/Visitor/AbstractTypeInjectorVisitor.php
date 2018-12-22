@@ -21,7 +21,7 @@ use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
-use Hgraca\PhpExtension\Type\TypeService;
+use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Identifier;
@@ -87,7 +87,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
                 return new Type('NULL');
                 break;
             default:
-                throw new NotImplementedException('Can\'t build Type from ' . TypeService::getType($node));
+                throw new NotImplementedException('Can\'t build Type from ' . TypeHelper::getType($node));
         }
     }
 

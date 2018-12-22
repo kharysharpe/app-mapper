@@ -21,7 +21,7 @@ use Hgraca\AppMapper\Core\Port\Configuration\Configuration;
 use Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
 use Hgraca\AppMapper\Core\Port\Configuration\Exception\ConfigurationException;
 use Hgraca\AppMapper\Infrastructure\Configuration\Symfony\Yaml\Loader;
-use Hgraca\PhpExtension\String\StringService;
+use Hgraca\PhpExtension\String\StringHelper;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class ConfigurationFactory implements ConfigurationFactoryInterface
@@ -113,8 +113,8 @@ final class ConfigurationFactory implements ConfigurationFactoryInterface
     private function resolveLoader(string $fileAbsPath): Loader
     {
         switch (true) {
-            case StringService::hasEnding(self::FILE_TYPE_YAML, $fileAbsPath):
-            case StringService::hasEnding(self::FILE_TYPE_YML, $fileAbsPath):
+            case StringHelper::hasEnding(self::FILE_TYPE_YAML, $fileAbsPath):
+            case StringHelper::hasEnding(self::FILE_TYPE_YML, $fileAbsPath):
                 return $this->loaderStrategyList[self::FILE_TYPE_YML];
             default:
                 throw new ConfigurationException('Configuration file type unknown: ' . $fileAbsPath);

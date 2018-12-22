@@ -19,7 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownPropertyException;
-use Hgraca\PhpExtension\Type\TypeService;
+use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
@@ -63,7 +63,7 @@ trait PropertyBufferTrait
                 break;
             default:
                 throw new NotImplementedException(
-                    'Can\'t get name from property of type ' . TypeService::getType($property)
+                    'Can\'t get name from property of type ' . TypeHelper::getType($property)
                 );
         }
     }

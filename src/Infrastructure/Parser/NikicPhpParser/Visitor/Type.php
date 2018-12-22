@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
-use Hgraca\PhpExtension\String\ClassService;
+use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -54,7 +54,7 @@ final class Type
 
     public static function getName(): string
     {
-        return ClassService::extractCanonicalClassName(__CLASS__);
+        return ClassHelper::extractCanonicalClassName(__CLASS__);
     }
 
     public function getFcqn(): string

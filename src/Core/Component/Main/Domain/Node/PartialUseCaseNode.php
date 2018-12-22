@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Core\Component\Main\Domain\Node;
 
 use Hgraca\AppMapper\Core\Component\Main\Domain\Component;
-use Hgraca\PhpExtension\String\ClassService;
+use Hgraca\PhpExtension\String\ClassHelper;
 
 final class PartialUseCaseNode implements DomainNodeInterface
 {
@@ -54,6 +54,6 @@ final class PartialUseCaseNode implements DomainNodeInterface
 
     public function getCanonicalName(): string
     {
-        return ClassService::extractCanonicalClassName($this->fullyQualifiedClassName) . '::' . $this->method;
+        return ClassHelper::extractCanonicalClassName($this->fullyQualifiedClassName) . '::' . $this->method;
     }
 }

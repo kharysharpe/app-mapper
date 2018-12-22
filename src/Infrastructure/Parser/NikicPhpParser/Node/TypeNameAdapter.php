@@ -19,7 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\AppMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
-use Hgraca\PhpExtension\String\ClassService;
+use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
@@ -46,7 +46,7 @@ final class TypeNameAdapter implements TypeNodeInterface
 
     public function getCanonicalType(): string
     {
-        return ClassService::extractCanonicalClassName($this->getFullyQualifiedType());
+        return ClassHelper::extractCanonicalClassName($this->getFullyQualifiedType());
     }
 
     public function getTypeNode(): Node
@@ -61,6 +61,6 @@ final class TypeNameAdapter implements TypeNodeInterface
 
     public function __toString(): string
     {
-        return ClassService::extractCanonicalClassName(__CLASS__) . ' - ' . $this->name;
+        return ClassHelper::extractCanonicalClassName(__CLASS__) . ' - ' . $this->name;
     }
 }

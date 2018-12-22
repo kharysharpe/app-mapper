@@ -21,7 +21,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularRefe
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
 use Hgraca\PhpExtension\Collection\Collection;
-use Hgraca\PhpExtension\String\ClassService;
+use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use function uniqid;
 
@@ -45,7 +45,7 @@ final class TypeCollection extends Collection
 
     public static function getName(): string
     {
-        return ClassService::extractCanonicalClassName(__CLASS__);
+        return ClassHelper::extractCanonicalClassName(__CLASS__);
     }
 
     public function addType(Type $item): void

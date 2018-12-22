@@ -150,9 +150,9 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
 //    private function getClassAst(string $typeAsString): Node
 //    {
 //        $component = $this->getComponent('X');
-//        $astMap = ReflectionService::getProtectedProperty($component->getAstMap(), 'astMap');
+//        $astMap = ReflectionHelper::getProtectedProperty($component->getAstMap(), 'astMap');
 //        /** @var NodeCollection $nodeCollection */
-//        $nodeCollection = ReflectionService::getProtectedProperty($astMap, 'completeNodeCollection');
+//        $nodeCollection = ReflectionHelper::getProtectedProperty($astMap, 'completeNodeCollection');
 //
 //        return $nodeCollection->getAstNode($typeAsString);
 //    }

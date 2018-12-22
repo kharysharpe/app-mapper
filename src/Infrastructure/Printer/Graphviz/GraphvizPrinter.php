@@ -26,8 +26,8 @@ use Hgraca\AppMapper\Core\Component\Main\Domain\Node\EventDispatcherNode;
 use Hgraca\AppMapper\Core\Port\Configuration\Configuration;
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Core\Port\Printer\PrinterInterface;
-use Hgraca\PhpExtension\String\ClassService;
-use Hgraca\PhpExtension\String\StringService;
+use Hgraca\PhpExtension\String\ClassHelper;
+use Hgraca\PhpExtension\String\StringHelper;
 
 final class GraphvizPrinter implements PrinterInterface
 {
@@ -257,8 +257,8 @@ final class GraphvizPrinter implements PrinterInterface
     private function createPortId(DomainNodeInterface $node): string
     {
         $fqn = $node->getFullyQualifiedName();
-        $id = StringService::replace('::', '.', $fqn);
-        $id = StringService::replace('\\', '.', $id);
+        $id = StringHelper::replace('::', '.', $fqn);
+        $id = StringHelper::replace('\\', '.', $id);
         $id = $node instanceof EventDispatcherNode
             ? mb_substr($id, 0, mb_strrpos($id, '.'))
             : $id;
@@ -269,7 +269,7 @@ final class GraphvizPrinter implements PrinterInterface
             . "We need to make this more flexible.\n",
             [__METHOD__]
         );
-        if (StringService::contains($useCaseTermination, $id)) {
+        if (StringHelper::contains($useCaseTermination, $id)) {
             $id = mb_substr($id, 0, mb_strrpos($id, $useCaseTermination) + mb_strlen($useCaseTermination) - 1);
         }
 
@@ -293,7 +293,7 @@ final class GraphvizPrinter implements PrinterInterface
                     $eventEdge->setAttribute('graphviz.color', $config->getEventColor());
                     $eventEdge->setAttribute(
                         'graphviz.xlabel',
-                        ClassService::extractCanonicalClassName($listener->getListenedFqcn())
+                        ClassHelper::extractCanonicalClassName($listener->getListenedFqcn())
                     );
                     $eventEdge->setAttribute('graphviz.fontname', 'arial');
                     StaticLoggerFacade::debug(
