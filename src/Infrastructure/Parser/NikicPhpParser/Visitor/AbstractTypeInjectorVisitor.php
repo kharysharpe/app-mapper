@@ -31,6 +31,7 @@ use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeVisitorAbstract;
+use function implode;
 use function is_string;
 use function json_encode;
 
@@ -189,5 +190,14 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
         }
 
         return $node->getAttribute(TypeCollection::getName());
+    }
+
+    public static function hasTypeCollection(?Node $node): bool
+    {
+        if (!$node) {
+            return true; // because getTypeCollectionFromNode returns an empty collection in case of null
+        }
+
+        return $node->hasAttribute(TypeCollection::getName());
     }
 }
