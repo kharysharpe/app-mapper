@@ -7,5 +7,3 @@ docker run --rm \
   -v $(pwd):/$(basename $(pwd)) \
   -w /$(basename $(pwd)) \
   $@
-
-
