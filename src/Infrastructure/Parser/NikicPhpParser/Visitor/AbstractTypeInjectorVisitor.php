@@ -165,8 +165,11 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
         }
     }
 
-    public static function getTypeCollectionFromNode(Node $node): TypeCollection
+    public static function getTypeCollectionFromNode(?Node $node): TypeCollection
     {
+        if (!$node) {
+            return new TypeCollection();
+        }
         if (!$node->hasAttribute(TypeCollection::getName())) {
             $relevantInfo = [];
             $loopNode = $node;
