@@ -36,6 +36,11 @@ final class TypeCollection extends Collection
 
     private $repeatedTypeAddition = [];
 
+    /**
+     * @var string
+     */
+    private $id;
+
     public function __construct(Node $node, Type ...$itemList)
     {
         parent::__construct($itemList);
