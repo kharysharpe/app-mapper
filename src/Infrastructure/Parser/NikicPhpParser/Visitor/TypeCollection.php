@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
@@ -66,7 +67,9 @@ final class TypeCollection extends Collection
             && $this->repeatedTypeAddition[$item->getFcqn()] >= 100
         ) {
             $count = $this->repeatedTypeAddition[$item->getFcqn()] + 1;
-            echo "Adding type '{$item->getFcqn()}' to collection {$this->id} with size {$this->count()} for the {$count}th time\n";
+            StaticLoggerFacade::notice(
+                "Adding type '{$item->getFcqn()}' to collection {$this->id} with size {$this->count()} for the {$count}th time\n"
+            );
         }
         $this->itemList[$item->getFcqn()] = $item;
         $this->repeatedTypeAddition[$item->getFcqn()] = isset($this->repeatedTypeAddition[$item->getFcqn()])
