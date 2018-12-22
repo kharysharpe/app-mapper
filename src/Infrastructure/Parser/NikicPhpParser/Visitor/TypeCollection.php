@@ -32,8 +32,14 @@ final class TypeCollection extends Collection
 {
     private const REPEATED_TYPE_ADD_LIMIT = 1000;
 
+    /**
+     * @var Node
+     */
     private $node;
 
+    /**
+     * @var int[]
+     */
     private $repeatedTypeAddition = [];
 
     /**
