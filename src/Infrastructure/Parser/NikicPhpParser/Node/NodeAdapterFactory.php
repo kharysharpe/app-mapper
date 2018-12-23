@@ -45,7 +45,7 @@ final class NodeAdapterFactory
             return ClassAdapter::constructFromClassNode($parserNode);
         }
 
-//        $parserNodeTypeCollection = AbstractTypeInjectorVisitor::getTypeCollectionFromNode($parserNode);
+//        $parserNodeTypeCollection = self::getTypeCollectionFromNode($parserNode);
 //        if ($parserNode instanceof Arg) {
 //            return MethodArgumentAdapter::constructFromTypeCollection($parserNode);
 //        }

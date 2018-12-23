@@ -21,7 +21,7 @@ use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\PhpExtension\Collection\Collection;
@@ -29,6 +29,8 @@ use PhpParser\Node\Arg;
 
 final class MethodArgumentAdapter extends Collection implements MethodArgumentInterface
 {
+    use NodeTypeManagerTrait;
+
     public function __construct(Arg $argument)
     {
         $argumentValue = $argument->value;
@@ -36,7 +38,7 @@ final class MethodArgumentAdapter extends Collection implements MethodArgumentIn
         try {
             $this->itemList = array_unique(
                 NodeAdapterFactory::constructFromTypeCollection(
-                    AbstractTypeInjectorVisitor::getTypeCollectionFromNode($argumentValue)
+                    self::getTypeCollectionFromNode($argumentValue)
                 )->toArray()
             );
         } catch (TypeNotFoundInNodeException $e) {

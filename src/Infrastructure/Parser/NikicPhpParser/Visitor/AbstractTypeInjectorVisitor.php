@@ -36,6 +36,8 @@ use function is_string;
 
 abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
 {
+    use NodeTypeManagerTrait;
+
     /**
      * @var NodeCollection
      */
@@ -141,53 +143,5 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
         }
 
         return implode('\\', $name->parts);
-    }
-
-    public function addTypeCollectionToNode(Node $node, TypeCollection $newTypeCollection): void
-    {
-        if (!$node->hasAttribute(TypeCollection::getName())) {
-            $node->setAttribute(TypeCollection::getName(), $newTypeCollection);
-
-            return;
-        }
-
-        /** @var TypeCollection $typeCollection */
-        $typeCollection = $node->getAttribute(TypeCollection::getName());
-        $typeCollection->addTypeCollection($newTypeCollection);
-    }
-
-    public function addTypeToNode(Node $node, Type ...$typeList): void
-    {
-        if (!$node->hasAttribute(TypeCollection::getName())) {
-            $typeCollection = new TypeCollection($node);
-            $node->setAttribute(TypeCollection::getName(), $typeCollection);
-        } else {
-            $typeCollection = $node->getAttribute(TypeCollection::getName());
-        }
-
-        foreach ($typeList as $type) {
-            $typeCollection->addType($type);
-        }
-    }
-
-    public static function getTypeCollectionFromNode(?Node $node): TypeCollection
-    {
-        if (!$node) {
-            return new TypeCollection();
-        }
-        if (!$node->hasAttribute(TypeCollection::getName())) {
-            throw new TypeNotFoundInNodeException($node);
-        }
-
-        return $node->getAttribute(TypeCollection::getName());
-    }
-
-    public static function hasTypeCollection(?Node $node): bool
-    {
-        if (!$node) {
-            return true; // because getTypeCollectionFromNode returns an empty collection in case of null
-        }
-
-        return $node->hasAttribute(TypeCollection::getName());
     }
 }
