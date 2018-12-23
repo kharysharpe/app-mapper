@@ -19,8 +19,8 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
@@ -126,7 +126,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
         return $this->buildType($nullableTypeNode->type);
     }
 
-    private function buildTypeFromParam(Param $param)
+    private function buildTypeFromParam(Param $param): Type
     {
         return $this->buildType($param->type);
     }
