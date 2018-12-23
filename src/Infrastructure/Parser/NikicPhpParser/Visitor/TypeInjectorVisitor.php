@@ -40,6 +40,7 @@ use function in_array;
 
 final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
+    use AssignVisitorTrait;
     use NativeFunctionsTrait;
 
     public function enterNode(Node $node): void
@@ -255,16 +256,6 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     private function leaveNewNode(New_ $newNode): void
     {
         $this->addTypeToNode($newNode, $this->buildType($newNode));
-    }
-
-    private function leaveAssignNode(Assign $assignNode): void
-    {
-        if (!self::hasTypeCollection($assignNode->expr)) {
-            // TODO stop ignoring unresolved and resolve all detected
-            return;
-        }
-        $this->addTypeCollectionToNode($assignNode->var, self::getTypeCollectionFromNode($assignNode->expr));
-        $this->collectVariableTypes($assignNode->var);
     }
 
     private function leaveNullableTypeNode(NullableType $nullableTypeNode): void

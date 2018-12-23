@@ -28,24 +28,17 @@ use PhpParser\Node\Stmt\Class_;
 
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    public function enterNode(Node $node): void
+    use AssignVisitorTrait;
+
+    public function leaveNode(Node $node): void
     {
         switch (true) {
+            case $node instanceof MethodCall:
+                $this->leaveMethodCall($node);
+                break;
             case $node instanceof Assign:
-                $assignment = $node;
-                if (!$assignment->expr instanceof MethodCall) {
-                    return;
-                }
-                $var = $assignment->var;
-                $methodCall = $assignment->expr;
-
-                $this->addTypeToMethodCall($methodCall);
-
                 try {
-                    // Assignment of a StaticCall to variable or property
-                    $typeCollection = self::getTypeCollectionFromNode($methodCall);
-                    $this->addTypeCollectionToNode($var, $typeCollection);
-                    $this->collectVariableTypes($var);
+                    $this->leaveAssignNode($node);
                 } catch (TypeNotFoundInNodeException $e) {
                     StaticLoggerFacade::warning(
                         "Silently ignoring a TypeNotFoundInNodeException in this filter.\n"
@@ -61,18 +54,14 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                 // After collecting the variable types, inject it in the following variable nodes
                 $this->addCollectedVariableTypes($node);
                 break;
-        }
-    }
-
-    public function leaveNode(Node $node): void
-    {
-        if ($node instanceof Class_) {
-            $this->addCollectedPropertiesTypeToTheirDeclaration($node);
+            case $node instanceof Class_:
+                $this->addCollectedPropertiesTypeToTheirDeclaration($node);
+                break;
         }
         parent::leaveNode($node);
     }
 
-    private function addTypeToMethodCall(MethodCall $methodCall): void
+    private function leaveMethodCall(MethodCall $methodCall): void
     {
         try {
             $varCollectionType = self::getTypeCollectionFromNode($methodCall->var);
