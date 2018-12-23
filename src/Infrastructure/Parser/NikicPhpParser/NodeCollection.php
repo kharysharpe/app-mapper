@@ -20,11 +20,9 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromStaticMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
@@ -33,9 +31,8 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodParamete
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticCallClassTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\StaticMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
@@ -159,18 +156,16 @@ final class NodeCollection
         $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
-        $traverser->addVisitor(new StaticCallClassTypeInjectorVisitor($this));
         $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new StaticMethodCallTypeInjectorVisitor($this)); // TODO test
+        $traverser->addVisitor(new TypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
         // These need the other to run first until the end
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AssignmentFromStaticMethodCallTypeInjectorVisitor($this));
         $traverser->addVisitor(new AssignmentFromNewTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new AssignmentFromParameterTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
@@ -190,10 +185,6 @@ final class NodeCollection
         // Make a second pass to make sure we got all properties, including the ones captured in the last visitor
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new TypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
     }
 

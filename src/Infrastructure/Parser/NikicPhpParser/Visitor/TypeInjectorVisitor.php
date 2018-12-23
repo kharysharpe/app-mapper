@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
@@ -24,8 +25,10 @@ use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
@@ -40,6 +43,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         switch (true) {
             case $node instanceof Expr:
                 $this->leaveExprNode($node);
+                break;
+            case $node instanceof Name:
+                $this->leaveNameNode($node);
                 break;
             case $node instanceof ClassMethod:
                 $this->leaveClassMethodNode();
@@ -58,6 +64,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 break;
             case $exprNode instanceof FuncCall:
                 $this->leaveFuncCallNode($exprNode);
+                break;
+            case $exprNode instanceof StaticCall:
+                $this->leaveStaticCallNode($exprNode);
                 break;
             case $exprNode instanceof Coalesce:
                 $this->leaveCoalesceNode($exprNode);
@@ -93,6 +102,45 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             $this->addTypeToNode($funcCallNode, new Type($this->getReturnType($funcCallNode)));
         }
         // TODO if it's not native, try to find it in the AstMap
+    }
+
+    private function leaveNameNode(Name $nameNode): void
+    {
+        $this->addTypeToNode($nameNode, $this->buildTypeFromName($nameNode));
+    }
+
+    private function leaveStaticCallNode(StaticCall $staticCallNode): void
+    {
+        $classTypeCollection = self::getTypeCollectionFromNode($staticCallNode->class);
+
+        /** @var Type $classType */
+        foreach ($classTypeCollection as $classType) {
+            if (!$classType->hasAst()) {
+                continue;
+            }
+
+            if (!$classType->hasAstMethod((string) $staticCallNode->name)) {
+                continue;
+            }
+
+            $returnTypeNode = $classType->getAstMethod((string) $staticCallNode->name)->returnType;
+            if ($returnTypeNode === null) {
+                $this->addTypeToNode($staticCallNode, Type::constructVoid());
+            } else {
+                $classMethodReturnTypeCollection = self::getTypeCollectionFromNode($returnTypeNode);
+                $this->addTypeCollectionToNode($staticCallNode, $classMethodReturnTypeCollection);
+            }
+        }
+
+        if (!self::hasTypeCollection($staticCallNode)) {
+            StaticLoggerFacade::warning(
+                "Silently ignoring a MethodNotFoundInClassException in this visitor.\n"
+                . "Trying to get a method that is defined in a parent class or trait.\n"
+                . 'We need to implement going up the hierarchy tree to find the method.',
+                [__METHOD__]
+            );
+            $this->addTypeToNode($staticCallNode, Type::constructUnknownFromNode($staticCallNode));
+        }
     }
 
     private function leaveCoalesceNode(Coalesce $coalesceNode): void
