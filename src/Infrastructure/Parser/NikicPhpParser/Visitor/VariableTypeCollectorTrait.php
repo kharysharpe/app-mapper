@@ -20,30 +20,30 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownVariableException;
 use PhpParser\Node\Expr\Variable;
 
-trait VariableBufferTrait
+trait VariableTypeCollectorTrait
 {
     private $variableTypeBuffer = [];
 
-    private function addVariableTypeToBuffer(string $variableName, TypeCollection $variableType): void
+    private function collectVariableType(string $variableName, TypeCollection $variableType): void
     {
         $this->variableTypeBuffer[$variableName] = $variableType;
     }
 
-    private function hasVariableTypeInBuffer(string $variableName): bool
+    private function hasCollectedVariableType(string $variableName): bool
     {
         return array_key_exists($variableName, $this->variableTypeBuffer);
     }
 
-    private function getVariableTypeFromBuffer(string $variableName): TypeCollection
+    private function getCollectedVariableType(string $variableName): TypeCollection
     {
-        if (!$this->hasVariableTypeInBuffer($variableName)) {
+        if (!$this->hasCollectedVariableType($variableName)) {
             throw new UnknownVariableException($variableName);
         }
 
         return $this->variableTypeBuffer[$variableName];
     }
 
-    private function resetVariableTypeBuffer(): void
+    private function resetCollectedVariableTypes(): void
     {
         $this->variableTypeBuffer = [];
     }

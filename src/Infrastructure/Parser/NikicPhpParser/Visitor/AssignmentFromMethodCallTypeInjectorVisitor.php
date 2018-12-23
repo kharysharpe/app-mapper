@@ -31,7 +31,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use PropertyBufferTrait;
-    use VariableBufferTrait;
+    use VariableTypeCollectorTrait;
 
     public function enterNode(Node $node): void
     {
@@ -53,7 +53,7 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
 
                     switch (true) {
                         case $var instanceof Variable: // Assignment of a new instance to variable
-                            $this->addVariableTypeToBuffer($this->getVariableName($var), $typeCollection);
+                            $this->collectVariableType($this->getVariableName($var), $typeCollection);
                             break;
                         case $var instanceof PropertyFetch: // Assignment of a new instance to property
                             $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
@@ -72,10 +72,10 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                 break;
             case $node instanceof Variable:
                 // After collecting the variable types, inject it in the following variable nodes
-                if ($this->hasVariableTypeInBuffer($this->getVariableName($node))) {
+                if ($this->hasCollectedVariableType($this->getVariableName($node))) {
                     $this->addTypeCollectionToNode(
                         $node,
-                        $this->getVariableTypeFromBuffer($this->getVariableName($node))
+                        $this->getCollectedVariableType($this->getVariableName($node))
                     );
                 }
                 break;
@@ -89,7 +89,7 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
             $this->resetPropertyTypeBuffer();
         }
         if ($node instanceof ClassMethod) {
-            $this->resetVariableTypeBuffer();
+            $this->resetCollectedVariableTypes();
         }
     }
 

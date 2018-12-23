@@ -44,7 +44,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use NativeFunctionsTrait;
     use PropertyBufferTrait;
-    use VariableBufferTrait;
+    use VariableTypeCollectorTrait;
 
     public function enterNode(Node $node): void
     {
@@ -289,7 +289,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 
     private function leaveClassMethodNode(): void
     {
-        $this->resetVariableTypeBuffer();
+        $this->resetCollectedVariableTypes();
     }
 
     private function leaveClassNode(Class_ $classNode): void
@@ -303,7 +303,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         $typeCollection = self::getTypeCollectionFromNode($var);
         switch (true) {
             case $var instanceof Variable: // Assignment to variable
-                $this->addVariableTypeToBuffer($this->getVariableName($var), $typeCollection);
+                $this->collectVariableType($this->getVariableName($var), $typeCollection);
                 break;
             case $var instanceof PropertyFetch: // Assignment to property
                 $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
@@ -315,13 +315,13 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     {
         $variableName = $this->getVariableName($variable);
 
-        if (!$this->hasVariableTypeInBuffer($variableName)) {
+        if (!$this->hasCollectedVariableType($variableName)) {
             return;
         }
 
         $this->addTypeCollectionToNode(
             $variable,
-            $this->getVariableTypeFromBuffer($variableName)
+            $this->getCollectedVariableType($variableName)
         );
     }
 }
