@@ -149,12 +149,12 @@
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/hgraca/php-extension.git",
-                "reference": "7688ffa140d95a96769ac0e40e466afe73108957"
+                "reference": "d2df440e29819ce6f64bf4e12aa633396acad1ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/hgraca%2Fphp-extension/repository/archive.zip?sha=7688ffa140d95a96769ac0e40e466afe73108957",
-                "reference": "7688ffa140d95a96769ac0e40e466afe73108957",
+                "url": "https://gitlab.com/api/v4/projects/hgraca%2Fphp-extension/repository/archive.zip?sha=d2df440e29819ce6f64bf4e12aa633396acad1ea",
+                "reference": "d2df440e29819ce6f64bf4e12aa633396acad1ea",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +186,7 @@
                 "MIT"
             ],
             "description": "A PHP library with code that can be included into a project and used as if it was part of the PHP core itself.",
-            "time": "2018-12-22T10:03:16+00:00"
+            "time": "2018-12-23T15:42:22+00:00"
         },
         {
             "name": "nikic/php-parser",
