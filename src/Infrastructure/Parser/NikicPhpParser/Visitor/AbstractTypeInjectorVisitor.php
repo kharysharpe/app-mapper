@@ -23,13 +23,18 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\PropertyFetch;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitorAbstract;
 use function implode;
 use function is_string;
@@ -37,6 +42,8 @@ use function is_string;
 abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
 {
     use NodeTypeManagerTrait;
+    use PropertyCollectorTrait;
+    use VariableTypeCollectorTrait;
 
     /**
      * @var NodeCollection
@@ -47,6 +54,18 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
     {
         /* @noinspection UnusedConstructorDependenciesInspection Used in trait */
         $this->astCollection = $astCollection;
+    }
+
+    public function leaveNode(Node $node): void
+    {
+        switch (true) {
+            case $node instanceof ClassMethod:
+                $this->resetCollectedVariableTypes();
+                break;
+            case $node instanceof Class_:
+                $this->resetCollectedPropertyType();
+                break;
+        }
     }
 
     protected function buildType($node): Type
@@ -143,5 +162,50 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
         }
 
         return implode('\\', $name->parts);
+    }
+
+    /**
+     * TODO We are only adding properties types in the class itself.
+     *      We should fix this by adding them also to the super classes and traits.
+     */
+    protected function addCollectedPropertiesTypeToTheirDeclaration(Class_ $node): void
+    {
+        // After collecting app possible class properties, we inject them in their declaration
+        foreach ($node->stmts as $property) {
+            if (
+                $property instanceof Property
+                && $this->hasCollectedPropertyType($propertyName = $this->getPropertyName($property))
+            ) {
+                $this->addTypeCollectionToNode($property, $this->getCollectedPropertyType($propertyName));
+            }
+        }
+        $this->resetCollectedPropertyType();
+    }
+
+    protected function collectVariableTypes(Expr $var): void
+    {
+        $typeCollection = self::getTypeCollectionFromNode($var);
+        switch (true) {
+            case $var instanceof Variable: // Assignment to variable
+                $this->collectVariableType($this->getVariableName($var), $typeCollection);
+                break;
+            case $var instanceof PropertyFetch: // Assignment to property
+                $this->collectPropertyType($this->getPropertyName($var), $typeCollection);
+                break;
+        }
+    }
+
+    protected function addCollectedVariableTypes(Variable $variable): void
+    {
+        $variableName = $this->getVariableName($variable);
+
+        if (!$this->hasCollectedVariableType($variableName)) {
+            return;
+        }
+
+        $this->addTypeCollectionToNode(
+            $variable,
+            $this->getCollectedVariableType($variableName)
+        );
     }
 }

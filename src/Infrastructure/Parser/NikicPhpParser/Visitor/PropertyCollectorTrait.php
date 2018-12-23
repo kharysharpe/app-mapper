@@ -21,7 +21,6 @@ use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownPropertyException;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 
 trait PropertyCollectorTrait
@@ -38,7 +37,7 @@ trait PropertyCollectorTrait
         return array_key_exists($propertyName, $this->propertyTypeBuffer);
     }
 
-    private function getCollectedPropertyType(string $propertyName): TypeCollection
+    protected function getCollectedPropertyType(string $propertyName): TypeCollection
     {
         if (!$this->hasCollectedPropertyType($propertyName)) {
             throw new UnknownPropertyException($propertyName);
@@ -66,23 +65,5 @@ trait PropertyCollectorTrait
                     'Can\'t get name from property of type ' . TypeHelper::getType($property)
                 );
         }
-    }
-
-    /**
-     * TODO We are only adding properties types in the class itself.
-     *      We should fix this by adding them also to the super classes and traits.
-     */
-    private function addCollectedPropertiesTypeToTheirDeclaration(Class_ $node): void
-    {
-        // After collecting app possible class properties, we inject them in their declaration
-        foreach ($node->stmts as $property) {
-            if (
-                $property instanceof Property
-                && $this->hasCollectedPropertyType($propertyName = $this->getPropertyName($property))
-            ) {
-                $this->addTypeCollectionToNode($property, $this->getCollectedPropertyType($propertyName));
-            }
-        }
-        $this->resetCollectedPropertyType();
     }
 }

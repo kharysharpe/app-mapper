@@ -27,7 +27,6 @@ use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\New_;
-use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
@@ -36,15 +35,12 @@ use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
 use function in_array;
 
 final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use NativeFunctionsTrait;
-    use PropertyCollectorTrait;
-    use VariableTypeCollectorTrait;
 
     public function enterNode(Node $node): void
     {
@@ -76,13 +72,11 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof Param:
                 $this->leaveParamNode($node);
                 break;
-            case $node instanceof ClassMethod:
-                $this->leaveClassMethodNode();
-                break;
             case $node instanceof Class_:
                 $this->leaveClassNode($node);
                 break;
         }
+        parent::leaveNode($node);
     }
 
     private function enterIdentifierNode(Identifier $identifier): void
@@ -287,41 +281,8 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         $this->collectVariableTypes($paramNode->var);
     }
 
-    private function leaveClassMethodNode(): void
-    {
-        $this->resetCollectedVariableTypes();
-    }
-
     private function leaveClassNode(Class_ $classNode): void
     {
         $this->addCollectedPropertiesTypeToTheirDeclaration($classNode);
-        $this->resetCollectedPropertyType();
-    }
-
-    private function collectVariableTypes(Expr $var): void
-    {
-        $typeCollection = self::getTypeCollectionFromNode($var);
-        switch (true) {
-            case $var instanceof Variable: // Assignment to variable
-                $this->collectVariableType($this->getVariableName($var), $typeCollection);
-                break;
-            case $var instanceof PropertyFetch: // Assignment to property
-                $this->collectPropertyType($this->getPropertyName($var), $typeCollection);
-                break;
-        }
-    }
-
-    private function addCollectedVariableTypes(Variable $variable): void
-    {
-        $variableName = $this->getVariableName($variable);
-
-        if (!$this->hasCollectedVariableType($variableName)) {
-            return;
-        }
-
-        $this->addTypeCollectionToNode(
-            $variable,
-            $this->getCollectedVariableType($variableName)
-        );
     }
 }

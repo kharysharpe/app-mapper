@@ -20,17 +20,20 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownPropertyException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use PhpParser\Node;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\NodeVisitorAbstract;
 
 /**
  * This visitor makes a swipe injecting the types from the property declarations into the property usages
  * (PropertyFetch)
  */
-final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
+final class PropertyFetchTypeInjectorVisitor extends NodeVisitorAbstract
 {
+    use NodeTypeManagerTrait;
     use PropertyCollectorTrait;
 
     public function enterNode(Node $node): void

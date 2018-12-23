@@ -23,16 +23,11 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFound
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
 
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    use PropertyCollectorTrait;
-    use VariableTypeCollectorTrait;
-
     public function enterNode(Node $node): void
     {
         switch (true) {
@@ -50,15 +45,7 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                     // Assignment of a StaticCall to variable or property
                     $typeCollection = self::getTypeCollectionFromNode($methodCall);
                     $this->addTypeCollectionToNode($var, $typeCollection);
-
-                    switch (true) {
-                        case $var instanceof Variable: // Assignment of a new instance to variable
-                            $this->collectVariableType($this->getVariableName($var), $typeCollection);
-                            break;
-                        case $var instanceof PropertyFetch: // Assignment of a new instance to property
-                            $this->collectPropertyType($this->getPropertyName($var), $typeCollection);
-                            break;
-                    }
+                    $this->collectVariableTypes($var);
                 } catch (TypeNotFoundInNodeException $e) {
                     StaticLoggerFacade::warning(
                         "Silently ignoring a TypeNotFoundInNodeException in this filter.\n"
@@ -72,12 +59,7 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                 break;
             case $node instanceof Variable:
                 // After collecting the variable types, inject it in the following variable nodes
-                if ($this->hasCollectedVariableType($this->getVariableName($node))) {
-                    $this->addTypeCollectionToNode(
-                        $node,
-                        $this->getCollectedVariableType($this->getVariableName($node))
-                    );
-                }
+                $this->addCollectedVariableTypes($node);
                 break;
         }
     }
@@ -86,11 +68,8 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
     {
         if ($node instanceof Class_) {
             $this->addCollectedPropertiesTypeToTheirDeclaration($node);
-            $this->resetCollectedPropertyType();
         }
-        if ($node instanceof ClassMethod) {
-            $this->resetCollectedVariableTypes();
-        }
+        parent::leaveNode($node);
     }
 
     private function addTypeToMethodCall(MethodCall $methodCall): void

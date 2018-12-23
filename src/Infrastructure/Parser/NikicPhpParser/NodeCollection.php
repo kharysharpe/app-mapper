@@ -147,7 +147,7 @@ final class NodeCollection
         // We need a separate traverse because a property might be set only in the end of the file,
         // after the property is used
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
+        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor());
         $traverser->traverse($nodeList);
 
         $traverser = new NodeTraverser();
@@ -157,7 +157,7 @@ final class NodeCollection
 
         // Make a second pass to make sure we got all properties, including the ones captured in the last visitor
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor($this));
+        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor());
         $traverser->traverse($nodeList);
     }
 
