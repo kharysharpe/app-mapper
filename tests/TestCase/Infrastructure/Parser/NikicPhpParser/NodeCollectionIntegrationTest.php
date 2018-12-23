@@ -60,6 +60,19 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      *
      * @throws \ReflectionException
      */
+    public function visitors_handle_all_cases_in_test_and_node_collection_is_created(): void
+    {
+        $this->createNodeCollection();
+
+        // if it didnt break, we can assume the visitors can handle all cases in the StubProjectSrc
+        self::assertTrue(true);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
     public function assignment_of_array(): void
     {
         $this->createNodeCollection();
