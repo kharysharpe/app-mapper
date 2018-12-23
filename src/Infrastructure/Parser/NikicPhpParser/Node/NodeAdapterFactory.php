@@ -45,16 +45,6 @@ final class NodeAdapterFactory
             return ClassAdapter::constructFromClassNode($parserNode);
         }
 
-//        $parserNodeTypeCollection = self::getTypeCollectionFromNode($parserNode);
-//        if ($parserNode instanceof Arg) {
-//            return MethodArgumentAdapter::constructFromTypeCollection($parserNode);
-//        }
-//
-//        if ($parserNodeTypeCollection->hasValidFqcn()) {
-//            return FullyQualifiedTypeNode::constructFromTypeCollection($parserNodeTypeCollection);
-//        }
-
-//        throw new ParserException('Can\'t construct adapter node from ' . get_class($parserNode));
         return new UnknownTypeNode($parserNode);
     }
 
