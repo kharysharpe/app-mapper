@@ -97,6 +97,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 
     private function enterClassNode(Class_ $classNode): void
     {
+        $this->addTypeToNode($classNode, $this->buildType($classNode));
         $this->addTypeToParent($classNode);
         $this->addTypeToInterfaces($classNode);
     }
