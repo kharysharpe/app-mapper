@@ -24,6 +24,7 @@ use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
@@ -90,6 +91,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 break;
             case $exprNode instanceof Variable:
                 $this->leaveVariableNode($exprNode);
+                break;
+            case $exprNode instanceof New_:
+                $this->leaveNewNode($exprNode);
                 break;
             case $exprNode instanceof Assign:
                 $this->leaveAssignNode($exprNode);
@@ -198,6 +202,11 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         if ($variableNode->name === 'this') {
             $this->addTypeToNode($variableNode, $this->self);
         }
+    }
+
+    private function leaveNewNode(New_ $newNode): void
+    {
+        $this->addTypeToNode($newNode, $this->buildType($newNode));
     }
 
     private function leaveAssignNode(Assign $assignNode): void
