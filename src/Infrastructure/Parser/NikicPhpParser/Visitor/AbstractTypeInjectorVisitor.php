@@ -81,7 +81,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
         }
     }
 
-    protected function buildTypeFromIdentifier(Identifier $identifier)
+    protected function buildTypeFromIdentifier(Identifier $identifier): Type
     {
         return new Type($identifier->name, null);
     }
@@ -118,7 +118,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
         return $classNode;
     }
 
-    protected function buildTypeFromNew(New_ $new)
+    protected function buildTypeFromNew(New_ $new): Type
     {
         return $this->buildType($new->class);
     }
