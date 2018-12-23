@@ -17,8 +17,30 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\PhpExtension\Exception\RuntimeException;
+use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperRuntimeException;
+use PhpParser\Node;
 
-final class TypeNotFoundInNodeException extends RuntimeException
+final class TypeNotFoundInNodeException extends AppMapperRuntimeException
 {
+    public function __construct(Node $node)
+    {
+        $relevantInfo = [];
+        $loopNode = $node;
+        while ($loopNode->hasAttribute('parentNode')) {
+            $relevantInfo[] = get_class($loopNode) . ' => '
+                . (property_exists($loopNode, 'name')
+                    ? $loopNode->name
+                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
+                        ? $loopNode->var->name
+                        : 'no_name')
+                );
+            $loopNode = $loopNode->getAttribute('parentNode');
+        }
+
+        $message = 'Class: ' . static::class . "\n"
+            . "Can't find type collection in node:\n"
+            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
+
+        parent::__construct($message);
+    }
 }

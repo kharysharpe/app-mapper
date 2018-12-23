@@ -33,7 +33,6 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeVisitorAbstract;
 use function implode;
 use function is_string;
-use function json_encode;
 
 abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
 {
@@ -177,23 +176,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
             return new TypeCollection();
         }
         if (!$node->hasAttribute(TypeCollection::getName())) {
-            $relevantInfo = [];
-            $loopNode = $node;
-            while ($loopNode->hasAttribute('parentNode')) {
-                $relevantInfo[] = get_class($loopNode) . ' => '
-                    . (property_exists($loopNode, 'name')
-                        ? $loopNode->name
-                        : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
-                            ? $loopNode->var->name
-                            : 'no_name')
-                    );
-                $loopNode = $loopNode->getAttribute('parentNode');
-            }
-            throw new TypeNotFoundInNodeException(
-                'Class: ' . static::class . "\n"
-                . "Can't find type collection in node:\n"
-                . json_encode($relevantInfo, JSON_PRETTY_PRINT)
-            );
+            throw new TypeNotFoundInNodeException($node);
         }
 
         return $node->getAttribute(TypeCollection::getName());
