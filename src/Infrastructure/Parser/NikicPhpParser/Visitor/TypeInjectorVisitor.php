@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -87,7 +88,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     private function enterIdentifierNode(Identifier $identifier): void
     {
         if (
-            in_array($identifier->name, ['array', 'callable', 'iterable', 'resource', 'null'], true)
+            in_array($identifier->name, ['array', 'callable', 'iterable', 'resource', 'null', 'void'], true)
             || TypeHelper::isScalarType($identifier->name)
         ) {
             $this->addTypeToNode($identifier, new Type($identifier->name));
@@ -200,6 +201,18 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             if ($returnTypeNode === null) {
                 $this->addTypeToNode($staticCallNode, Type::constructVoid());
             } else {
+                if (!self::hasTypeCollection($returnTypeNode)) {
+                    try {
+                        $this->addTypeToNode($returnTypeNode, $this->buildType($returnTypeNode));
+                    } catch (NotImplementedException $e) {
+                        StaticLoggerFacade::warning(
+                            "Silently ignoring a NotImplementedException in this visitor.\n"
+                            . "This is a hack to try to lookahead and parse part of a node that will be parsed later.\n"
+                            . 'We need to fix this by ordering the nodes list.',
+                            [__METHOD__]
+                        );
+                    }
+                }
                 $classMethodReturnTypeCollection = self::getTypeCollectionFromNode($returnTypeNode);
                 $this->addTypeCollectionToNode($staticCallNode, $classMethodReturnTypeCollection);
             }
