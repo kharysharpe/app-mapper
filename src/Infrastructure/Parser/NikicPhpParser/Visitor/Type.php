@@ -95,4 +95,18 @@ final class Type
 
         throw new MethodNotFoundInClassException($methodName, $this->typeAsString);
     }
+
+    public function hasAstMethod(string $methodName): bool
+    {
+        foreach ($this->ast->stmts as $stmt) {
+            if (
+                $stmt instanceof ClassMethod
+                && (string) $stmt->name === $methodName
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
