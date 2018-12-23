@@ -23,7 +23,6 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFound
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassFamilyTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InstantiationTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\InterfaceFamilyTypeInjectorVisitor;
@@ -152,7 +151,6 @@ final class NodeCollection
         // Visitors that need the final collection set up
         // Run visitors that don't need any Types added before hand
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new ClassFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));

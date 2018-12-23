@@ -38,6 +38,13 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     use PropertyBufferTrait;
     use VariableBufferTrait;
 
+    public function enterNode(Node $node): void
+    {
+        if ($node instanceof Class_) {
+            $this->enterClassNode($node);
+        }
+    }
+
     public function leaveNode(Node $node): void
     {
         switch (true) {
@@ -54,6 +61,13 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 $this->leaveClassNode($node);
                 break;
         }
+    }
+
+    private function enterClassNode(Class_ $classNode): void
+    {
+        $this->self = $this->buildType($classNode);
+        $this->addTypeToParent($classNode);
+        $this->addTypeToInterfaces($classNode);
     }
 
     private function leaveExprNode(Expr $exprNode): void
@@ -80,6 +94,21 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $exprNode instanceof Assign:
                 $this->leaveAssignNode($exprNode);
                 break;
+        }
+    }
+
+    private function addTypeToParent(Class_ $class): void
+    {
+        if (!empty($class->extends)) {
+            $parent = $class->extends;
+            $this->addTypeToNode($parent, $this->buildType($parent));
+        }
+    }
+
+    private function addTypeToInterfaces(Class_ $class): void
+    {
+        foreach ($class->implements as $interface) {
+            $this->addTypeToNode($interface, $this->buildType($interface));
         }
     }
 
