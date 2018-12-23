@@ -69,6 +69,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof Name:
                 $this->leaveNameNode($node);
                 break;
+            case $node instanceof NullableType:
+                $this->leaveNullableTypeNode($node);
+                break;
             case $node instanceof ClassMethod:
                 $this->leaveClassMethodNode();
                 break;
@@ -252,6 +255,12 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         }
         $this->addTypeCollectionToNode($assignNode->var, self::getTypeCollectionFromNode($assignNode->expr));
         $this->collectVariableTypes($assignNode->var);
+    }
+
+    private function leaveNullableTypeNode(NullableType $nullableTypeNode): void
+    {
+        $this->addTypeCollectionToNode($nullableTypeNode, self::getTypeCollectionFromNode($nullableTypeNode->type));
+        $this->addTypeToNode($nullableTypeNode, Type::constructNull());
     }
 
     private function leaveClassMethodNode(): void
