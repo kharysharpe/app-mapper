@@ -52,6 +52,11 @@ final class Type
         return new self('void');
     }
 
+    public static function constructNull(): self
+    {
+        return new self('null');
+    }
+
     public static function getName(): string
     {
         return ClassHelper::extractCanonicalClassName(__CLASS__);

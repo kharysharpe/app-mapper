@@ -85,7 +85,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
                 return new Type($node);
                 break;
             case $node === null:
-                return new Type('NULL');
+                return Type::constructNull();
                 break;
             default:
                 throw new NotImplementedException('Can\'t build Type from ' . TypeHelper::getType($node));
