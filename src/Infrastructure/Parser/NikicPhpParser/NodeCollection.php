@@ -24,7 +24,6 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFrom
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeInjectorVisitor;
@@ -142,12 +141,6 @@ final class NodeCollection
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $traverser->addVisitor(new ParentConnectorVisitor());
         $traverser->addVisitor(new ClassTypeInjectorVisitor($this)); // TODO test
-        $traverser->traverse($nodeList);
-
-        // Visitors that need the final collection set up
-        // Run visitors that don't need any Types added before hand
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 
         $traverser = new NodeTraverser();
