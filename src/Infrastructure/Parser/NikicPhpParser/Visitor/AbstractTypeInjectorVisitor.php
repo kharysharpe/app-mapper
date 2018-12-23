@@ -34,7 +34,7 @@ use PhpParser\NodeVisitorAbstract;
 use function implode;
 use function is_string;
 
-abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implements AstConnectorVisitorInterface
+abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract
 {
     /**
      * @var NodeCollection
