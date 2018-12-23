@@ -30,7 +30,6 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodParamete
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\MethodReturnTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ThisTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeInjectorVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
@@ -154,7 +153,6 @@ final class NodeCollection
         $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
-        $traverser->addVisitor(new ThisTypeInjectorVisitor($this));
         $traverser->addVisitor(new InstantiationTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);
 

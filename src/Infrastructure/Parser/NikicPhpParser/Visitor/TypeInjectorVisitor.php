@@ -195,6 +195,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     private function leaveVariableNode(Variable $variableNode): void
     {
         $this->addCollectedVariableTypes($variableNode);
+        if ($variableNode->name === 'this') {
+            $this->addTypeToNode($variableNode, $this->self);
+        }
     }
 
     private function leaveAssignNode(Assign $assignNode): void
