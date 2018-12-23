@@ -178,7 +178,9 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
                 $relevantInfo[] = get_class($loopNode) . ' => '
                     . (property_exists($loopNode, 'name')
                         ? $loopNode->name
-                        : 'no_name'
+                        : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
+                            ? $loopNode->var->name
+                            : 'no_name')
                     );
                 $loopNode = $loopNode->getAttribute('parentNode');
             }
