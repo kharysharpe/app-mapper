@@ -21,8 +21,6 @@ use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromNewTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromParameterTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ClassTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
@@ -145,12 +143,6 @@ final class NodeCollection
 
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new TypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // These need the other to run first until the end
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new AssignmentFromNewTypeInjectorVisitor($this)); // TODO test
-        $traverser->addVisitor(new AssignmentFromParameterTypeInjectorVisitor($this)); // TODO test
         $traverser->traverse($nodeList);
 
         // After setting the type in the properties declaration, we can copy it to every property call
