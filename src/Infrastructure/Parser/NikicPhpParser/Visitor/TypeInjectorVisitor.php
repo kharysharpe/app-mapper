@@ -29,7 +29,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 
-final class AssignmentFromConditionalTypeInjectorVisitor extends AbstractTypeInjectorVisitor
+final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use NativeFunctionsTrait;
     use PropertyBufferTrait;
