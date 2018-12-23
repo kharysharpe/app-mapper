@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Assign;
@@ -29,10 +30,14 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Ternary;
 use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\NullableType;
+use PhpParser\Node\Param;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
+use function in_array;
 
 final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
@@ -43,6 +48,9 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
     public function enterNode(Node $node): void
     {
         switch (true) {
+            case $node instanceof Identifier:
+                $this->enterIdentifierNode($node);
+                break;
             case $node instanceof Class_:
                 $this->enterClassNode($node);
                 break;
@@ -67,6 +75,16 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof Class_:
                 $this->leaveClassNode($node);
                 break;
+        }
+    }
+
+    private function enterIdentifierNode(Identifier $identifier): void
+    {
+        if (
+            in_array($identifier->name, ['array', 'callable', 'iterable', 'resource', 'null'], true)
+            || TypeHelper::isScalarType($identifier->name)
+        ) {
+            $this->addTypeToNode($identifier, new Type($identifier->name));
         }
     }
 
