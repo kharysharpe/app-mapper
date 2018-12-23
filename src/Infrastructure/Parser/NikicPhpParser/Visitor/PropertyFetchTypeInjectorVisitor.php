@@ -31,7 +31,7 @@ use PhpParser\Node\Stmt\Property;
  */
 final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    use PropertyBufferTrait;
+    use PropertyCollectorTrait;
 
     public function enterNode(Node $node): void
     {
@@ -39,7 +39,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
             case $node instanceof Property:
                 // Properties declared at the top of the class are added to buffer
                 try {
-                    $this->addPropertyTypeToBuffer(
+                    $this->collectPropertyType(
                         (string) $node->props[0]->name,
                         self::getTypeCollectionFromNode($node)
                     );
@@ -55,7 +55,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
                     [__METHOD__]
                 );
                 try {
-                    $this->addTypeCollectionToNode($node, $this->getPropertyTypeFromBuffer((string) $node->name));
+                    $this->addTypeCollectionToNode($node, $this->getCollectedPropertyType((string) $node->name));
                 } catch (UnknownPropertyException $e) {
                     StaticLoggerFacade::warning(
                         "Silently ignoring a UnknownPropertyException in this visitor.\n"
@@ -72,7 +72,7 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
     public function leaveNode(Node $node): void
     {
         if ($node instanceof Class_) {
-            $this->resetPropertyTypeBuffer();
+            $this->resetCollectedPropertyType();
         }
     }
 }

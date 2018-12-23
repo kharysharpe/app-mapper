@@ -43,7 +43,7 @@ use function in_array;
 final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     use NativeFunctionsTrait;
-    use PropertyBufferTrait;
+    use PropertyCollectorTrait;
     use VariableTypeCollectorTrait;
 
     public function enterNode(Node $node): void
@@ -294,8 +294,8 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 
     private function leaveClassNode(Class_ $classNode): void
     {
-        $this->addPropertiesTypeToTheirDeclaration($classNode);
-        $this->resetPropertyTypeBuffer();
+        $this->addCollectedPropertiesTypeToTheirDeclaration($classNode);
+        $this->resetCollectedPropertyType();
     }
 
     private function collectVariableTypes(Expr $var): void
@@ -306,7 +306,7 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
                 $this->collectVariableType($this->getVariableName($var), $typeCollection);
                 break;
             case $var instanceof PropertyFetch: // Assignment to property
-                $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
+                $this->collectPropertyType($this->getPropertyName($var), $typeCollection);
                 break;
         }
     }

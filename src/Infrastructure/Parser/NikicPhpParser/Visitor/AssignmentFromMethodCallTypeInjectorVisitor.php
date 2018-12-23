@@ -30,7 +30,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 
 final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
-    use PropertyBufferTrait;
+    use PropertyCollectorTrait;
     use VariableTypeCollectorTrait;
 
     public function enterNode(Node $node): void
@@ -56,7 +56,7 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
                             $this->collectVariableType($this->getVariableName($var), $typeCollection);
                             break;
                         case $var instanceof PropertyFetch: // Assignment of a new instance to property
-                            $this->addPropertyTypeToBuffer($this->getPropertyName($var), $typeCollection);
+                            $this->collectPropertyType($this->getPropertyName($var), $typeCollection);
                             break;
                     }
                 } catch (TypeNotFoundInNodeException $e) {
@@ -85,8 +85,8 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
     public function leaveNode(Node $node): void
     {
         if ($node instanceof Class_) {
-            $this->addPropertiesTypeToTheirDeclaration($node);
-            $this->resetPropertyTypeBuffer();
+            $this->addCollectedPropertiesTypeToTheirDeclaration($node);
+            $this->resetCollectedPropertyType();
         }
         if ($node instanceof ClassMethod) {
             $this->resetCollectedVariableTypes();

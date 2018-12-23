@@ -24,30 +24,30 @@ use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 
-trait PropertyBufferTrait
+trait PropertyCollectorTrait
 {
     private $propertyTypeBuffer = [];
 
-    private function addPropertyTypeToBuffer(string $propertyName, TypeCollection $propertyType): void
+    private function collectPropertyType(string $propertyName, TypeCollection $propertyType): void
     {
         $this->propertyTypeBuffer[$propertyName] = $propertyType;
     }
 
-    private function hasPropertyTypeInBuffer(string $propertyName): bool
+    private function hasCollectedPropertyType(string $propertyName): bool
     {
         return array_key_exists($propertyName, $this->propertyTypeBuffer);
     }
 
-    private function getPropertyTypeFromBuffer(string $propertyName): TypeCollection
+    private function getCollectedPropertyType(string $propertyName): TypeCollection
     {
-        if (!$this->hasPropertyTypeInBuffer($propertyName)) {
+        if (!$this->hasCollectedPropertyType($propertyName)) {
             throw new UnknownPropertyException($propertyName);
         }
 
         return $this->propertyTypeBuffer[$propertyName];
     }
 
-    private function resetPropertyTypeBuffer(): void
+    private function resetCollectedPropertyType(): void
     {
         $this->propertyTypeBuffer = [];
     }
@@ -72,17 +72,17 @@ trait PropertyBufferTrait
      * TODO We are only adding properties types in the class itself.
      *      We should fix this by adding them also to the super classes and traits.
      */
-    private function addPropertiesTypeToTheirDeclaration(Class_ $node): void
+    private function addCollectedPropertiesTypeToTheirDeclaration(Class_ $node): void
     {
         // After collecting app possible class properties, we inject them in their declaration
         foreach ($node->stmts as $property) {
             if (
                 $property instanceof Property
-                && $this->hasPropertyTypeInBuffer($propertyName = $this->getPropertyName($property))
+                && $this->hasCollectedPropertyType($propertyName = $this->getPropertyName($property))
             ) {
-                $this->addTypeCollectionToNode($property, $this->getPropertyTypeFromBuffer($propertyName));
+                $this->addTypeCollectionToNode($property, $this->getCollectedPropertyType($propertyName));
             }
         }
-        $this->resetPropertyTypeBuffer();
+        $this->resetCollectedPropertyType();
     }
 }
