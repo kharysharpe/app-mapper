@@ -149,7 +149,6 @@ final class NodeCollection
         // Visitors that need the final collection set up
         // Run visitors that don't need any Types added before hand
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new InterfaceFamilyTypeInjectorVisitor($this)); // TODO test
         $traverser->addVisitor(new MethodParametersTypeInjectorVisitor($this));
         $traverser->addVisitor(new MethodReturnTypeInjectorVisitor($this));
         $traverser->traverse($nodeList);

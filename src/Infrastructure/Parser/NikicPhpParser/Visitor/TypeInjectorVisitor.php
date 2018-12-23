@@ -32,6 +32,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Interface_;
 
 final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
@@ -41,8 +42,13 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
 
     public function enterNode(Node $node): void
     {
-        if ($node instanceof Class_) {
-            $this->enterClassNode($node);
+        switch (true) {
+            case $node instanceof Class_:
+                $this->enterClassNode($node);
+                break;
+            case $node instanceof Interface_:
+                $this->enterInterfaceNode($node);
+                break;
         }
     }
 
@@ -69,6 +75,17 @@ final class TypeInjectorVisitor extends AbstractTypeInjectorVisitor
         $this->self = $this->buildType($classNode);
         $this->addTypeToParent($classNode);
         $this->addTypeToInterfaces($classNode);
+    }
+
+    private function enterInterfaceNode(Interface_ $interfaceNode): void
+    {
+        if ($interfaceNode->extends === null) {
+            return;
+        }
+
+        foreach ($interfaceNode->extends as $parent) {
+            $this->addTypeToNode($parent, $this->buildType($parent));
+        }
     }
 
     private function leaveExprNode(Expr $exprNode): void
