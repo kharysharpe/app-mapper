@@ -30,7 +30,6 @@ final class AssignmentFromParameterTypeInjectorVisitor extends AbstractTypeInjec
 
     public function enterNode(Node $node): void
     {
-        parent::enterNode($node);
         if (!$node instanceof Assign) {
             return;
         }

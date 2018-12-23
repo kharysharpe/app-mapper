@@ -42,22 +42,10 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
      */
     protected $astCollection;
 
-    /**
-     * @var Type
-     */
-    protected $self;
-
     public function __construct(NodeCollection $astCollection)
     {
         /* @noinspection UnusedConstructorDependenciesInspection Used in trait */
         $this->astCollection = $astCollection;
-    }
-
-    public function enterNode(Node $node): void
-    {
-        if ($node instanceof Class_) {
-            $this->self = $this->buildType($node->namespacedName);
-        }
     }
 
     protected function buildType($node): Type
@@ -102,7 +90,7 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
         $fqcn = $this->buildFqcn($name);
 
         if ($fqcn === 'self' || $fqcn === 'this') {
-            return $this->self;
+            return $this->buildSelfType($name);
         }
 
         try {
@@ -110,6 +98,23 @@ abstract class AbstractTypeInjectorVisitor extends NodeVisitorAbstract implement
         } catch (AstNodeNotFoundException $e) {
             return new Type($fqcn);
         }
+    }
+
+    protected function buildSelfType(Node $node): Type
+    {
+        $classAst = $this->getParentClassAst($node);
+
+        return new Type($this->buildFqcn($classAst->namespacedName), $classAst);
+    }
+
+    protected function getParentClassAst(Node $node): Class_
+    {
+        $classNode = $node;
+        while (!$classNode instanceof Class_) {
+            $classNode = $classNode->getAttribute('parentNode');
+        }
+
+        return $classNode;
     }
 
     protected function buildTypeFromNew(New_ $new)

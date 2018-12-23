@@ -24,7 +24,6 @@ final class ClassTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 {
     public function enterNode(Node $node): void
     {
-        parent::enterNode($node);
         if ($node instanceof Class_) {
             $this->addTypeToNode($node, $this->buildType($node));
         }

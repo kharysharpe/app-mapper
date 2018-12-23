@@ -35,7 +35,6 @@ final class PropertyFetchTypeInjectorVisitor extends AbstractTypeInjectorVisitor
 
     public function enterNode(Node $node): void
     {
-        parent::enterNode($node);
         switch (true) {
             case $node instanceof Property:
                 // Properties declared at the top of the class are added to buffer

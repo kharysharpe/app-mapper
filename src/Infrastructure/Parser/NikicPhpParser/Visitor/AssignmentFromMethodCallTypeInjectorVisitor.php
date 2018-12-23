@@ -35,7 +35,6 @@ final class AssignmentFromMethodCallTypeInjectorVisitor extends AbstractTypeInje
 
     public function enterNode(Node $node): void
     {
-        parent::enterNode($node);
         switch (true) {
             case $node instanceof Assign:
                 $assignment = $node;
