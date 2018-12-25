@@ -76,20 +76,7 @@ final class TypeCollection extends Collection
             ? $this->repeatedTypeAddition[$item->getFcqn()] + 1
             : 1;
         if ($this->repeatedTypeAddition[$item->getFcqn()] >= self::REPEATED_TYPE_ADD_LIMIT) {
-            $relevantInfo = [];
-            $loopNode = $this->node;
-            while ($loopNode->hasAttribute('parentNode')) {
-                $relevantInfo[] = get_class($loopNode) . ' => '
-                    . (property_exists($loopNode, 'name')
-                        ? $loopNode->name
-                        : 'no_name'
-                    );
-                $loopNode = $loopNode->getAttribute('parentNode');
-            }
-            throw new CircularReferenceDetectedException(
-                "Circular reference detected when adding type '{$item->getFcqn()}' to collection in node:\n"
-                . json_encode($relevantInfo, JSON_PRETTY_PRINT)
-            );
+            throw new CircularReferenceDetectedException($this->node, $item->getFcqn());
         }
     }
 

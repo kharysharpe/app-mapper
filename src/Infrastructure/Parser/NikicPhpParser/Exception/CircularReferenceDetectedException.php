@@ -18,7 +18,26 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperRuntimeException;
+use PhpParser\Node;
 
 final class CircularReferenceDetectedException extends AppMapperRuntimeException
 {
+    public function __construct(Node $node, string $fqcn)
+    {
+        $relevantInfo = [];
+        $loopNode = $node;
+        while ($loopNode->hasAttribute('parentNode')) {
+            $relevantInfo[] = get_class($loopNode) . ' => '
+                . (property_exists($loopNode, 'name')
+                    ? $loopNode->name
+                    : 'no_name'
+                );
+            $loopNode = $loopNode->getAttribute('parentNode');
+        }
+
+        $message = "Circular reference detected when adding type '$fqcn' to collection in node:\n"
+            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
+
+        parent::__construct($message);
+    }
 }
