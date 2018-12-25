@@ -15,18 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperLogicException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
+use Hgraca\PhpExtension\Collection\Collection;
 
-final class NonUniqueTypeCollectionException extends AppMapperLogicException
+abstract class AbstractCollection extends Collection
 {
-    public function __construct(AbstractCollection $collection)
+    public function implodeKeys(string $glue): string
     {
-        parent::__construct(
-            "The type collection contains more than one type: \n"
-            . $collection->implodeKeys("\n")
-        );
+        return implode($glue, array_keys($this->itemList));
     }
 }

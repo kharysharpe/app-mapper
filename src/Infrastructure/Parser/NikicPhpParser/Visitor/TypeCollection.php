@@ -18,10 +18,10 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
-use Hgraca\PhpExtension\Collection\Collection;
 use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use function uniqid;
@@ -29,7 +29,7 @@ use function uniqid;
 /**
  * @property Type[] $itemList
  */
-final class TypeCollection extends Collection
+final class TypeCollection extends AbstractCollection
 {
     private const REPEATED_TYPE_ADD_LIMIT = 1000;
 
@@ -85,14 +85,6 @@ final class TypeCollection extends Collection
         foreach ($newTypeCollection as $type) {
             $this->addType($type);
         }
-    }
-
-    /**
-     * @return Type[]
-     */
-    public function toArray(): array
-    {
-        return $this->itemList;
     }
 
     public function getUniqueType(): Type
