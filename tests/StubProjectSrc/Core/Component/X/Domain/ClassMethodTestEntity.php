@@ -23,7 +23,9 @@ final class ClassMethodTestEntity
         string $string,
         array $array,
         callable $callable,
-        string $stringDefaultEmpty = ''
+        string $stringDefaultEmpty = '',
+        int $intDefaultZero = 0,
+        float $floatDefaultZero = 0
     ): string {
         return '';
     }
@@ -31,7 +33,9 @@ final class ClassMethodTestEntity
     public function methodWithNullables(
         ?string $nullable,
         ?string $nullableAndDefaultNull = null,
-        string $stringDefaultNull = null
+        string $stringDefaultNull = null,
+        int $intDefaultNull = null,
+        float $floatDefaultNull = null
     ): ?string {
         return null;
     }

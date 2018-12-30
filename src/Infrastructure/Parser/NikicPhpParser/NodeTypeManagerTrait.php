@@ -17,14 +17,17 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ResolverCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
+use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 
 trait NodeTypeManagerTrait
 {
-    public function addTypeCollectionToNode(Node $node, TypeCollection $newTypeCollection): void
+    public static function addTypeCollectionToNode(Node $node, TypeCollection $newTypeCollection): void
     {
         if (!$node->hasAttribute(TypeCollection::getName())) {
             $node->setAttribute(TypeCollection::getName(), $newTypeCollection);
@@ -33,11 +36,12 @@ trait NodeTypeManagerTrait
         }
 
         /** @var TypeCollection $typeCollection */
-        $typeCollection = $node->getAttribute(TypeCollection::getName());
-        $typeCollection->addTypeCollection($newTypeCollection);
+        $typeCollection = $node->getAttribute(TypeCollection::getName())->addTypeCollection($newTypeCollection);
+
+        $node->setAttribute(TypeCollection::getName(), $typeCollection);
     }
 
-    public function addTypeToNode(Node $node, Type ...$typeList): void
+    public static function addTypeToNode(Node $node, Type ...$typeList): void
     {
         if (!$node->hasAttribute(TypeCollection::getName())) {
             $typeCollection = new TypeCollection();
@@ -47,17 +51,20 @@ trait NodeTypeManagerTrait
         }
 
         foreach ($typeList as $type) {
-            $typeCollection->addType($type);
+            $typeCollection = $typeCollection->addType($type);
         }
     }
 
     public static function getTypeCollectionFromNode(?Node $node): TypeCollection
     {
         if (!$node) {
-            return new TypeCollection();
+            return new TypeCollection(Type::constructVoid());
         }
-        if (!$node->hasAttribute(TypeCollection::getName())) {
-            throw new TypeNotFoundInNodeException($node);
+        if (!self::hasTypeCollection($node)) {
+            if (!self::hasTypeResolver($node)) {
+                throw new UnresolvableNodeTypeException($node);
+            }
+            self::addTypeCollectionToNode($node, self::resolveType($node));
         }
 
         return $node->getAttribute(TypeCollection::getName());
@@ -70,5 +77,59 @@ trait NodeTypeManagerTrait
         }
 
         return $node->hasAttribute(TypeCollection::getName());
+    }
+
+    public static function addTypeResolver(Node $node, callable $typeResolver): void
+    {
+        $node->setAttribute(
+            ResolverCollection::getName(),
+            self::getNodeResolverCollection($node)->addResolver($typeResolver)
+        );
+    }
+
+    public static function addTypeResolverCollection(Node $node, ResolverCollection $typeResolverCollection): void
+    {
+        $node->setAttribute(
+            ResolverCollection::getName(),
+            self::getNodeResolverCollection($node)->addResolverCollection($typeResolverCollection)
+        );
+    }
+
+    public static function hasTypeResolver(Node $node): bool
+    {
+        return $node->hasAttribute(ResolverCollection::getName());
+    }
+
+    public static function resolveType(Node $node): TypeCollection
+    {
+        $relevantInfo = [];
+        $loopNode = $node;
+        while ($loopNode->hasAttribute('parentNode')) {
+            $relevantInfo[] = get_class($loopNode) . ' => '
+                . (property_exists($loopNode, 'name')
+                    ? $loopNode->name
+                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
+                        ? $loopNode->var->name
+                        : 'no_name')
+                );
+            $loopNode = $loopNode->getAttribute('parentNode');
+        }
+
+        $message = 'Resolving type ' . TypeHelper::getType($node) . "\n"
+            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
+
+        StaticLoggerFacade::debug($message);
+
+        return $node->getAttribute(ResolverCollection::getName())->resolve();
+    }
+
+    private static function getNodeResolverCollection(Node $node): ResolverCollection
+    {
+        if (!$node->hasAttribute(ResolverCollection::getName())) {
+            $resolverCollection = new ResolverCollection();
+            $node->setAttribute(ResolverCollection::getName(), $resolverCollection);
+        }
+
+        return $node->getAttribute(ResolverCollection::getName());
     }
 }

@@ -52,17 +52,12 @@ final class Type
         return new self('void');
     }
 
-    public static function constructNull(): self
-    {
-        return new self('null');
-    }
-
     public static function getName(): string
     {
         return ClassHelper::extractCanonicalClassName(__CLASS__);
     }
 
-    public function getFcqn(): string
+    public function getFqn(): string
     {
         return $this->typeAsString;
     }
@@ -113,5 +108,10 @@ final class Type
         }
 
         return false;
+    }
+
+    public function isEqualTo(self $otherType): bool
+    {
+        return $this->typeAsString === $otherType->typeAsString;
     }
 }

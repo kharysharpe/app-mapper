@@ -19,7 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodParameterInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\TypeNodeInterface;
-use Hgraca\AppMapper\Core\SharedKernel\Exception\NotImplementedException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NotImplementedException;
 use PhpParser\Node\Param;
 
 final class MethodParameterAdapter implements TypeNodeInterface, MethodParameterInterface

@@ -15,14 +15,33 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperRuntimeException;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use PhpParser\Node;
+use PhpParser\NodeVisitorAbstract;
 
-final class TypeNotFoundInNodeException extends AppMapperRuntimeException
+final class TypeResolverVisitor extends NodeVisitorAbstract
 {
-    public function __construct(Node $node)
+    use NodeTypeManagerTrait;
+
+    public function enterNode(Node $node): void
+    {
+        if (!$node->hasAttribute(ResolverCollection::getName())) {
+            StaticLoggerFacade::notice(
+                "Can't find type resolver in node:\n"
+                . json_encode($this->getNodeTrace($node), JSON_PRETTY_PRINT),
+                [__METHOD__]
+            );
+
+            return;
+        }
+
+        self::addTypeCollectionToNode($node, self::resolveType($node));
+    }
+
+    private function getNodeTrace(Node $node): array
     {
         $relevantInfo = [];
         $loopNode = $node;
@@ -37,10 +56,6 @@ final class TypeNotFoundInNodeException extends AppMapperRuntimeException
             $loopNode = $loopNode->getAttribute('parentNode');
         }
 
-        $message = 'Class: ' . static::class . "\n"
-            . "Can't find type collection in node:\n"
-            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
-
-        parent::__construct($message);
+        return $relevantInfo;
     }
 }

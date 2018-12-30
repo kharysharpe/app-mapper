@@ -15,14 +15,10 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
-use Hgraca\PhpExtension\Exception\RuntimeException;
+require __DIR__ . '/../../vendor/autoload.php';
 
-final class UnknownPropertyException extends RuntimeException
-{
-    public function __construct(string $propertyName)
-    {
-        parent::__construct("Unknown property $propertyName");
-    }
-}
+StaticLoggerFacade::setLogger(new ConsoleLogger(new ConsoleOutput(ConsoleOutput::VERBOSITY_NORMAL)));

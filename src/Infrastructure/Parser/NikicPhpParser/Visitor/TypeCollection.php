@@ -21,15 +21,22 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
 use Hgraca\PhpExtension\String\ClassHelper;
+use function array_key_exists;
+use function array_values;
 
 /**
+ * FIXME make this collection immutable, and with a fluent interface
+ *      This should fix the broken test, if not, its a good practise anyway
+ *
  * @property Type[] $itemList
  */
 final class TypeCollection extends AbstractCollection
 {
     public function __construct(Type ...$itemList)
     {
-        parent::__construct($itemList);
+        foreach ($itemList as $type) {
+            $this->itemList[$type->getFqn()] = $type;
+        }
     }
 
     public static function getName(): string
@@ -37,16 +44,23 @@ final class TypeCollection extends AbstractCollection
         return ClassHelper::extractCanonicalClassName(__CLASS__);
     }
 
-    public function addType(Type $item): void
+    public function addType(Type $item): self
     {
-        $this->itemList[$item->getFcqn()] = $item;
+        $itemList = $this->itemList;
+        $itemList[$item->getFqn()] = $item;
+
+        return new self(...array_values($itemList));
     }
 
-    public function addTypeCollection(self $newTypeCollection): void
+    public function addTypeCollection(self $newTypeCollection): self
     {
+        $itemList = $this->itemList;
+        /** @var Type $type */
         foreach ($newTypeCollection as $type) {
-            $this->addType($type);
+            $itemList[$type->getFqn()] = $type;
         }
+
+        return new self(...array_values($itemList));
     }
 
     public function getUniqueType(): Type
@@ -60,5 +74,20 @@ final class TypeCollection extends AbstractCollection
         }
 
         return reset($this->itemList);
+    }
+
+    public function removeTypeEqualTo(Type $typeToRemove): self
+    {
+        $itemList = $this->itemList;
+        if ($this->hasType($typeToRemove->getFqn())) {
+            unset($itemList[$typeToRemove->getFqn()]);
+        }
+
+        return new self(...array_values($itemList));
+    }
+
+    private function hasType(string $typeFqn): bool
+    {
+        return array_key_exists($typeFqn, $this->itemList);
     }
 }

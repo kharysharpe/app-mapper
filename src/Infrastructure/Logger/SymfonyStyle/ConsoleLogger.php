@@ -28,9 +28,9 @@ final class ConsoleLogger implements LoggerInterface
 {
     private const DEFAULT_LOGGING_LEVEL_MAP = [
         OutputInterface::VERBOSITY_QUIET => [],
-        OutputInterface::VERBOSITY_NORMAL => ['info', 'error', 'critical', 'alert', 'emergency'],
-        OutputInterface::VERBOSITY_VERBOSE => ['warning', 'info', 'error', 'critical', 'alert', 'emergency'],
-        OutputInterface::VERBOSITY_VERY_VERBOSE => ['notice', 'info', 'error', 'critical', 'alert', 'emergency'],
+        OutputInterface::VERBOSITY_NORMAL => ['debug', 'info', 'error', 'critical', 'alert', 'emergency'],
+        OutputInterface::VERBOSITY_VERBOSE => ['warning', 'debug', 'info', 'error', 'critical', 'alert', 'emergency'],
+        OutputInterface::VERBOSITY_VERY_VERBOSE => ['notice', 'debug', 'info', 'error', 'critical', 'alert', 'emergency'],
         OutputInterface::VERBOSITY_DEBUG => ['debug', 'notice', 'warning', 'info', 'error', 'critical', 'alert', 'emergency'],
     ];
 

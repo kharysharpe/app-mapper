@@ -24,7 +24,9 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\Xx
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxBbbService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\ClassMethodTestEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 use Hgraca\PhpExtension\Reflection\ReflectionHelper;
@@ -41,6 +43,11 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     private static $nodeCollection;
 
+    protected function setUp(): void
+    {
+        $this->createNodeCollection();
+    }
+
     /**
      * This needs to be run inside the test so it counts for coverage.
      * Nevertheless, it will only actually run once.
@@ -52,6 +59,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
                 __DIR__ . '/../../../../StubProjectSrc'
             );
             self::$nodeCollection->enhance();
+            self::$nodeCollection->resolveAllTypes();
         }
     }
 
@@ -62,8 +70,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function visitors_handle_all_cases_in_test_and_node_collection_is_created(): void
     {
-        $this->createNodeCollection();
-
         // if it didnt break, we can assume the visitors can handle all cases in the StubProjectSrc
         self::assertTrue(true);
     }
@@ -75,8 +81,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function assignment_of_array(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('testArrayUnique', BbbEntity::class);
         $methodTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.expr.attributes.TypeCollection.itemList',
@@ -92,8 +96,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function assignment_of_null(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('testNull', BbbEntity::class);
         $methodTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.expr.attributes.TypeCollection.itemList',
@@ -109,8 +111,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function assignment_native_function_call(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('testSprintf', BbbEntity::class);
         $methodTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.var.attributes.TypeCollection.itemList',
@@ -126,8 +126,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function assignment_of_bool(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('testBool', BbbEntity::class);
         $methodTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.expr.attributes.TypeCollection.itemList',
@@ -143,8 +141,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function assignment_from_ternary_adds_all_expr_types_to_var(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('methodC', XxxAaaService::class);
         $methodTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.var.attributes.TypeCollection.itemList',
@@ -158,7 +154,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
             'stmts.0.expr.var.attributes.TypeCollection.itemList',
             $methodNode
         );
-        self::assertArrayHasKey(EventInterface::class, $methodTypes);
+        self::assertArrayHasKey(AaaEvent::class, $methodTypes);
         self::assertArrayHasKey(CccEvent::class, $methodTypes);
     }
 
@@ -167,17 +163,41 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      *
      * @throws \ReflectionException
      */
-    public function assignment_from_coalesce_adds_all_expr_types_to_var(): void
+    public function assignment_from_coalesce_adds_all_expr_types_to_var_and_removes_left_null(): void
     {
-        $this->createNodeCollection();
-
         $methodNode = $this->getMethod('methodM', XxxAaaService::class);
-        $methodTypes = ReflectionHelper::getNestedProperty(
+        $varTypes = ReflectionHelper::getNestedProperty(
             'stmts.0.expr.var.attributes.TypeCollection.itemList',
             $methodNode
         );
-        self::assertArrayHasKey(EventInterface::class, $methodTypes);
-        self::assertArrayHasKey(CccEvent::class, $methodTypes);
+        self::assertArrayHasKey(EventInterface::class, $varTypes);
+        self::assertArrayHasKey(CccEvent::class, $varTypes);
+        self::assertArrayNotHasKey('null', $varTypes);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function var_contains_param_types(): void
+    {
+        $methodNode = $this->getMethod('methodM', XxxAaaService::class);
+        $paramTypes = ReflectionHelper::getNestedProperty(
+            'params.0.var.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey(EventInterface::class, $paramTypes);
+        self::assertArrayHasKey('null', $paramTypes);
+
+        $varTypes = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.left.attributes.TypeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(count($paramTypes), $varTypes);
+        foreach (array_keys($paramTypes) as $type) {
+            self::assertArrayHasKey($type, $varTypes);
+        }
     }
 
     /**
@@ -187,7 +207,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function method_return_has_type(): void
     {
-        $this->createNodeCollection();
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertNull(
             ReflectionHelper::getNestedProperty(
@@ -233,7 +252,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function this_has_type(): void
     {
-        $this->createNodeCollection();
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertInstanceOf(
             Class_::class,
@@ -273,7 +291,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function method_parameters_have_type(): void
     {
-        $this->createNodeCollection();
         $constructorBbbEntityParameter = $this->getMethodParameter('__construct', 'bbbEntity', AaaEntity::class);
         self::assertInstanceOf(
             Class_::class,
@@ -296,9 +313,30 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      *
      * @throws \ReflectionException
      */
+    public function parameter_has_nullable_hint_and_default_types(): void
+    {
+        $methodNode = $this->getMethod('methodWithNullables', ClassMethodTestEntity::class);
+
+        $methodTypes = ReflectionHelper::getNestedProperty('params.0.attributes.TypeCollection.itemList', $methodNode);
+        self::assertArrayHasKey('string', $methodTypes);
+        self::assertArrayHasKey('null', $methodTypes);
+
+        $methodTypes = ReflectionHelper::getNestedProperty('params.1.attributes.TypeCollection.itemList', $methodNode);
+        self::assertArrayHasKey('string', $methodTypes);
+        self::assertArrayHasKey('null', $methodTypes);
+
+        $methodTypes = ReflectionHelper::getNestedProperty('params.2.attributes.TypeCollection.itemList', $methodNode);
+        self::assertArrayHasKey('string', $methodTypes);
+        self::assertArrayHasKey('null', $methodTypes);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
     public function class_properties_have_type(): void
     {
-        $this->createNodeCollection();
         self::assertInstanceOf(
             Class_::class,
             ReflectionHelper::getNestedProperty(
@@ -335,7 +373,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function instantiation_has_type(): void
     {
-        $this->createNodeCollection();
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertNull(
             ReflectionHelper::getNestedProperty(
@@ -374,7 +411,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function variable_has_type(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodD', XxxAaaService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -399,7 +435,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function static_method_call_has_type(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodK', XxxAaaService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -424,7 +459,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function variable_has_type_assigned_from_static_method_call(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodK', XxxAaaService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -449,7 +483,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function method_call_has_type(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodC', XxxBbbService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -474,7 +507,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function variable_has_type_assigned_from_method_call(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodC', XxxBbbService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -499,7 +531,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function local_method_call_has_type(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodD', XxxBbbService::class);
         self::assertInstanceOf(
             Class_::class,
@@ -524,7 +555,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
      */
     public function variable_has_type_assigned_from_local_method_call(): void
     {
-        $this->createNodeCollection();
         $methodNode = $this->getMethod('methodD', XxxBbbService::class);
         self::assertInstanceOf(
             Class_::class,

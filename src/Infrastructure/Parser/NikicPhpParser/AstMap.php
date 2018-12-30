@@ -169,6 +169,7 @@ final class AstMap implements AstMapInterface
             return;
         }
         $this->completeNodeCollection->enhance();
+        $this->completeNodeCollection->resolveAllTypes();
         $this->hasTypeInformation = true;
     }
 }

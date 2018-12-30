@@ -18,14 +18,15 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AbstractTypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 
 final class QueryBuilder
 {
+    use NodeTypeManagerTrait;
+
     /** @var Query */
     private $currentQuery;
 
@@ -125,9 +126,7 @@ final class QueryBuilder
                 }
                 $methodCall = $node;
                 try {
-                    $dispatcherTypeCollection = AbstractTypeInjectorVisitor::getTypeCollectionFromNode(
-                        $methodCall->var
-                    );
+                    $dispatcherTypeCollection = $this->getTypeCollectionFromNode($methodCall->var);
 
                     foreach ($dispatcherTypeCollection as $type) {
                         $dispatcherFqcn = (string) $type;
@@ -140,9 +139,9 @@ final class QueryBuilder
                             return true;
                         }
                     }
-                } catch (TypeNotFoundInNodeException $e) {
+                } catch (UnresolvableNodeTypeException $e) {
                     StaticLoggerFacade::warning(
-                        "Silently ignoring a TypeNotFoundInNodeException in this filter.\n"
+                        "Silently ignoring a UnresolvableNodeTypeException in this filter.\n"
                         . "The type is not in the node so it can't pass the filter.\n"
                         . "This should be fixed in the type addition visitors.\n"
                         . $e->getMessage(),

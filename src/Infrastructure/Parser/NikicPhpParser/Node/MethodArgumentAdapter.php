@@ -20,7 +20,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\TypeNotFoundInNodeException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
@@ -41,9 +41,9 @@ final class MethodArgumentAdapter extends Collection implements MethodArgumentIn
                     self::getTypeCollectionFromNode($argumentValue)
                 )->toArray()
             );
-        } catch (TypeNotFoundInNodeException $e) {
+        } catch (UnresolvableNodeTypeException $e) {
             StaticLoggerFacade::warning(
-                "Silently ignoring a TypeNotFoundInNodeException in this adapter.\n"
+                "Silently ignoring a UnresolvableNodeTypeException in this adapter.\n"
                 . "This should be fixed in the type addition visitors.\n"
                 . $e->getMessage(),
                 [__METHOD__]

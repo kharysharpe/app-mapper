@@ -17,13 +17,11 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\AssignmentFromMethodCallTypeInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\PropertyFetchTypeInjectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverInjectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
 use PhpParser\JsonDecoder;
 use PhpParser\Node;
@@ -122,43 +120,18 @@ final class NodeCollection
 
     public function enhance(): void
     {
-        StaticLoggerFacade::notice(
-            "TODO This whole method can and should be refactored to a better design. \n"
-            . "We can: \n"
-            . "      1. Use resolver `callable`s instead of injecting the type \n"
-            . "      2. Make better use of the Visitor::leaveNode(), when we need to first visit inner \n"
-            . '         nodes to resolve an outer node, as in the Assign nodes',
-            [__METHOD__]
-        );
-        $nodeList = array_values($this->nodeList);
-
-        // Add all nodes into the collection
-        // Add visitors here if they don't need the final collection
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
         $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->traverse($nodeList);
+        $traverser->addVisitor(new TypeResolverInjectorVisitor($this));
+        $traverser->traverse(array_values($this->nodeList));
+    }
 
+    public function resolveAllTypes(): void
+    {
         $traverser = new NodeTraverser();
-        $traverser->addVisitor(new TypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // After setting the type in the properties declaration, we can copy it to every property call
-        // We need a separate traverse because a property might be set only in the end of the file,
-        // after the property is used
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor());
-        $traverser->traverse($nodeList);
-
-        $traverser = new NodeTraverser();
-        // This one needs the properties to already be set
-        $traverser->addVisitor(new AssignmentFromMethodCallTypeInjectorVisitor($this));
-        $traverser->traverse($nodeList);
-
-        // Make a second pass to make sure we got all properties, including the ones captured in the last visitor
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new PropertyFetchTypeInjectorVisitor());
-        $traverser->traverse($nodeList);
+        $traverser->addVisitor(new TypeResolverVisitor());
+        $traverser->traverse(array_values($this->nodeList));
     }
 
     private function addCollections(self ...$nodeCollectionList): void
