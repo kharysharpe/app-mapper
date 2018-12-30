@@ -40,7 +40,7 @@ trait NodeTypeManagerTrait
     public function addTypeToNode(Node $node, Type ...$typeList): void
     {
         if (!$node->hasAttribute(TypeCollection::getName())) {
-            $typeCollection = new TypeCollection($node);
+            $typeCollection = new TypeCollection();
             $node->setAttribute(TypeCollection::getName(), $typeCollection);
         } else {
             $typeCollection = $node->getAttribute(TypeCollection::getName());

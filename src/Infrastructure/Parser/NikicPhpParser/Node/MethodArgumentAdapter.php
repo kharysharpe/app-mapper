@@ -50,7 +50,7 @@ final class MethodArgumentAdapter extends Collection implements MethodArgumentIn
             );
             $this->itemList =
                 NodeAdapterFactory::constructFromTypeCollection(
-                    new TypeCollection($argument, Type::constructUnknownFromNode($argumentValue))
+                    new TypeCollection(Type::constructUnknownFromNode($argumentValue))
                 )->toArray();
         }
     }

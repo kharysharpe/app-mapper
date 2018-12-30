@@ -17,42 +17,19 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
 use Hgraca\PhpExtension\String\ClassHelper;
-use PhpParser\Node;
-use function uniqid;
 
 /**
  * @property Type[] $itemList
  */
 final class TypeCollection extends AbstractCollection
 {
-    private const REPEATED_TYPE_ADD_LIMIT = 1000;
-
-    /**
-     * @var Node
-     */
-    private $node;
-
-    /**
-     * @var int[]
-     */
-    private $repeatedTypeAddition = [];
-
-    /**
-     * @var string
-     */
-    private $id;
-
-    public function __construct(?Node $node = null, Type ...$itemList)
+    public function __construct(Type ...$itemList)
     {
         parent::__construct($itemList);
-        $this->node = $node;
-        $this->id = uniqid('', false);
     }
 
     public static function getName(): string
@@ -62,22 +39,7 @@ final class TypeCollection extends AbstractCollection
 
     public function addType(Type $item): void
     {
-        if (
-            isset($this->repeatedTypeAddition[$item->getFcqn()])
-            && $this->repeatedTypeAddition[$item->getFcqn()] >= 100
-        ) {
-            $count = $this->repeatedTypeAddition[$item->getFcqn()] + 1;
-            StaticLoggerFacade::notice(
-                "Adding type '{$item->getFcqn()}' to collection {$this->id} with size {$this->count()} for the {$count}th time\n"
-            );
-        }
         $this->itemList[$item->getFcqn()] = $item;
-        $this->repeatedTypeAddition[$item->getFcqn()] = isset($this->repeatedTypeAddition[$item->getFcqn()])
-            ? $this->repeatedTypeAddition[$item->getFcqn()] + 1
-            : 1;
-        if ($this->repeatedTypeAddition[$item->getFcqn()] >= self::REPEATED_TYPE_ADD_LIMIT) {
-            throw new CircularReferenceDetectedException($this->node, $item->getFcqn());
-        }
     }
 
     public function addTypeCollection(self $newTypeCollection): void
