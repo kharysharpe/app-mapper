@@ -24,8 +24,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Stopwatch\Stopwatch;
-use const PHP_EOL;
 use function class_exists;
+use const PHP_EOL;
 
 abstract class AbstractCommandStopwatchDecorator extends Command
 {
