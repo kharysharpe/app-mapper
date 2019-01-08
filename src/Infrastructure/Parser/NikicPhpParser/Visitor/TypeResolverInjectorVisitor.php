@@ -213,7 +213,13 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
         };
 
         self::addTypeResolver($variable, $resolver);
-        $this->resetTypeResolver($variable, $resolver);
+        if ($variable instanceof Variable) {
+            // Assignment to variable
+            $this->variableCollector->resetResolverCollection($this->getVariableName($variable), $resolver);
+        } elseif ($variable instanceof PropertyFetch) {
+            // Assignment to property
+            $this->propertyCollector->collectResolver($this->getPropertyName($variable), $resolver);
+        }
     }
 
     private function addVariableTypeResolver(Variable $variableNode): void
@@ -352,18 +358,6 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
             case $var instanceof Property: // Declaration of property
             case $var instanceof PropertyFetch: // Assignment to property
                 $this->propertyCollector->collectResolver($this->getPropertyName($var), $resolver);
-                break;
-        }
-    }
-
-    private function resetTypeResolver(Expr $var, callable $resolver): void
-    {
-        switch (true) {
-            case $var instanceof Variable: // Assignment to variable
-                $this->variableCollector->resetResolverCollection($this->getVariableName($var), $resolver);
-                break;
-            case $var instanceof PropertyFetch: // Assignment to property
-                $this->propertyCollector->resetResolverCollection($this->getPropertyName($var), $resolver);
                 break;
         }
     }
