@@ -19,6 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NotImplementedException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownFqcnException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
@@ -171,6 +172,19 @@ final class TypeFactory
     private function buildTypeFromIdentifier(Identifier $identifier): Type
     {
         return new Type($identifier->name, null);
+    }
+
+    public function buildTypeFromFqcn(string $fqcn): Type
+    {
+        if ($fqcn === 'self' || $fqcn === 'this') {
+            throw new UnknownFqcnException("Can't create the type simply from the '$fqcn' FQCN");
+        }
+
+        try {
+            return new Type($fqcn, $this->nodeCollection->getAstNode($fqcn));
+        } catch (AstNodeNotFoundException $e) {
+            return new Type($fqcn);
+        }
     }
 
     private function buildTypeFromName(Name $name): Type

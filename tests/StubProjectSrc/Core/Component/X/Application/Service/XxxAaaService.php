@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service;
 
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\DummyPort\DummyInterface as AnotherDummyInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventDispatcherInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
@@ -29,7 +30,7 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Infrastructure\UnknownEvent;
 final class XxxAaaService
 {
     /**
-     * @var EventDispatcherInterface
+     * @var EventDispatcherInterface|AnotherDummyInterface
      */
     private $eventDispatcher;
 

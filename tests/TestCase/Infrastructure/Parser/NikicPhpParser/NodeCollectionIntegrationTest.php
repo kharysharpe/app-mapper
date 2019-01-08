@@ -25,6 +25,8 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\Xx
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\ClassMethodTestEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\DummyPort\DummyInterface;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventDispatcherInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
@@ -72,6 +74,26 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         // if it didnt break, we can assume the visitors can handle all cases in the StubProjectSrc
         self::assertTrue(true);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function property_has_types_from_comment(): void
+    {
+        $propertyNode = $this->getProperty('eventDispatcher', XxxAaaService::class);
+        $propertyTypes = ReflectionHelper::getNestedProperty(
+            'attributes.TypeCollection.itemList',
+            $propertyNode
+        );
+        self::assertArrayHasKey(DummyInterface::class, $propertyTypes, implode(', ', array_keys($propertyTypes)));
+        self::assertArrayHasKey(
+            EventDispatcherInterface::class,
+            $propertyTypes,
+            implode(', ', array_keys($propertyTypes))
+        );
     }
 
     /**

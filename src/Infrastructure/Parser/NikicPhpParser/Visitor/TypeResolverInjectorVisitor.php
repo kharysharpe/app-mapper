@@ -25,6 +25,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\Unresolvable
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\PhpExtension\String\ClassHelper;
+use Hgraca\PhpExtension\String\StringHelper;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -40,7 +41,10 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
+use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\Stmt\UseUse;
 use PhpParser\NodeVisitorAbstract;
 use ReflectionClass;
 use function get_class;
@@ -74,6 +78,8 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
      * @uses addMethodCallTypeResolver
      * @uses addVariableTypeResolver
      * @uses addPropertyFetchTypeResolver
+     * @uses addPropertyTypeResolver
+     * @uses addUseUseTypeResolver
      */
     public function enterNode(Node $node): void
     {
@@ -293,12 +299,57 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
         );
     }
 
-    private function collectTypeResolver(Expr $var, callable $resolver): void
+    private function addPropertyTypeResolver(Property $property): void
+    {
+        $resolver = function () use ($property): TypeCollection {
+            $typeCollection = new TypeCollection();
+
+            foreach ($property->getAttribute('comments') ?? [] as $comment) {
+                foreach (StringHelper::extractFromBetween('@var ', "\n", $comment->getText()) as $typeList) {
+                    foreach (explode('|', $typeList) as $type) {
+                        if (TypeHelper::isNativeType($type)) {
+                            $typeCollection = $typeCollection->addType(new Type($type));
+                            continue;
+                        }
+
+                        $typeCollectionFromUses = $this->getTypeCollectionFromUses($property, $type);
+
+                        if (!$typeCollectionFromUses->isEmpty()) {
+                            $typeCollection = $typeCollection->addTypeCollection($typeCollectionFromUses);
+                            continue;
+                        }
+
+                        $typeCollection = $typeCollection->addType(
+                            $this->assumeIsInSameNamespace($property, $type)
+                        );
+                    }
+                }
+            }
+
+            return $typeCollection;
+        };
+
+        self::addTypeResolver($property, $resolver);
+        $this->collectTypeResolver($property, $resolver);
+    }
+
+    private function addUseUseTypeResolver(UseUse $useUse): void
+    {
+        self::addTypeResolver(
+            $useUse,
+            function () use ($useUse): TypeCollection {
+                return self::getTypeCollectionFromNode($useUse->name);
+            }
+        );
+    }
+
+    private function collectTypeResolver(Node $var, callable $resolver): void
     {
         switch (true) {
             case $var instanceof Variable: // Assignment to variable
                 $this->variableCollector->collectResolver($this->getVariableName($var), $resolver);
                 break;
+            case $var instanceof Property: // Declaration of property
             case $var instanceof PropertyFetch: // Assignment to property
                 $this->propertyCollector->collectResolver($this->getPropertyName($var), $resolver);
                 break;
@@ -421,5 +472,38 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
     {
         return $stmt instanceof Property
             && $this->propertyCollector->hasCollectedResolverCollection($this->getPropertyName($stmt));
+    }
+
+    private function getTypeCollectionFromUses(Node $node, string $type): TypeCollection
+    {
+        $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($node, Namespace_::class);
+
+        foreach ($namespaceNode->stmts ?? [] as $use) {
+            if (!$use instanceof Use_) {
+                continue;
+            }
+
+            $useUse = $use->uses[0];
+            $useType = (string) $useUse->name;
+
+            if (
+                $type === $useType
+                || $type === (string) $useUse->alias
+                || StringHelper::hasEnding($type, $useType)
+            ) {
+                return self::getTypeCollectionFromNode($useUse);
+            }
+        }
+
+        return new TypeCollection();
+    }
+
+    private function assumeIsInSameNamespace(Property $property, string $type): Type
+    {
+        /** @var Namespace_ $namespaceNode */
+        $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($property, Namespace_::class);
+        $namespacedType = $namespaceNode->name . "\\$type";
+
+        return $this->typeFactory->buildTypeFromFqcn($namespacedType);
     }
 }

@@ -86,11 +86,8 @@ final class MethodCallAdapter implements MethodCallInterface
     private function getEnclosingClass(): ClassInterface
     {
         if ($this->enclosingClass === null) {
-            $node = $this->methodCall;
-            do {
-                $node = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
-            } while (!$node instanceof Class_);
-
+            /** @var Class_ $node */
+            $node = ParentConnectorVisitor::getFirstParentNodeOfType($this->methodCall, Class_::class);
             $this->enclosingClass = ClassAdapter::constructFromClassNode($node);
         }
 
@@ -100,11 +97,8 @@ final class MethodCallAdapter implements MethodCallInterface
     private function getEnclosingMethod(): MethodInterface
     {
         if ($this->enclosingMethod === null) {
-            $node = $this->methodCall;
-            do {
-                $node = $node->getAttribute(ParentConnectorVisitor::PARENT_NODE);
-            } while (!$node instanceof ClassMethod);
-
+            /** @var ClassMethod $node */
+            $node = ParentConnectorVisitor::getFirstParentNodeOfType($this->methodCall, ClassMethod::class);
             $this->enclosingMethod = new MethodAdapter($node);
         }
 

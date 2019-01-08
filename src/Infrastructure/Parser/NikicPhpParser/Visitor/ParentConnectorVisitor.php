@@ -23,7 +23,7 @@ use function count;
 
 class ParentConnectorVisitor extends NodeVisitorAbstract
 {
-    public const PARENT_NODE = 'parentNode';
+    private const PARENT_NODE = 'parentNode';
 
     private $stack;
 
@@ -43,5 +43,19 @@ class ParentConnectorVisitor extends NodeVisitorAbstract
     public function leaveNode(Node $node): void
     {
         array_pop($this->stack);
+    }
+
+    public static function getParentNode(Node $node): Node
+    {
+        return $node->getAttribute(self::PARENT_NODE);
+    }
+
+    public static function getFirstParentNodeOfType(Node $node, string $type): Node
+    {
+        do {
+            $node = self::getParentNode($node);
+        } while (!$node instanceof $type);
+
+        return $node;
     }
 }
