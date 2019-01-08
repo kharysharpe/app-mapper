@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\PhpExtension\Exception\RuntimeException;
+use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperRuntimeException;
 
-final class UnknownFqcnException extends RuntimeException
+final class UnknownFqcnException extends AppMapperRuntimeException
 {
 }
