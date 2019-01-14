@@ -147,16 +147,16 @@ final class TypeFactory
         return new Type('null');
     }
 
-    public function buildTypeFromFqcn(string $fqcn): Type
+    public function buildTypeFromString(string $string): Type
     {
-        if ($fqcn === 'self' || $fqcn === 'this') {
-            throw new UnknownFqcnException("Can't create the type simply from the '$fqcn' FQCN");
+        if ($string === 'self' || $string === 'this') {
+            throw new UnknownFqcnException("Can't create the type from '$string'.");
         }
 
         try {
-            return new Type($fqcn, $this->nodeCollection->getAstNode($fqcn));
+            return new Type($string, $this->nodeCollection->getAstNode($string));
         } catch (AstNodeNotFoundException $e) {
-            return new Type($fqcn);
+            return new Type($string);
         }
     }
 

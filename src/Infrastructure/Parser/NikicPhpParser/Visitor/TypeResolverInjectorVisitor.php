@@ -498,6 +498,6 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
         $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($property, Namespace_::class);
         $namespacedType = $namespaceNode->name . "\\$type";
 
-        return $this->typeFactory->buildTypeFromFqcn($namespacedType);
+        return $this->typeFactory->buildTypeFromString($namespacedType);
     }
 }
