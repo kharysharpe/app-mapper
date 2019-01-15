@@ -120,7 +120,9 @@ trait NodeTypeManagerTrait
 
         StaticLoggerFacade::debug($message);
 
-        return $node->getAttribute(ResolverCollection::getName())->resolve();
+        $resolverCollection = $node->getAttribute(ResolverCollection::getName());
+
+        return $resolverCollection->resolve();
     }
 
     private static function getNodeResolverCollection(Node $node): ResolverCollection

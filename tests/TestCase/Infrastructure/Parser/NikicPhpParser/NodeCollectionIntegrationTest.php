@@ -594,6 +594,42 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
     }
 
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function foreach_assigns_array_nested_types_to_variable(): void
+    {
+        $methodNode = $this->getMethod('testForeach', XxxBbbService::class);
+        self::assertArrayHasKey(
+            'array',
+            ReflectionHelper::getNestedProperty(
+                'stmts.0.expr.attributes.TypeCollection.itemList',
+                $methodNode
+            )
+        );
+        self::assertEquals(
+            EventInterface::class,
+            ReflectionHelper::getNestedProperty(
+                'stmts.0.expr.attributes.TypeCollection.itemList.array.nestedType.typeAsString',
+                $methodNode
+            )
+        );
+        self::assertArrayHasKey(
+            'int',
+            ReflectionHelper::getNestedProperty('stmts.0.keyVar.attributes.TypeCollection.itemList', $methodNode)
+        );
+        self::assertArrayHasKey(
+            'string',
+            ReflectionHelper::getNestedProperty('stmts.0.keyVar.attributes.TypeCollection.itemList', $methodNode)
+        );
+        self::assertArrayHasKey(
+            EventInterface::class,
+            ReflectionHelper::getNestedProperty('stmts.0.valueVar.attributes.TypeCollection.itemList', $methodNode)
+        );
+    }
+
     private function getProperty(string $propertyName, string $classFqcn): Property
     {
         /** @var Class_ $classNode */

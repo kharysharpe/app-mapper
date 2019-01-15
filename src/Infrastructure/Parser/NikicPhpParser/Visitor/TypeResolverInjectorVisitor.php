@@ -81,6 +81,7 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
      * @uses addPropertyFetchTypeResolver
      * @uses addPropertyTypeResolver
      * @uses addUseUseTypeResolver
+     * @uses addForeachTypeResolver
      */
     public function enterNode(Node $node): void
     {
@@ -221,6 +222,12 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
             // Assignment to property
             $this->propertyCollector->collectResolver($this->getPropertyName($variable), $resolver);
         }
+    }
+
+    private function addForeachTypeResolver(Foreach_ $foreachNode): void
+    {
+        $this->assignTypeToForeachKey($foreachNode->keyVar);
+        $this->assignTypeToForeachVar($foreachNode->expr, $foreachNode->valueVar);
     }
 
     private function addVariableTypeResolver(Variable $variableNode): void
@@ -438,7 +445,7 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
     private function getResolverAdderName(Node $node): string
     {
         return 'add'
-            . ClassHelper::extractCanonicalClassName(get_class($node))
+            . rtrim(ClassHelper::extractCanonicalClassName(get_class($node)), '_')
             . 'TypeResolver';
     }
 
@@ -507,5 +514,64 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
         $namespacedType = $namespaceNode->name . "\\$type";
 
         return $this->typeFactory->buildTypeFromString($namespacedType);
+    }
+
+    private function assignTypeToForeachKey(Expr $keyVar): void
+    {
+        if ($keyVar === null) {
+            return;
+        }
+
+        $resolver = function (): TypeCollection {
+            return new TypeCollection(new Type('string'), new Type('int'));
+        };
+
+        self::addTypeResolver($keyVar, $resolver);
+        if ($keyVar instanceof Variable) {
+            // Assignment to variable
+            $this->variableCollector->resetResolverCollection($this->getVariableName($keyVar), $resolver);
+        } elseif ($keyVar instanceof PropertyFetch) {
+            // Assignment to property
+            $this->propertyCollector->collectResolver($this->getPropertyName($keyVar), $resolver);
+        }
+    }
+
+    private function assignTypeToForeachVar(Expr $expression, Expr $valueVar): void
+    {
+        $resolver = function () use ($expression): TypeCollection {
+            try {
+                /** @var Type[] $typeCollection */
+                $typeCollection = self::resolveType($expression);
+
+                $nestedTypeCollection = new TypeCollection();
+                foreach ($typeCollection as $type) {
+                    if ($type->hasNestedType()) {
+                        $nestedTypeCollection = $nestedTypeCollection->addType($type->getNestedType());
+                    }
+                }
+
+                return $nestedTypeCollection;
+            } catch (UnresolvableNodeTypeException $e) {
+                StaticLoggerFacade::warning(
+                    "Silently ignoring a UnresolvableNodeTypeException in this filter.\n"
+                    . 'This is failing, at least, for nested method calls like'
+                    . '`$invoice->transactions->first()->getServicePro();`.' . "\n"
+                    . "This should be fixed in the type addition visitors.\n"
+                    . $e->getMessage(),
+                    [__METHOD__]
+                );
+
+                return new TypeCollection();
+            }
+        };
+
+        self::addTypeResolver($valueVar, $resolver);
+        if ($valueVar instanceof Variable) {
+            // Assignment to variable
+            $this->variableCollector->resetResolverCollection($this->getVariableName($valueVar), $resolver);
+        } elseif ($valueVar instanceof PropertyFetch) {
+            // Assignment to property
+            $this->propertyCollector->collectResolver($this->getPropertyName($valueVar), $resolver);
+        }
     }
 }

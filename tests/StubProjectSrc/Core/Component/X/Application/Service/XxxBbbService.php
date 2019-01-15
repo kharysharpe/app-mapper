@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service;
 
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 
@@ -26,6 +27,11 @@ final class XxxBbbService
      * @var XxxAaaService
      */
     private $xxxAaaService;
+
+    /**
+     * @var EventInterface[]
+     */
+    private $eventList;
 
     public function __construct(XxxAaaService $xxxAaaService)
     {
@@ -55,5 +61,12 @@ final class XxxBbbService
     public function methodL(): CccEvent
     {
         return CccEvent::namedConstructor();
+    }
+
+    public function testForeach(): void
+    {
+        foreach ($this->eventList as $key => $event) {
+            $otherVariable = $event;
+        }
     }
 }
