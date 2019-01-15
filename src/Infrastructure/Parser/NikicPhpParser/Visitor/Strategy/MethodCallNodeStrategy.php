@@ -65,9 +65,9 @@ final class MethodCallNodeStrategy extends AbstractStrategy
                             [__METHOD__]
                         );
                     } catch (MethodNotFoundInClassException $e) {
-                        StaticLoggerFacade::warning(
+                        StaticLoggerFacade::notice(
                             "Silently ignoring a MethodNotFoundInClassException.\n"
-                            . "This should be fixed, otherwise we might be missing events.\n"
+                            . "It might be because from a collection of types, only one has the method.\n"
                             . $e->getMessage(),
                             [__METHOD__]
                         );
