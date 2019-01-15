@@ -46,6 +46,7 @@ final class TypeFactory
         'sprintf' => ['return' => 'string'],
         'array_unique' => ['return' => 'array'],
         'filter' => ['return' => 'array'],
+        'implode' => ['return' => 'string'],
         'reset' => ['return' => 'mixed'],
         'substr' => ['return' => 'string'],
         'strrpos' => ['return' => 'string'],
