@@ -18,11 +18,20 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 
 final class MethodNotFoundInClassException extends ParserException
 {
     public function constructFromFqcn(string $methodName, string $classFqcn): self
     {
         return new self("Method '$methodName' not found in class '$classFqcn'.");
+    }
+
+    public static function constructFromCollection(string $methodName, TypeCollection $typeCollection): self
+    {
+        return new self(
+            "Method '$methodName' not found in any of the classes '{$typeCollection->implodeKeys(', ')}'. "
+            . 'It should have been found in at least one.'
+        );
     }
 }
