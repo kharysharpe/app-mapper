@@ -48,12 +48,14 @@ final class TypeFactory
         'ctype_digit' => ['return' => 'bool'],
         'filter' => ['return' => 'array'],
         'implode' => ['return' => 'string'],
+        'iterator_to_array' => ['return' => 'array'],
         'preg_replace' => ['return' => 'string'],
         'reset' => ['return' => 'mixed'],
         'sprintf' => ['return' => 'string'],
         'strpbrk' => ['return' => 'string'],
         'strrpos' => ['return' => 'string'],
         'substr' => ['return' => 'string'],
+        'trigger_error' => ['return' => 'bool'],
     ];
 
     /**
