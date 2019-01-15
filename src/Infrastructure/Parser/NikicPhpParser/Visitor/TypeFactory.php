@@ -43,17 +43,17 @@ final class TypeFactory
 {
     // FIXME should be possible to add to this in the config file
     private $functionList = [
-        'sprintf' => ['return' => 'string'],
         'array_unique' => ['return' => 'array'],
+        'count' => ['return' => 'int'],
+        'ctype_digit' => ['return' => 'bool'],
         'filter' => ['return' => 'array'],
         'implode' => ['return' => 'string'],
-        'reset' => ['return' => 'mixed'],
-        'substr' => ['return' => 'string'],
-        'strrpos' => ['return' => 'string'],
-        'ctype_digit' => ['return' => 'bool'],
-        'strpbrk' => ['return' => 'string'],
         'preg_replace' => ['return' => 'string'],
-        'count' => ['return' => 'int'],
+        'reset' => ['return' => 'mixed'],
+        'sprintf' => ['return' => 'string'],
+        'strpbrk' => ['return' => 'string'],
+        'strrpos' => ['return' => 'string'],
+        'substr' => ['return' => 'string'],
     ];
 
     /**
