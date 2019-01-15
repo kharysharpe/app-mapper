@@ -94,7 +94,7 @@ final class ClassAdapter implements ClassInterface
             }
         }
 
-        throw new MethodNotFoundInClassException($methodName, $this->getFullyQualifiedType());
+        throw MethodNotFoundInClassException::constructFromFqcn($methodName, $this->getFullyQualifiedType());
     }
 
     /**

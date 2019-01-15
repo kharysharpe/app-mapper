@@ -21,8 +21,8 @@ use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 
 final class MethodNotFoundInClassException extends ParserException
 {
-    public function __construct(string $methodName, string $classFqcn)
+    public function constructFromFqcn(string $methodName, string $classFqcn): self
     {
-        parent::__construct("Method '$methodName' not found in class '$classFqcn'.");
+        return new self("Method '$methodName' not found in class '$classFqcn'.");
     }
 }

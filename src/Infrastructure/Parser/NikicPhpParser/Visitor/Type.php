@@ -96,7 +96,7 @@ final class Type
             }
         }
 
-        throw new MethodNotFoundInClassException($methodName, $this->typeAsString);
+        throw MethodNotFoundInClassException::constructFromFqcn($methodName, $this->typeAsString);
     }
 
     public function hasAstMethod(string $methodName): bool
