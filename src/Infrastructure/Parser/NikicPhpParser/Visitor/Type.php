@@ -36,10 +36,13 @@ final class Type
      */
     private $ast;
 
-    public function __construct(string $typeAsString, ?Node $ast = null)
+    private $nestedType;
+
+    public function __construct(string $typeAsString, ?Node $ast = null, self $nestedType = null)
     {
         $this->typeAsString = ltrim($typeAsString, '\\');
         $this->ast = $ast;
+        $this->nestedType = $nestedType;
     }
 
     public static function constructUnknownFromNode(Node $node): self
@@ -113,5 +116,15 @@ final class Type
     public function isEqualTo(self $otherType): bool
     {
         return $this->typeAsString === $otherType->typeAsString;
+    }
+
+    public function hasNestedType(): bool
+    {
+        return (bool) $this->nestedType;
+    }
+
+    public function getNestedType(): self
+    {
+        return $this->nestedType;
     }
 }

@@ -41,6 +41,7 @@ use PhpParser\Node\Param;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Use_;
@@ -470,6 +471,9 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
 
     private function getTypeCollectionFromUses(Node $node, string $type): TypeCollection
     {
+        $positionOfBrackets = mb_strpos($type, '[');
+        $arrayList = $positionOfBrackets ? mb_substr($type, $positionOfBrackets) : '';
+        $nestedType = rtrim($type, '[]');
         $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($node, Namespace_::class);
 
         foreach ($namespaceNode->stmts ?? [] as $use) {
@@ -481,10 +485,14 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
             $useType = (string) $useUse->name;
 
             if (
-                $type === $useType
-                || $type === (string) $useUse->alias
-                || StringHelper::hasEnding($type, $useType)
+                $nestedType === $useType
+                || $nestedType === (string) $useUse->alias
+                || StringHelper::hasEnding($nestedType, $useType)
             ) {
+                if ($arrayList) {
+                    return new TypeCollection($this->typeFactory->buildTypeFromString($useType . $arrayList));
+                }
+
                 return self::getTypeCollectionFromNode($useUse);
             }
         }

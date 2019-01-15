@@ -21,6 +21,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFo
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NotImplementedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownFqcnException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\PhpExtension\String\StringHelper;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
@@ -151,6 +152,10 @@ final class TypeFactory
     {
         if ($string === 'self' || $string === 'this') {
             throw new UnknownFqcnException("Can't create the type from '$string'.");
+        }
+
+        if (StringHelper::hasEnding('[]', $string)) {
+            return new Type('array', null, $this->buildTypeFromString(StringHelper::removeFromEnd('[]', $string)));
         }
 
         try {
