@@ -42,7 +42,9 @@ final class MethodCallNodeStrategy extends AbstractStrategy
             function () use ($methodCall): TypeCollection {
                 $varCollectionType = self::getTypeCollectionFromNode($methodCall->var);
 
+                $methodName = (string) $methodCall->name;
                 $typeCollection = new TypeCollection();
+                $countTypesWithoutMethod = 0;
 
                 /** @var Type $methodCallVarType */
                 foreach ($varCollectionType as $methodCallVarType) {
@@ -51,7 +53,7 @@ final class MethodCallNodeStrategy extends AbstractStrategy
                     }
 
                     try {
-                        $returnTypeNode = $methodCallVarType->getAstMethod((string) $methodCall->name)->returnType;
+                        $returnTypeNode = $methodCallVarType->getAstMethod($methodName)->returnType;
                         $typeCollection = $typeCollection->addTypeCollection(
                             self::getTypeCollectionFromNode($returnTypeNode)
                         );
@@ -65,6 +67,7 @@ final class MethodCallNodeStrategy extends AbstractStrategy
                             [__METHOD__]
                         );
                     } catch (MethodNotFoundInClassException $e) {
+                        ++$countTypesWithoutMethod;
                         StaticLoggerFacade::notice(
                             "Silently ignoring a MethodNotFoundInClassException.\n"
                             . "It might be because from a collection of types, only one has the method.\n"
@@ -72,6 +75,16 @@ final class MethodCallNodeStrategy extends AbstractStrategy
                             [__METHOD__]
                         );
                     }
+                }
+
+                if ($countTypesWithoutMethod === $varCollectionType->count()) {
+//                    throw MethodNotFoundInClassException::constructFromCollection($methodName, $varCollectionType);
+                    StaticLoggerFacade::warning(
+                        "Silently ignoring a MethodNotFoundInClassException.\n"
+                        . "Method '$methodName' not found in any of the classes '{$varCollectionType->implodeKeys(', ')}'. "
+                        . 'It should have been found in at least one.',
+                        [__METHOD__]
+                    );
                 }
 
                 return $typeCollection;
