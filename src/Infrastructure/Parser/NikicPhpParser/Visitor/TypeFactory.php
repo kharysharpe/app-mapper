@@ -37,6 +37,8 @@ use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
+use ReflectionException;
+use ReflectionFunction;
 use function implode;
 
 final class TypeFactory
@@ -245,10 +247,18 @@ final class TypeFactory
         return new Type($name);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function buildTypeFromFuncCall(FuncCall $funcCallNode): Type
     {
         if ($this->isKnownNativeFunction($funcCallNode)) {
             return new Type($this->functionList[$this->getFuncCallName($funcCallNode)]['return']);
+        }
+
+        $typeFromReflection = (string) (new ReflectionFunction($this->getFuncCallName($funcCallNode)))->getReturnType();
+        if ($typeFromReflection) {
+            return new Type($typeFromReflection);
         }
 
         throw new NotImplementedException('Unknown native function \'' . $this->getFuncCallName($funcCallNode) . '\'');
