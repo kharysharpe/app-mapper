@@ -47,6 +47,11 @@ final class TypeCollection extends AbstractCollection
     public function addType(Type $item): self
     {
         $itemList = $this->itemList;
+
+        if (isset($itemList[Type::UNKNOWN])) {
+            unset($itemList[Type::UNKNOWN]);
+        }
+
         $itemList[$item->getFqn()] = $item;
 
         return new self(...array_values($itemList));
