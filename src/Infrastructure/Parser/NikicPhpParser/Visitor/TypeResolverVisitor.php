@@ -31,7 +31,7 @@ final class TypeResolverVisitor extends NodeVisitorAbstract
         if (!$node->hasAttribute(ResolverCollection::getName())) {
             StaticLoggerFacade::notice(
                 "Can't find type resolver in node:\n"
-                . json_encode($this->getNodeTrace($node), JSON_PRETTY_PRINT),
+                . NodeTypeManagerTrait::resolveNodeTreeAsJson($node),
                 [__METHOD__]
             );
 
@@ -39,23 +39,5 @@ final class TypeResolverVisitor extends NodeVisitorAbstract
         }
 
         self::addTypeCollectionToNode($node, self::resolveType($node));
-    }
-
-    private function getNodeTrace(Node $node): array
-    {
-        $relevantInfo = [];
-        $loopNode = $node;
-        while ($loopNode->hasAttribute('parentNode')) {
-            $relevantInfo[] = get_class($loopNode) . ' => '
-                . (property_exists($loopNode, 'name')
-                    ? $loopNode->name
-                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
-                        ? $loopNode->var->name
-                        : 'no_name')
-                );
-            $loopNode = $loopNode->getAttribute('parentNode');
-        }
-
-        return $relevantInfo;
     }
 }

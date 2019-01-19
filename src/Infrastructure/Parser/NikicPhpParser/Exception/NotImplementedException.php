@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\PhpExtension\Type\TypeHelper;
 use PhpParser\Node;
 
@@ -25,22 +26,9 @@ final class NotImplementedException extends ParserException
 {
     public static function constructFromNode(Node $node)
     {
-        $relevantInfo = [];
-        $loopNode = $node;
-        while ($loopNode->hasAttribute('parentNode')) {
-            $relevantInfo[] = get_class($loopNode) . ' => '
-                . (property_exists($loopNode, 'name')
-                    ? $loopNode->name
-                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
-                        ? $loopNode->var->name
-                        : 'no_name')
-                );
-            $loopNode = $loopNode->getAttribute('parentNode');
-        }
-
-        $message = 'Can\'t build Type from ' . TypeHelper::getType($node) . "\n"
-            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
-
-        return new self($message);
+        return new self(
+            'Can\'t build Type from ' . TypeHelper::getType($node) . "\n"
+            . NodeTypeManagerTrait::resolveNodeTreeAsJson($node)
+        );
     }
 }
