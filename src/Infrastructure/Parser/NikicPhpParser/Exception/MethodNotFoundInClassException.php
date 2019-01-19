@@ -22,7 +22,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection
 
 final class MethodNotFoundInClassException extends ParserException
 {
-    public function constructFromFqcn(string $methodName, string $classFqcn): self
+    public static function constructFromFqcn(string $methodName, string $classFqcn): self
     {
         return new self("Method '$methodName' not found in class '$classFqcn'.");
     }
