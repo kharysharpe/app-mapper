@@ -102,23 +102,9 @@ trait NodeTypeManagerTrait
 
     public static function resolveType(Node $node): TypeCollection
     {
-        $relevantInfo = [];
-        $loopNode = $node;
-        while ($loopNode->hasAttribute('parentNode')) {
-            $relevantInfo[] = get_class($loopNode) . ' => '
-                . (property_exists($loopNode, 'name')
-                    ? $loopNode->name
-                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
-                        ? $loopNode->var->name
-                        : 'no_name')
-                );
-            $loopNode = $loopNode->getAttribute('parentNode');
-        }
-
-        $message = 'Resolving type ' . TypeHelper::getType($node) . "\n"
-            . json_encode($relevantInfo, JSON_PRETTY_PRINT);
-
-        StaticLoggerFacade::debug($message);
+        StaticLoggerFacade::debug(
+            'Resolving type ' . TypeHelper::getType($node) . "\n" . self::resolveNodeTreeAsJson($node)
+        );
 
         $resolverCollection = $node->getAttribute(ResolverCollection::getName());
 
@@ -134,4 +120,28 @@ trait NodeTypeManagerTrait
 
         return $node->getAttribute(ResolverCollection::getName());
     }
+
+    public static function resolveNodeTreeAsJson(Node $node): string
+    {
+        return json_encode(self::resolveNodeTree($node), JSON_PRETTY_PRINT);
+    }
+
+    private static function resolveNodeTree(Node $node): array
+    {
+        $nodeTree = [];
+        $loopNode = $node;
+        while ($loopNode->hasAttribute('parentNode')) {
+            $nodeTree[] = get_class($loopNode) . ' => '
+                . (property_exists($loopNode, 'name')
+                    ? $loopNode->name
+                    : (property_exists($loopNode, 'var') && property_exists($loopNode->var, 'name')
+                        ? $loopNode->var->name
+                        : 'no_name')
+                );
+            $loopNode = $loopNode->getAttribute('parentNode');
+        }
+
+        return $nodeTree;
+    }
+
 }
