@@ -18,11 +18,13 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
+use PhpParser\Node\Stmt\Trait_;
 
 final class Type
 {
@@ -32,7 +34,7 @@ final class Type
     private $typeAsString;
 
     /**
-     * @var Class_|Interface_|null
+     * @var Class_|Interface_|Trait_|null
      */
     private $ast;
 
