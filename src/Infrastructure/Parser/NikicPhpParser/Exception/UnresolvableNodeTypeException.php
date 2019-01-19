@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperRuntimeException;
+use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use PhpParser\Node;
 
-final class UnresolvableNodeTypeException extends AppMapperRuntimeException
+final class UnresolvableNodeTypeException extends ParserException
 {
     public function __construct(Node $node)
     {

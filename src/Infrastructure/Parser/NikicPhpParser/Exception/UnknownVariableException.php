@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\PhpExtension\Exception\RuntimeException;
+use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 
-final class UnknownVariableException extends RuntimeException
+final class UnknownVariableException extends ParserException
 {
     public function __construct(string $variableName)
     {

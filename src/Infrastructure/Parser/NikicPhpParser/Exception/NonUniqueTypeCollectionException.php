@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use Hgraca\AppMapper\Core\SharedKernel\Exception\AppMapperLogicException;
+use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
 
-final class NonUniqueTypeCollectionException extends AppMapperLogicException
+final class NonUniqueTypeCollectionException extends ParserException
 {
     public function __construct(AbstractCollection $collection)
     {
