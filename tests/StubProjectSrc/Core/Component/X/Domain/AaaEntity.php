@@ -19,7 +19,7 @@ namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain;
 
 use DateTime;
 
-final class AaaEntity
+final class AaaEntity extends AaaEntityParent
 {
     use AaaTrait;
 
@@ -67,5 +67,10 @@ final class AaaEntity
         $aaa = new BbbEntity();
 
         return BbbEntity::namedConstructor();
+    }
+
+    public function testUnknownProperties(): void
+    {
+        $a = $this->unknownProperty;
     }
 }

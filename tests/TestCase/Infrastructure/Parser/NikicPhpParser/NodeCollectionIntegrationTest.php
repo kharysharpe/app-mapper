@@ -19,6 +19,7 @@ namespace Hgraca\AppMapper\Test\TestCase\Infrastructure\Parser\NikicPhpParser;
 
 use DateTime;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Test\Framework\AbstractIntegrationTest;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxBbbService;
@@ -627,6 +628,24 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         self::assertArrayHasKey(
             EventInterface::class,
             ReflectionHelper::getNestedProperty('stmts.0.valueVar.attributes.TypeCollection.itemList', $methodNode)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function unknown_property_fetch_should_have_type_unknown(): void
+    {
+        $methodNode = $this->getMethod('testUnknownProperties', AaaEntity::class);
+        self::assertArrayHasKey(
+            Type::UNKNOWN,
+            ReflectionHelper::getNestedProperty('stmts.0.expr.expr.attributes.TypeCollection.itemList', $methodNode)
+        );
+        self::assertArrayHasKey(
+            Type::UNKNOWN,
+            ReflectionHelper::getNestedProperty('stmts.0.expr.var.attributes.TypeCollection.itemList', $methodNode)
         );
     }
 

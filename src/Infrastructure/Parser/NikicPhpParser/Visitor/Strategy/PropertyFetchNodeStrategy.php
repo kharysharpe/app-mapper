@@ -17,9 +17,11 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownVariableException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ResolverCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
@@ -70,12 +72,11 @@ final class PropertyFetchNodeStrategy extends AbstractStrategy
                 $this->propertyCollector->getCollectedResolverCollection($this->getPropertyName($propertyFetch))
             );
         } catch (UnknownVariableException $e) {
-            StaticLoggerFacade::warning(
-                "Silently ignoring a UnknownVariableException.\n"
-                . "The property is not in the collector, so we can't add it to the PropertyFetch.\n"
-                . $e->getMessage(),
-                [__METHOD__]
-            );
+            $resolver = function () use ($propertyFetch) {
+                return new TypeCollection(Type::constructUnknownFromNode($propertyFetch));
+            };
+            self::addTypeResolverCollection($propertyFetch, new ResolverCollection($resolver));
+            $this->propertyCollector->collectResolver($this->getPropertyName($propertyFetch), $resolver);
         }
     }
 }
