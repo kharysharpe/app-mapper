@@ -28,6 +28,8 @@ use PhpParser\Node\Stmt\Trait_;
 
 final class Type
 {
+    public const UNKNOWN = 'Unknown';
+
     /**
      * @var string
      */
@@ -49,7 +51,7 @@ final class Type
 
     public static function constructUnknownFromNode(Node $node): self
     {
-        return new self('Unknown (' . get_class($node) . ')');
+        return new self(self::UNKNOWN, $node);
     }
 
     public static function constructVoid(): self
@@ -128,5 +130,10 @@ final class Type
     public function getNestedType(): self
     {
         return $this->nestedType;
+    }
+
+    public function getNodeTreeAsJson(): string
+    {
+        return $this->ast ? NodeTypeManagerTrait::resolveNodeTreeAsJson($this->ast) : '';
     }
 }
