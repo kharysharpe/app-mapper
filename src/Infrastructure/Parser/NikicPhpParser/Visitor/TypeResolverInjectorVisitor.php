@@ -31,6 +31,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\Prope
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\PropertyNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\StaticCallNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\TernaryNodeStrategy;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\TraitNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\UseUseNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\VariableNodeStrategy;
 use PhpParser\Node;
@@ -60,7 +61,8 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
             new StaticCallNodeStrategy(),
             new TernaryNodeStrategy(),
             new UseUseNodeStrategy(),
-            new VariableNodeStrategy($typeFactory, $variableCollector)
+            new VariableNodeStrategy($typeFactory, $variableCollector),
+            new TraitNodeStrategy($propertyCollector)
         );
     }
 

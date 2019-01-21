@@ -143,5 +143,4 @@ trait NodeTypeManagerTrait
 
         return $nodeTree;
     }
-
 }
