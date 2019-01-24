@@ -32,7 +32,7 @@ final class Type
     private $typeAsString;
 
     /**
-     * @var null|Class_|Interface_
+     * @var Class_|Interface_|null
      */
     private $ast;
 

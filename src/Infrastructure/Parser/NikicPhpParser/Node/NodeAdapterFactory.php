@@ -29,7 +29,7 @@ use PhpParser\Node\Stmt\ClassMethod;
 final class NodeAdapterFactory
 {
     /**
-     * @param null|string|Node $parserNode
+     * @param string|Node|null $parserNode
      */
     public static function constructFromNode($parserNode): AdapterNodeInterface
     {

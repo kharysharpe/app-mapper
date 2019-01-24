@@ -35,7 +35,7 @@ final class UnknownTypeNode implements TypeNodeInterface
     private $phpParserNodeType = '';
 
     /**
-     * @param null|string|Node $node
+     * @param string|Node|null $node
      */
     public function __construct($node = null)
     {
