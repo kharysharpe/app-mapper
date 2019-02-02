@@ -39,7 +39,7 @@ final class StaticCallNodeDecorator extends AbstractNodeDecorator
 
         /** @var Type $calleeType */
         foreach ($calleeTypeCollection as $calleeType) {
-            if (!$calleeType->hasAstMethod($this->getMethodName())) {
+            if (!$calleeType->hasMethod($this->getMethodName())) {
                 continue;
             }
 
@@ -63,8 +63,6 @@ final class StaticCallNodeDecorator extends AbstractNodeDecorator
 
     private function getReturnTypeCollection(Type $calleeType, string $methodName): TypeCollection
     {
-        return $this->getNodeDecorator(
-            $calleeType->getAstMethod($methodName)->returnType
-        )->getTypeCollection();
+        return $calleeType->getMethod($methodName)->getTypeCollection();
     }
 }

@@ -17,24 +17,15 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Stmt\Trait_;
 
 /**
  * @property Trait_ $node
  */
-final class TraitNodeDecorator extends AbstractNodeDecorator
+final class TraitNodeDecorator extends AbstractClassLikeNodeDecorator
 {
-    private $resolver;
-
     public function __construct(Trait_ $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
-        $this->resolver = new ClassLikeTypeCollectionResolver();
-    }
-
-    public function resolveTypeCollection(): TypeCollection
-    {
-        return $this->resolver->resolveTypeCollection($this->node);
     }
 }

@@ -34,6 +34,11 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     private static $appMap;
 
+    protected function setUp(): void
+    {
+        $this->createAppmap();
+    }
+
     /**
      * This needs to be run inside the test so it counts for coverage.
      * Nevertheless, it will only actually run once.
@@ -52,7 +57,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
 //     */
 //    public function event_type_is_inferred_correctly_when_injected_but_type_hinted_interface(): void
 //    {
-//        $this->createAppmap();
 //        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', BbbEvent::class);
 //    }
 //
@@ -61,7 +65,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
 //     */
 //    public function event_type_is_inferred_correctly_when_ternary_operator_is_used(): void
 //    {
-//        $this->createAppmap();
 //        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', CccEvent::class);
 //    }
 
@@ -70,7 +73,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_variable_is_used(): void
     {
-        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodD', DddEvent::class);
     }
 
@@ -79,7 +81,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_instantiation_is_used(): void
     {
-        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodE', EeeEvent::class);
     }
 
@@ -88,7 +89,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_injected_into_method(): void
     {
-        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodF', AaaEvent::class);
     }
 
@@ -97,7 +97,6 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
      */
     public function event_type_is_inferred_correctly_when_named_constructor(): void
     {
-        $this->createAppmap();
         $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodG', CccEvent::class);
     }
 

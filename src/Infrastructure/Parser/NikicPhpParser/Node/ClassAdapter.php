@@ -137,11 +137,11 @@ final class ClassAdapter implements ClassInterface
                 $interfaceTypeCollection = $interfaceNameNode->getAttribute(TypeCollection::getName());
                 $interfaceType = $interfaceTypeCollection->getUniqueType();
                 $implementedList[] = [
-                    $interfaceType->toString() => $interfaceType->hasAst() ? $interfaceType->getAst() : null,
+                    $interfaceType->toString() => $interfaceType->hasNode() ? $interfaceType->getNodeDecorator() : null,
                 ];
-                if ($interfaceType->hasAst()) {
+                if ($interfaceType->hasNode()) {
                     $implementedList[] = $this->findAllParentsFullyQualifiedNameListRecursively(
-                        $interfaceType->getAst()
+                        $interfaceType->getNodeDecorator()
                     );
                 }
             }
@@ -175,14 +175,14 @@ final class ClassAdapter implements ClassInterface
             $parentTypeCollection = $parentNameNode->getAttribute(TypeCollection::getName());
             $parentType = $parentTypeCollection->getUniqueType();
             $parentList[] = [
-                $parentType->toString() => $parentType->hasAst() ? $parentType->getAst() : null,
+                $parentType->toString() => $parentType->hasNode() ? $parentType->getNodeDecorator() : null,
             ];
 
-            if (!$parentType->hasAst()) {
+            if (!$parentType->hasNode()) {
                 continue;
             }
 
-            $parentAst = $parentType->getAst();
+            $parentAst = $parentType->getNodeDecorator();
             if ($node instanceof Class_ && !$parentAst instanceof Class_) {
                 throw new ParserException(
                     'A class can only be extend another class, the given parent is of type ' . get_class($parentAst)

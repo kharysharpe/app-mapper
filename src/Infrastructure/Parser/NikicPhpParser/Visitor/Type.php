@@ -17,14 +17,12 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\InterfaceNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\TraitNodeDecorator;
 use Hgraca\PhpExtension\String\ClassHelper;
-use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Trait_;
 
 final class Type
 {
@@ -36,25 +34,25 @@ final class Type
     private $typeAsString;
 
     /**
-     * @var Class_|Interface_|Trait_|null
+     * @var ClassNodeDecorator|TraitNodeDecorator|InterfaceNodeDecorator|null
      */
-    private $ast;
+    private $nodeDecorator;
 
     private $nestedType;
 
-    /**
-     * FIXME instead of using the AST node, we should use the decorator node
-     */
-    public function __construct(string $typeAsString, ?Node $ast = null, self $nestedType = null)
-    {
+    public function __construct(
+        string $typeAsString,
+        ?AbstractNodeDecorator $nodeDecorator = null,
+        self $nestedType = null
+    ) {
         $this->typeAsString = ltrim($typeAsString, '\\');
-        $this->ast = $ast;
+        $this->nodeDecorator = $nodeDecorator;
         $this->nestedType = $nestedType;
     }
 
     public static function constructUnknownFromNode(AbstractNodeDecorator $nodeDecorator): self
     {
-        return new self(self::UNKNOWN, $nodeDecorator->getInnerNode());
+        return new self(self::UNKNOWN, $nodeDecorator);
     }
 
     public static function constructVoid(): self
@@ -92,48 +90,26 @@ final class Type
         return $this->typeAsString;
     }
 
-    public function getAst(): ?Node
+    public function getNodeDecorator(): ?AbstractNodeDecorator
     {
-        return $this->ast;
+        return $this->nodeDecorator;
     }
 
-    public function hasAst(): bool
+    public function hasNode(): bool
     {
-        return $this->ast !== null;
+        return $this->nodeDecorator !== null;
     }
 
-    public function getAstMethod(string $methodName): ClassMethod
+    public function getMethod(string $methodName): ClassMethodNodeDecorator
     {
-        if ($this->ast) {
-            foreach ($this->ast->stmts as $stmt) {
-                if (
-                    $stmt instanceof ClassMethod
-                    && (string) $stmt->name === $methodName
-                ) {
-                    return $stmt;
-                }
-            }
-        }
-
-        throw MethodNotFoundInClassException::constructFromFqcn($methodName, $this->typeAsString);
+        return $this->nodeDecorator->getMethod($methodName);
     }
 
-    public function hasAstMethod(string $methodName): bool
+    public function hasMethod(string $methodName): bool
     {
-        if (!$this->ast) {
-            return false;
-        }
-
-        foreach ($this->ast->stmts as $stmt) {
-            if (
-                $stmt instanceof ClassMethod
-                && (string) $stmt->name === $methodName
-            ) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->hasNode()
+            ? $this->nodeDecorator->hasMethod($methodName)
+            : false;
     }
 
     public function isEqualTo(self $otherType): bool

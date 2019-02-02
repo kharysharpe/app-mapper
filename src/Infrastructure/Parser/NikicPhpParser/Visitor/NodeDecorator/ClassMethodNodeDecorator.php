@@ -32,7 +32,9 @@ final class ClassMethodNodeDecorator extends AbstractNodeDecorator implements Na
 
     public function resolveTypeCollection(): TypeCollection
     {
-        return new TypeCollection();
+        return $this->node->returnType
+            ? $this->getNodeDecorator($this->node->returnType)->getTypeCollection()
+            : new TypeCollection();
     }
 
     public function getName(): string

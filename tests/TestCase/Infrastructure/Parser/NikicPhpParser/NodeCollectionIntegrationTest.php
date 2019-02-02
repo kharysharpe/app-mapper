@@ -19,6 +19,7 @@ namespace Hgraca\AppMapper\Test\TestCase\Infrastructure\Parser\NikicPhpParser;
 
 use DateTime;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Test\Framework\AbstractIntegrationTest;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
@@ -242,7 +243,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         $methodXxxMethodNode = $this->getMethod('methodXxx', AaaEntity::class);
         self::assertNull(
             ReflectionHelper::getNestedProperty(
-                'returnType.attributes.decorator.typeCollection.itemList.void.ast',
+                'returnType.attributes.decorator.typeCollection.itemList.void.nodeDecorator',
                 $methodXxxMethodNode
             )
         );
@@ -255,9 +256,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
         $methodYyyMethodNode = $this->getMethod('methodYyy', AaaEntity::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'returnType.attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.ast',
+                'returnType.attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.nodeDecorator',
                 $methodYyyMethodNode
             )
         );
@@ -279,9 +280,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.ast',
+                'stmts.0.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.nodeDecorator',
                 $constructorMethodNode
             )
         );
@@ -294,9 +295,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
         $methodXxxMethodNode = $this->getMethod('methodXxx', AaaEntity::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.ast',
+                'stmts.0.expr.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.nodeDecorator',
                 $methodXxxMethodNode
             )
         );
@@ -318,9 +319,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $constructorBbbEntityParameter = $this->getMethodParameter('__construct', 'bbbEntity', AaaEntity::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.ast',
+                'attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.nodeDecorator',
                 $constructorBbbEntityParameter
             )
         );
@@ -372,9 +373,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     public function class_properties_have_type(): void
     {
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.ast',
+                'attributes.decorator.typeCollection.itemList.' . BbbEntity::class . '.nodeDecorator',
                 $this->getProperty('bbbEntity', AaaEntity::class)
             )
         );
@@ -387,7 +388,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
         self::assertNull(
             ReflectionHelper::getNestedProperty(
-                'attributes.decorator.typeCollection.itemList.DateTime.ast',
+                'attributes.decorator.typeCollection.itemList.DateTime.nodeDecorator',
                 $this->getProperty('createdAt', AaaEntity::class)
             )
         );
@@ -410,7 +411,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         $constructorMethodNode = $this->getMethod('__construct', AaaEntity::class);
         self::assertNull(
             ReflectionHelper::getNestedProperty(
-                'stmts.1.expr.expr.attributes.decorator.typeCollection.itemList.DateTime.ast',
+                'stmts.1.expr.expr.attributes.decorator.typeCollection.itemList.DateTime.nodeDecorator',
                 $constructorMethodNode
             )
         );
@@ -423,9 +424,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
         $methodXxxMethodNode = $this->getMethod('methodXxx', AaaEntity::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.ast',
+                'stmts.0.expr.expr.var.var.attributes.decorator.typeCollection.itemList.' . AaaEntity::class . '.nodeDecorator',
                 $methodXxxMethodNode
             )
         );
@@ -447,9 +448,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodD', XxxAaaService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.decorator.typeCollection.itemList.' . DddEvent::class . '.ast',
+                'stmts.1.expr.args.0.value.attributes.decorator.typeCollection.itemList.' . DddEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -471,9 +472,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodK', XxxAaaService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -495,9 +496,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodK', XxxAaaService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.1.expr.args.0.value.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.1.expr.args.0.value.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -519,9 +520,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodC', XxxBbbService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.var.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.0.expr.var.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -543,9 +544,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodC', XxxBbbService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.var.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.0.expr.var.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -567,9 +568,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodD', XxxBbbService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );
@@ -591,9 +592,9 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     {
         $methodNode = $this->getMethod('methodD', XxxBbbService::class);
         self::assertInstanceOf(
-            Class_::class,
+            ClassNodeDecorator::class,
             ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.ast',
+                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList.' . CccEvent::class . '.nodeDecorator',
                 $methodNode
             )
         );

@@ -85,7 +85,7 @@ class BuildAstFileCommand extends AbstractCommandStopwatchDecorator
         try {
             $this->io->title('GENERATING AST MAP');
             $this->io->text(
-                'Creating ast map from folder ' . $input->getArgument(self::ARG_ROOT_PATH)
+                'Creating nodeDecorator map from folder ' . $input->getArgument(self::ARG_ROOT_PATH)
                 . ' into file \'' . $input->getArgument(self::ARG_FILE_PATH) . '\' ...'
             );
             $this->astService->createAstFileFromFolder(

@@ -19,6 +19,9 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\MethodCallNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
@@ -36,13 +39,24 @@ final class NodeAdapterFactory
         if ($parserNode instanceof ClassMethod) { // this needs to be above the `Expr`
             return new MethodAdapter($parserNode);
         }
+        if ($parserNode instanceof ClassMethodNodeDecorator) { // this needs to be above the `Expr`
+            return new MethodAdapter($parserNode->getInnerNode());
+        }
 
         if ($parserNode instanceof MethodCall) {
             return new MethodCallAdapter($parserNode);
         }
 
+        if ($parserNode instanceof MethodCallNodeDecorator) {
+            return new MethodCallAdapter($parserNode->getInnerNode());
+        }
+
         if ($parserNode instanceof Class_) {
             return ClassAdapter::constructFromClassNode($parserNode);
+        }
+
+        if ($parserNode instanceof ClassNodeDecorator) {
+            return ClassAdapter::constructFromClassNode($parserNode->getInnerNode());
         }
 
         return new UnknownTypeNode($parserNode);
@@ -54,8 +68,8 @@ final class NodeAdapterFactory
 
         /** @var Type $type */
         foreach ($typeCollection as $type) {
-            $adapterNodeList[] = $type->hasAst()
-                ? self::constructFromNode($type->getAst())
+            $adapterNodeList[] = $type->hasNode()
+                ? self::constructFromNode($type->getNodeDecorator())
                 : new FullyQualifiedTypeNode((string) $type);
         }
 

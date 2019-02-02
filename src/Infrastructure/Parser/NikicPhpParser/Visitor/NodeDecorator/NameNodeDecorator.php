@@ -19,6 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDeco
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Name;
@@ -29,6 +30,8 @@ use PhpParser\Node\Name\FullyQualified;
  */
 final class NameNodeDecorator extends AbstractNodeDecorator
 {
+    use NodeDecoratorAccessorTrait;
+
     /**
      * @var NodeCollection
      */
@@ -49,7 +52,9 @@ final class NameNodeDecorator extends AbstractNodeDecorator
         }
 
         try {
-            return new TypeCollection(new Type($fqcn, $this->nodeCollection->getAstNode($fqcn)));
+            return new TypeCollection(
+                new Type($fqcn, $this->getNodeDecorator($this->nodeCollection->getAstNode($fqcn)))
+            );
         } catch (AstNodeNotFoundException $e) {
             return new TypeCollection(new Type($fqcn));
         }

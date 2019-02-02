@@ -19,6 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDeco
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\PhpExtension\String\StringHelper;
@@ -31,6 +32,8 @@ use PhpParser\Node\Stmt\Property;
  */
 final class PropertyNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
+    use NodeDecoratorAccessorTrait;
+
     /**
      * @var NodeCollection
      */
@@ -128,7 +131,7 @@ final class PropertyNodeDecorator extends AbstractNodeDecorator implements Named
         }
 
         try {
-            return new Type($string, $this->nodeCollection->getAstNode($string));
+            return new Type($string, $this->getNodeDecorator($this->nodeCollection->getAstNode($string)));
         } catch (AstNodeNotFoundException $e) {
             return new Type($string);
         }
