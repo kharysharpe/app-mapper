@@ -17,34 +17,20 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeFactory;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
-use Hgraca\PhpExtension\String\StringHelper;
-use Hgraca\PhpExtension\Type\TypeHelper;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Property;
-use PhpParser\Node\Stmt\Use_;
 
 final class PropertyNodeStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-    use VariableNameExtractorTrait;
-
-    /**
-     * @var TypeFactory
-     */
-    private $typeFactory;
+    use NodeDecoratorAccessorTrait;
 
     private $propertyCollector;
 
-    public function __construct(TypeFactory $typeFactory, TypeResolverCollector $propertyCollector)
+    public function __construct(TypeNodeCollector $propertyCollector)
     {
-        $this->typeFactory = $typeFactory;
         $this->propertyCollector = $propertyCollector;
     }
 
@@ -55,80 +41,14 @@ final class PropertyNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($property);
 
-        $resolver = function () use ($property): TypeCollection {
-            $typeCollection = new TypeCollection();
+        /** @var PropertyNodeDecorator $propertyDecorator */
+        $propertyDecorator = $this->getNodeDecorator($property);
 
-            foreach ($property->getAttribute('comments') ?? [] as $comment) {
-                foreach (StringHelper::extractFromBetween('@var ', "\n", $comment->getText()) as $typeList) {
-                    foreach (explode('|', $typeList) as $type) {
-                        if (TypeHelper::isNativeType($type)) {
-                            $typeCollection = $typeCollection->addType(new Type($type));
-                            continue;
-                        }
-
-                        $typeCollectionFromUses = $this->getTypeCollectionFromUses($property, $type);
-
-                        if (!$typeCollectionFromUses->isEmpty()) {
-                            $typeCollection = $typeCollection->addTypeCollection($typeCollectionFromUses);
-                            continue;
-                        }
-
-                        $typeCollection = $typeCollection->addType(
-                            $this->assumeIsInSameNamespace($property, $type)
-                        );
-                    }
-                }
-            }
-
-            return $typeCollection;
-        };
-
-        self::addTypeResolver($property, $resolver);
-        $this->propertyCollector->collectResolver($this->getPropertyName($property), $resolver);
+        $this->propertyCollector->collectNodeFor($propertyDecorator);
     }
 
     public static function getNodeTypeHandled(): string
     {
         return Property::class;
-    }
-
-    private function getTypeCollectionFromUses(Node $node, string $type): TypeCollection
-    {
-        $positionOfBrackets = mb_strpos($type, '[');
-        $arrayList = $positionOfBrackets ? mb_substr($type, $positionOfBrackets) : '';
-        $nestedType = rtrim($type, '[]');
-        $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($node, Namespace_::class);
-
-        foreach ($namespaceNode->stmts ?? [] as $use) {
-            if (!$use instanceof Use_) {
-                continue;
-            }
-
-            $useUse = $use->uses[0];
-            $useType = (string) $useUse->name;
-
-            if (
-                $nestedType === $useType
-                || $nestedType === (string) $useUse->alias
-                || StringHelper::hasEnding($nestedType, $useType)
-            ) {
-                if ($arrayList) {
-                    return new TypeCollection($this->typeFactory->buildTypeFromString($useType . $arrayList));
-                }
-
-                return self::getTypeCollectionFromNode($useUse);
-            }
-        }
-
-        return new TypeCollection();
-    }
-
-    private function assumeIsInSameNamespace(Property $property, string $type): Type
-    {
-        /** @var Namespace_ $namespaceNode */
-        $namespaceNode = ParentConnectorVisitor::getFirstParentNodeOfType($property, Namespace_::class);
-        $namespacedType = $namespaceNode->name . "\\$type";
-
-        return $this->typeFactory->buildTypeFromString($namespacedType);
     }
 }

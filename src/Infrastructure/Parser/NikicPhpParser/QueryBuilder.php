@@ -18,14 +18,14 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\MethodCallNodeDecorator;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
 
 final class QueryBuilder
 {
-    use NodeTypeManagerTrait;
+    use NodeDecoratorAccessorTrait;
 
     /** @var Query */
     private $currentQuery;
@@ -124,29 +124,17 @@ final class QueryBuilder
                 if (!$node instanceof MethodCall) {
                     return false;
                 }
-                $methodCall = $node;
-                try {
-                    $dispatcherTypeCollection = $this->getTypeCollectionFromNode($methodCall->var);
+                /** @var MethodCallNodeDecorator $methodCallDecorator */
+                $methodCallDecorator = $this->getNodeDecorator($node);
+                $calleeTypeCollection = $methodCallDecorator->getCallee()->getTypeCollection();
 
-                    foreach ($dispatcherTypeCollection as $type) {
-                        $dispatcherFqcn = (string) $type;
-                        $dispatcherMethodName = (string) $methodCall->name;
-
-                        if (
-                            preg_match($eventDispatcherTypeRegex, $dispatcherFqcn)
-                            && preg_match($eventDispatcherMethodRegex, $dispatcherMethodName)
-                        ) {
-                            return true;
-                        }
+                foreach ($calleeTypeCollection as $type) {
+                    if (
+                        preg_match($eventDispatcherMethodRegex, $methodCallDecorator->getMethodName())
+                        && preg_match($eventDispatcherTypeRegex, $type->getFqn())
+                    ) {
+                        return true;
                     }
-                } catch (UnresolvableNodeTypeException $e) {
-                    StaticLoggerFacade::warning(
-                        "Silently ignoring a UnresolvableNodeTypeException in this filter.\n"
-                        . "The type is not in the node so it can't pass the filter.\n"
-                        . "This should be fixed in the type addition visitors.\n"
-                        . $e->getMessage(),
-                        [__METHOD__]
-                    );
                 }
 
                 return false;

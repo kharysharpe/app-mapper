@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -42,6 +42,9 @@ final class Type
 
     private $nestedType;
 
+    /**
+     * FIXME instead of using the AST node, we should use the decorator node
+     */
     public function __construct(string $typeAsString, ?Node $ast = null, self $nestedType = null)
     {
         $this->typeAsString = ltrim($typeAsString, '\\');
@@ -49,14 +52,24 @@ final class Type
         $this->nestedType = $nestedType;
     }
 
-    public static function constructUnknownFromNode(Node $node): self
+    public static function constructUnknownFromNode(AbstractNodeDecorator $nodeDecorator): self
     {
-        return new self(self::UNKNOWN, $node);
+        return new self(self::UNKNOWN, $nodeDecorator->getInnerNode());
     }
 
     public static function constructVoid(): self
     {
         return new self('void');
+    }
+
+    public static function constructNull(): self
+    {
+        return new self('null');
+    }
+
+    public static function constructBool(): self
+    {
+        return new self('bool');
     }
 
     public static function getName(): string
@@ -91,12 +104,14 @@ final class Type
 
     public function getAstMethod(string $methodName): ClassMethod
     {
-        foreach ($this->ast->stmts as $stmt) {
-            if (
-                $stmt instanceof ClassMethod
-                && (string) $stmt->name === $methodName
-            ) {
-                return $stmt;
+        if ($this->ast) {
+            foreach ($this->ast->stmts as $stmt) {
+                if (
+                    $stmt instanceof ClassMethod
+                    && (string) $stmt->name === $methodName
+                ) {
+                    return $stmt;
+                }
             }
         }
 
@@ -105,6 +120,10 @@ final class Type
 
     public function hasAstMethod(string $methodName): bool
     {
+        if (!$this->ast) {
+            return false;
+        }
+
         foreach ($this->ast->stmts as $stmt) {
             if (
                 $stmt instanceof ClassMethod
@@ -130,10 +149,5 @@ final class Type
     public function getNestedType(): self
     {
         return $this->nestedType;
-    }
-
-    public function getNodeTreeAsJson(): string
-    {
-        return $this->ast ? NodeTypeManagerTrait::resolveNodeTreeAsJson($this->ast) : '';
     }
 }

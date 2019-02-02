@@ -17,32 +17,12 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\UseUse;
 
-final class UseUseNodeStrategy extends AbstractStrategy
+final class NullStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-
-    /**
-     * @param Node|UseUse $useUse
-     */
-    public function enterNode(Node $useUse): void
-    {
-        $this->validateNode($useUse);
-
-        self::addTypeResolver(
-            $useUse,
-            function () use ($useUse): TypeCollection {
-                return self::getTypeCollectionFromNode($useUse->name);
-            }
-        );
-    }
-
     public static function getNodeTypeHandled(): string
     {
-        return UseUse::class;
+        return Node::class;
     }
 }

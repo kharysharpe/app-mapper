@@ -17,28 +17,30 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ForeachNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyFetchNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\VariableNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
-use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Foreach_;
 
 final class ForeachNodeStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-    use VariableNameExtractorTrait;
+    use NodeDecoratorAccessorTrait;
 
+    /**
+     * @var TypeNodeCollector
+     */
     private $propertyCollector;
 
+    /**
+     * @var TypeNodeCollector
+     */
     private $variableCollector;
 
-    public function __construct(TypeResolverCollector $propertyCollector, TypeResolverCollector $variableCollector)
+    public function __construct(TypeNodeCollector $propertyCollector, TypeNodeCollector $variableCollector)
     {
         $this->propertyCollector = $propertyCollector;
         $this->variableCollector = $variableCollector;
@@ -47,12 +49,15 @@ final class ForeachNodeStrategy extends AbstractStrategy
     /**
      * @param Node|Foreach_ $foreachNode
      */
-    public function enterNode(Node $foreachNode): void
+    public function leaveNode(Node $foreachNode): void
     {
         $this->validateNode($foreachNode);
 
-        $this->assignTypeToForeachKey($foreachNode->keyVar);
-        $this->assignTypeToForeachVar($foreachNode->expr, $foreachNode->valueVar);
+        /** @var ForeachNodeDecorator $foreachNodeDecorator */
+        $foreachNodeDecorator = $this->getNodeDecorator($foreachNode);
+
+        $this->collectKeyVar($foreachNodeDecorator->getKeyVar());
+        $this->collect($foreachNodeDecorator->getValueVar());
     }
 
     public static function getNodeTypeHandled(): string
@@ -60,62 +65,23 @@ final class ForeachNodeStrategy extends AbstractStrategy
         return Foreach_::class;
     }
 
-    private function assignTypeToForeachKey(?Expr $keyVar): void
+    private function collectKeyVar(?AbstractNodeDecorator $keyVarDecorator): void
     {
-        if ($keyVar === null) {
+        if ($keyVarDecorator === null) {
             return;
         }
 
-        $resolver = function (): TypeCollection {
-            return new TypeCollection(new Type('string'), new Type('int'));
-        };
-
-        self::addTypeResolver($keyVar, $resolver);
-        if ($keyVar instanceof Variable) {
-            // Assignment to variable
-            $this->variableCollector->resetResolverCollection($this->getVariableName($keyVar), $resolver);
-        } elseif ($keyVar instanceof PropertyFetch) {
-            // Assignment to property
-            $this->propertyCollector->collectResolver($this->getPropertyName($keyVar), $resolver);
-        }
+        $this->collect($keyVarDecorator);
     }
 
-    private function assignTypeToForeachVar(Expr $expression, Expr $valueVar): void
+    private function collect(AbstractNodeDecorator $exprDecorator): void
     {
-        $resolver = function () use ($expression): TypeCollection {
-            try {
-                /** @var Type[] $typeCollection */
-                $typeCollection = self::resolveType($expression);
-
-                $nestedTypeCollection = new TypeCollection();
-                foreach ($typeCollection as $type) {
-                    if ($type->hasNestedType()) {
-                        $nestedTypeCollection = $nestedTypeCollection->addType($type->getNestedType());
-                    }
-                }
-
-                return $nestedTypeCollection;
-            } catch (UnresolvableNodeTypeException $e) {
-                StaticLoggerFacade::warning(
-                    "Silently ignoring a UnresolvableNodeTypeException in this filter.\n"
-                    . 'This is failing, at least, for nested method calls like'
-                    . '`$invoice->transactions->first()->getServicePro();`.' . "\n"
-                    . "This should be fixed in the type addition visitors.\n"
-                    . $e->getMessage(),
-                    [__METHOD__]
-                );
-
-                return new TypeCollection();
-            }
-        };
-
-        self::addTypeResolver($valueVar, $resolver);
-        if ($valueVar instanceof Variable) {
+        if ($exprDecorator instanceof VariableNodeDecorator) {
             // Assignment to variable
-            $this->variableCollector->resetResolverCollection($this->getVariableName($valueVar), $resolver);
-        } elseif ($valueVar instanceof PropertyFetch) {
+            $this->variableCollector->reassign($exprDecorator);
+        } elseif ($exprDecorator instanceof PropertyFetchNodeDecorator) {
             // Assignment to property
-            $this->propertyCollector->collectResolver($this->getPropertyName($valueVar), $resolver);
+            $this->propertyCollector->collectNodeFor($exprDecorator);
         }
     }
 }

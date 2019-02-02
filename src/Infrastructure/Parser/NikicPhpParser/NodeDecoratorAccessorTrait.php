@@ -15,19 +15,22 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
-use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
-use Hgraca\PhpExtension\Type\TypeHelper;
+use PhpParser\Node;
 
-final class NotImplementedException extends ParserException
+trait NodeDecoratorAccessorTrait
 {
-    public static function constructFromNode(AbstractNodeDecorator $nodeDecorator)
+    private static $DECORATOR_ATTRIBUTE = 'decorator';
+
+    protected function setNodeDecorator(Node $node, AbstractNodeDecorator $nodeDecorator): void
     {
-        return new self(
-            'Can\'t build Type from ' . TypeHelper::getType($nodeDecorator) . "\n"
-            . $nodeDecorator->resolveNodeTreeAsJson()
-        );
+        $node->setAttribute(self::$DECORATOR_ATTRIBUTE, $nodeDecorator);
+    }
+
+    protected function getNodeDecorator(Node $node): AbstractNodeDecorator
+    {
+        return $node->getAttribute(self::$DECORATOR_ATTRIBUTE);
     }
 }

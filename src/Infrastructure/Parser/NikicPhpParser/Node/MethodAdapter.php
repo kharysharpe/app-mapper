@@ -20,12 +20,12 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodParameterInterface;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use PhpParser\Node\Stmt\ClassMethod;
 
 final class MethodAdapter implements MethodInterface
 {
-    use NodeTypeManagerTrait;
+    use NodeDecoratorAccessorTrait;
 
     /**
      * @var ClassMethod
@@ -44,11 +44,9 @@ final class MethodAdapter implements MethodInterface
 
     public function getReturnTypeCollection(): AdapterNodeCollection
     {
-        $returnType = $this->classMethod->getReturnType();
+        $returnTypeDecorator = $this->getNodeDecorator($this->classMethod->getReturnType());
 
-        return NodeAdapterFactory::constructFromTypeCollection(
-            self::getTypeCollectionFromNode($returnType)
-        );
+        return NodeAdapterFactory::constructFromTypeCollection($returnTypeDecorator->getTypeCollection());
     }
 
     public function getParameter(int $index): MethodParameterInterface

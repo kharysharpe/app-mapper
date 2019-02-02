@@ -15,18 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
-use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 
-final class TypeResolverVisitor extends NodeVisitorAbstract
+final class DefaultNodeDecorator extends AbstractNodeDecorator
 {
-    use NodeDecoratorAccessorTrait;
-
-    public function enterNode(Node $node): void
+    public function resolveTypeCollection(): TypeCollection
     {
-        $this->getNodeDecorator($node)->getTypeCollection();
+        return new TypeCollection();
     }
 }

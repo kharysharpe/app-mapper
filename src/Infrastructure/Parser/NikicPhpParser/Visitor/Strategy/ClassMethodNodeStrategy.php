@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 
@@ -25,7 +25,7 @@ final class ClassMethodNodeStrategy extends AbstractStrategy
 {
     private $variableCollector;
 
-    public function __construct(TypeResolverCollector $variableCollector)
+    public function __construct(TypeNodeCollector $variableCollector)
     {
         $this->variableCollector = $variableCollector;
     }
@@ -37,7 +37,7 @@ final class ClassMethodNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($classMethod);
 
-        $this->variableCollector->resetCollectedResolvers();
+        $this->variableCollector->reset();
     }
 
     public static function getNodeTypeHandled(): string

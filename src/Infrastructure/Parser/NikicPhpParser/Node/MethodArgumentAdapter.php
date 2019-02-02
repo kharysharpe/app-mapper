@@ -21,7 +21,7 @@ use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\PhpExtension\Collection\Collection;
@@ -29,17 +29,15 @@ use PhpParser\Node\Arg;
 
 final class MethodArgumentAdapter extends Collection implements MethodArgumentInterface
 {
-    use NodeTypeManagerTrait;
+    use NodeDecoratorAccessorTrait;
 
     public function __construct(Arg $argument)
     {
-        $argumentValue = $argument->value;
+        $argumentValueDecorator = $this->getNodeDecorator($argument->value);
 
         try {
             $this->itemList = array_unique(
-                NodeAdapterFactory::constructFromTypeCollection(
-                    self::getTypeCollectionFromNode($argumentValue)
-                )->toArray()
+                NodeAdapterFactory::constructFromTypeCollection($argumentValueDecorator->getTypeCollection())->toArray()
             );
         } catch (UnresolvableNodeTypeException $e) {
             StaticLoggerFacade::warning(
@@ -50,7 +48,7 @@ final class MethodArgumentAdapter extends Collection implements MethodArgumentIn
             );
             $this->itemList =
                 NodeAdapterFactory::constructFromTypeCollection(
-                    new TypeCollection(Type::constructUnknownFromNode($argumentValue))
+                    new TypeCollection(Type::constructUnknownFromNode($argumentValueDecorator))
                 )->toArray();
         }
     }

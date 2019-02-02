@@ -18,13 +18,12 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use PhpParser\Node;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 
 final class UnresolvableNodeTypeException extends ParserException
 {
-    public function __construct(Node $node)
+    public function __construct(AbstractNodeDecorator $nodeDecorator)
     {
-        parent::__construct(NodeTypeManagerTrait::resolveNodeTreeAsJson($node));
+        parent::__construct($nodeDecorator->resolveNodeTreeAsJson());
     }
 }

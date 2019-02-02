@@ -15,18 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
-use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
-
-final class TypeResolverVisitor extends NodeVisitorAbstract
+interface NamedNodeDecoratorInterface
 {
-    use NodeDecoratorAccessorTrait;
-
-    public function enterNode(Node $node): void
-    {
-        $this->getNodeDecorator($node)->getTypeCollection();
-    }
+    public function getName(): string;
 }

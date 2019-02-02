@@ -15,8 +15,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\NullStrategy;
 use Hgraca\PhpExtension\Collection\Collection;
 use PhpParser\Node;
 use function get_class;
@@ -28,11 +29,9 @@ final class NodeVisitorStrategyCollection extends Collection
      */
     private $defaultNodeVisitorStrategy;
 
-    public function __construct(
-        NodeVisitorStrategyInterface $defaultNodeVisitorStrategy,
-        NodeVisitorStrategyInterface ...$nodeVisitorStrategyList
-    ) {
-        $this->defaultNodeVisitorStrategy = $defaultNodeVisitorStrategy;
+    public function __construct(NodeVisitorStrategyInterface ...$nodeVisitorStrategyList)
+    {
+        $this->defaultNodeVisitorStrategy = new NullStrategy();
         foreach ($nodeVisitorStrategyList as $nodeVisitorStrategy) {
             $this->itemList[$nodeVisitorStrategy::getNodeTypeHandled()] = $nodeVisitorStrategy;
         }

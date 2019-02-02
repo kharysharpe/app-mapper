@@ -25,9 +25,6 @@ use function array_key_exists;
 use function array_values;
 
 /**
- * FIXME make this collection immutable, and with a fluent interface
- *      This should fix the broken test, if not, its a good practise anyway
- *
  * @property Type[] $itemList
  */
 final class TypeCollection extends AbstractCollection

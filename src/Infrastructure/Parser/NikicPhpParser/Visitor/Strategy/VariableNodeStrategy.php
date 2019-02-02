@@ -17,32 +17,23 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownVariableException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeFactory;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\VariableNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
-use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Param;
 
 final class VariableNodeStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-    use VariableNameExtractorTrait;
+    use NodeDecoratorAccessorTrait;
 
     /**
-     * @var TypeFactory
+     * @var TypeNodeCollector
      */
-    private $typeFactory;
-
     private $variableCollector;
 
-    public function __construct(TypeFactory $typeFactory, TypeResolverCollector $variableCollector)
+    public function __construct(TypeNodeCollector $variableCollector)
     {
-        $this->typeFactory = $typeFactory;
         $this->variableCollector = $variableCollector;
     }
 
@@ -53,56 +44,28 @@ final class VariableNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($variableNode);
 
-        if ($variableNode->name === 'this') {
-            self::addTypeResolver(
-                $variableNode,
-                function () use ($variableNode): TypeCollection {
-                    return $this->typeFactory->buildTypeCollection($variableNode);
-                }
-            );
+        /** @var VariableNodeDecorator $variableNodeDecorator */
+        $variableNodeDecorator = $this->getNodeDecorator($variableNode);
+
+        if ($variableNodeDecorator->isParameterDeclaration()) {
+            $this->variableCollector->collectNodeFor($variableNodeDecorator);
 
             return;
         }
 
-        $parentNode = $variableNode->getAttribute('parentNode');
-
-        if ($parentNode instanceof Assign && $variableNode === $parentNode->var) {
-            return;
-        }
-
-        if ($parentNode instanceof Param) {
-            $resolver = function () use ($parentNode): TypeCollection {
-                return self::resolveType($parentNode);
-            };
-
-            self::addTypeResolver($variableNode, $resolver);
-            $this->variableCollector->collectResolver($this->getVariableName($variableNode), $resolver);
+        if ($variableNodeDecorator->isAssignee()) {
+            $this->variableCollector->collectNodeFor($variableNodeDecorator);
 
             return;
         }
 
-        $this->addCollectedVariableResolver($variableNode);
+        $variableNodeDecorator->addSiblingNodes(
+            ...$this->variableCollector->getNodesFor($variableNodeDecorator)
+        );
     }
 
     public static function getNodeTypeHandled(): string
     {
         return Variable::class;
-    }
-
-    private function addCollectedVariableResolver(Variable $variableNode): void
-    {
-        try {
-            self::addTypeResolverCollection(
-                $variableNode,
-                $this->variableCollector->getCollectedResolverCollection($this->getVariableName($variableNode))
-            );
-        } catch (UnknownVariableException $e) {
-            StaticLoggerFacade::warning(
-                "Silently ignoring a UnknownVariableException.\n"
-                . "The variable is not in the collector, so we can't add it to the PropertyFetch.\n"
-                . $e->getMessage(),
-                [__METHOD__]
-            );
-        }
     }
 }

@@ -21,10 +21,8 @@ use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
-use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
@@ -35,8 +33,6 @@ use function is_array;
 
 final class ClassAdapter implements ClassInterface
 {
-    use NodeTypeManagerTrait;
-
     /**
      * @var Class_
      */
@@ -63,14 +59,6 @@ final class ClassAdapter implements ClassInterface
         $self->class = $class;
 
         return $self;
-    }
-
-    public static function constructFromNew(New_ $newExpression): self
-    {
-        /** @var Class_ $class */
-        $class = self::getTypeCollectionFromNode($newExpression)->getAst();
-
-        return self::constructFromClassNode($class);
     }
 
     public function getFullyQualifiedType(): string

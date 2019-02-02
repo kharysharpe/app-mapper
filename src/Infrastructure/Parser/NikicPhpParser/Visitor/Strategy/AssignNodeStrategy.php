@@ -17,28 +17,24 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyFetchNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\VariableNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Expr\PropertyFetch;
-use PhpParser\Node\Expr\Variable;
 
 final class AssignNodeStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-    use VariableNameExtractorTrait;
+    use NodeDecoratorAccessorTrait;
 
-    private $propertyCollector;
+    private $propertyFetchCollector;
 
     private $variableCollector;
 
-    public function __construct(TypeResolverCollector $propertyCollector, TypeResolverCollector $variableCollector)
+    public function __construct(TypeNodeCollector $propertyFetchCollector, TypeNodeCollector $variableCollector)
     {
-        $this->propertyCollector = $propertyCollector;
+        $this->propertyFetchCollector = $propertyFetchCollector;
         $this->variableCollector = $variableCollector;
     }
 
@@ -49,33 +45,17 @@ final class AssignNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($assignNode);
 
-        $variable = $assignNode->var;
-        $expression = $assignNode->expr;
+        $variableDecorator = $this->getNodeDecorator($assignNode->var);
+        $expressionDecorator = $this->getNodeDecorator($assignNode->expr);
 
-        $resolver = function () use ($expression): TypeCollection {
-            try {
-                return self::resolveType($expression);
-            } catch (UnresolvableNodeTypeException $e) {
-                StaticLoggerFacade::warning(
-                    "Silently ignoring a UnresolvableNodeTypeException in this filter.\n"
-                    . 'This is failing, at least, for nested method calls like'
-                    . '`$invoice->transactions->first()->getServicePro();`.' . "\n"
-                    . "This should be fixed in the type addition visitors.\n"
-                    . $e->getMessage(),
-                    [__METHOD__]
-                );
+        $variableDecorator->addSiblingNodes($expressionDecorator);
 
-                return new TypeCollection();
-            }
-        };
-
-        self::addTypeResolver($variable, $resolver);
-        if ($variable instanceof Variable) {
-            // Assignment to variable
-            $this->variableCollector->resetResolverCollection($this->getVariableName($variable), $resolver);
-        } elseif ($variable instanceof PropertyFetch) {
+        if ($variableDecorator instanceof VariableNodeDecorator) {
+            // Assignment to variableDecorator
+            $this->variableCollector->reassign($variableDecorator);
+        } elseif ($variableDecorator instanceof PropertyFetchNodeDecorator) {
             // Assignment to property
-            $this->propertyCollector->collectResolver($this->getPropertyName($variable), $resolver);
+            $this->propertyFetchCollector->collectNodeFor($variableDecorator);
         }
     }
 

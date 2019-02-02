@@ -19,7 +19,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnitNotFoundInNamespaceException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\DecoratorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverInjectorVisitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverVisitor;
 use Hgraca\PhpExtension\String\JsonEncoder;
@@ -122,8 +122,8 @@ final class NodeCollection
     {
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameResolver(null, ['preserveOriginalNames' => true, 'replaceNodes' => false]));
-        $traverser->addVisitor(new ParentConnectorVisitor());
-        $traverser->addVisitor(new TypeResolverInjectorVisitor($this));
+        $traverser->addVisitor(new DecoratorVisitor($this));
+        $traverser->addVisitor(new TypeResolverInjectorVisitor());
         $traverser->traverse(array_values($this->nodeList));
     }
 

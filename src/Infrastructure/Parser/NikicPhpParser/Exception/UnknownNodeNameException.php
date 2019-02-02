@@ -15,15 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
+namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
-use PhpParser\Node;
+use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 
-interface NodeVisitorStrategyInterface
+final class UnknownNodeNameException extends ParserException
 {
-    public function enterNode(Node $node): void;
-
-    public function leaveNode(Node $node): void;
-
-    public static function getNodeTypeHandled(): string;
+    public function __construct(string $variableName)
+    {
+        parent::__construct("Unknown variable $variableName");
+    }
 }

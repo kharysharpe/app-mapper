@@ -18,16 +18,15 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use PhpParser\Node;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 
 final class CircularReferenceDetectedException extends ParserException
 {
-    public function __construct(Node $node, string $fqcn)
+    public function __construct(AbstractNodeDecorator $nodeDecorator)
     {
         parent::__construct(
-            "Circular reference detected when adding type '$fqcn' to collection in node:\n"
-            . NodeTypeManagerTrait::resolveNodeTreeAsJson($node)
+            "Circular reference detected:\n"
+            . $nodeDecorator->resolveNodeTreeAsJson()
         );
     }
 }

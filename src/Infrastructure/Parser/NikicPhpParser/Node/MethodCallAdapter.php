@@ -21,7 +21,8 @@ use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodCallInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ParentConnectorVisitor;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\MethodCallNodeDecorator;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Stmt\Class_;
@@ -29,6 +30,8 @@ use PhpParser\Node\Stmt\ClassMethod;
 
 final class MethodCallAdapter implements MethodCallInterface
 {
+    use NodeDecoratorAccessorTrait;
+
     /**
      * @var MethodCall
      */
@@ -86,8 +89,10 @@ final class MethodCallAdapter implements MethodCallInterface
     private function getEnclosingClass(): ClassInterface
     {
         if ($this->enclosingClass === null) {
+            /** @var MethodCallNodeDecorator $methodCallDecorator */
+            $methodCallDecorator = $this->getNodeDecorator($this->methodCall);
             /** @var Class_ $node */
-            $node = ParentConnectorVisitor::getFirstParentNodeOfType($this->methodCall, Class_::class);
+            $node = $methodCallDecorator->getEnclosingClassNode()->getInnerNode();
             $this->enclosingClass = ClassAdapter::constructFromClassNode($node);
         }
 
@@ -97,8 +102,10 @@ final class MethodCallAdapter implements MethodCallInterface
     private function getEnclosingMethod(): MethodInterface
     {
         if ($this->enclosingMethod === null) {
+            /** @var MethodCallNodeDecorator $methodCallDecorator */
+            $methodCallDecorator = $this->getNodeDecorator($this->methodCall);
             /** @var ClassMethod $node */
-            $node = ParentConnectorVisitor::getFirstParentNodeOfType($this->methodCall, ClassMethod::class);
+            $node = $methodCallDecorator->getEnclosingMethodNode()->getInnerNode();
             $this->enclosingMethod = new MethodAdapter($node);
         }
 

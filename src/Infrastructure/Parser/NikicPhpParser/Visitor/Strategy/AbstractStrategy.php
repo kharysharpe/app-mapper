@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\InvalidArgumentException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeVisitorStrategyInterface;
 use PhpParser\Node;
 use function get_class;
 

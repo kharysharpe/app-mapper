@@ -17,24 +17,19 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownVariableException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeTypeManagerTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\ResolverCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeResolverCollector;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyFetchNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
-use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\PropertyFetch;
 
 final class PropertyFetchNodeStrategy extends AbstractStrategy
 {
-    use NodeTypeManagerTrait;
-    use VariableNameExtractorTrait;
+    use NodeDecoratorAccessorTrait;
 
     private $propertyCollector;
 
-    public function __construct(TypeResolverCollector $propertyCollector)
+    public function __construct(TypeNodeCollector $propertyCollector)
     {
         $this->propertyCollector = $propertyCollector;
     }
@@ -46,37 +41,22 @@ final class PropertyFetchNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($propertyFetchNode);
 
-        $parentNode = $propertyFetchNode->getAttribute('parentNode');
+        /** @var PropertyFetchNodeDecorator $propertyFetchNodeDecorator */
+        $propertyFetchNodeDecorator = $this->getNodeDecorator($propertyFetchNode);
 
-        if ($parentNode instanceof Assign && $propertyFetchNode === $parentNode->var) {
+        if ($propertyFetchNodeDecorator->isAssignee()) {
+            $this->propertyCollector->collectNodeFor($propertyFetchNodeDecorator);
+
             return;
         }
 
-        $this->addCollectedPropertyFetchResolver($propertyFetchNode);
+        $propertyFetchNodeDecorator->addSiblingNodes(
+            ...$this->propertyCollector->getNodesFor($propertyFetchNodeDecorator)
+        );
     }
 
     public static function getNodeTypeHandled(): string
     {
         return PropertyFetch::class;
-    }
-
-    /**
-     * TODO We are only adding properties types in the class itself.
-     *      We should fix this by adding them also to the super classes.
-     */
-    private function addCollectedPropertyFetchResolver(PropertyFetch $propertyFetch): void
-    {
-        try {
-            self::addTypeResolverCollection(
-                $propertyFetch,
-                $this->propertyCollector->getCollectedResolverCollection($this->getPropertyName($propertyFetch))
-            );
-        } catch (UnknownVariableException $e) {
-            $resolver = function () use ($propertyFetch) {
-                return new TypeCollection(Type::constructUnknownFromNode($propertyFetch));
-            };
-            self::addTypeResolverCollection($propertyFetch, new ResolverCollection($resolver));
-            $this->propertyCollector->collectResolver($this->getPropertyName($propertyFetch), $resolver);
-        }
     }
 }

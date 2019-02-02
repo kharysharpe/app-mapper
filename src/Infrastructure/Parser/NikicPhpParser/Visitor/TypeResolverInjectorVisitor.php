@@ -17,22 +17,13 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\AssignNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\ClassMethodNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\ClassNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\CoalesceNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\ForeachNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\MethodCallNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\NodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\NodeVisitorStrategyCollection;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\NullableNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\PropertyFetchNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\PropertyNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\StaticCallNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\TernaryNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\TraitNodeStrategy;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\UseUseNodeStrategy;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy\VariableNodeStrategy;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
@@ -41,28 +32,20 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
 {
     private $strategyCollection;
 
-    public function __construct(NodeCollection $astCollection)
+    public function __construct()
     {
-        $typeFactory = new TypeFactory($astCollection);
-        $propertyCollector = new TypeResolverCollector();
-        $variableCollector = new TypeResolverCollector();
+        $propertyFetchCollector = new TypeNodeCollector();
+        $variableCollector = new TypeNodeCollector();
 
         $this->strategyCollection = new NodeVisitorStrategyCollection(
-            new NodeStrategy($typeFactory),
-            new AssignNodeStrategy($propertyCollector, $variableCollector),
+            new AssignNodeStrategy($propertyFetchCollector, $variableCollector),
             new ClassMethodNodeStrategy($variableCollector),
-            new ClassNodeStrategy($propertyCollector),
-            new CoalesceNodeStrategy($typeFactory),
-            new ForeachNodeStrategy($propertyCollector, $variableCollector),
-            new MethodCallNodeStrategy(),
-            new NullableNodeStrategy($typeFactory),
-            new PropertyFetchNodeStrategy($propertyCollector),
-            new PropertyNodeStrategy($typeFactory, $propertyCollector),
-            new StaticCallNodeStrategy(),
-            new TernaryNodeStrategy(),
-            new UseUseNodeStrategy(),
-            new VariableNodeStrategy($typeFactory, $variableCollector),
-            new TraitNodeStrategy($propertyCollector)
+            new ClassNodeStrategy($propertyFetchCollector),
+            new ForeachNodeStrategy($propertyFetchCollector, $variableCollector),
+            new PropertyFetchNodeStrategy($propertyFetchCollector),
+            new PropertyNodeStrategy($propertyFetchCollector),
+            new TraitNodeStrategy($propertyFetchCollector),
+            new VariableNodeStrategy($variableCollector)
         );
     }
 

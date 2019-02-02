@@ -18,11 +18,16 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 
-final class UnknownVariableException extends ParserException
+final class ParentNodeNotFoundException extends ParserException
 {
-    public function __construct(string $variableName)
+    public function __construct(string $type, AbstractNodeDecorator $nodeDecorator)
     {
-        parent::__construct("Unknown variable $variableName");
+        $class = get_class($nodeDecorator);
+        $msg = "Could not find node of type '$type' as parent of '$class': \n"
+            . $nodeDecorator->resolveNodeTreeAsJson();
+
+        parent::__construct($msg);
     }
 }

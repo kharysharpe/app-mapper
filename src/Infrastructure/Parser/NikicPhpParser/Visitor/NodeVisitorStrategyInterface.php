@@ -17,16 +17,13 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use PhpParser\Node;
-use PhpParser\NodeVisitorAbstract;
 
-final class TypeResolverVisitor extends NodeVisitorAbstract
+interface NodeVisitorStrategyInterface
 {
-    use NodeDecoratorAccessorTrait;
+    public function enterNode(Node $node): void;
 
-    public function enterNode(Node $node): void
-    {
-        $this->getNodeDecorator($node)->getTypeCollection();
-    }
+    public function leaveNode(Node $node): void;
+
+    public static function getNodeTypeHandled(): string;
 }
