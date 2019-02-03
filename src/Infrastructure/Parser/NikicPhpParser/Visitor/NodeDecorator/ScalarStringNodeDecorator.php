@@ -24,7 +24,7 @@ use PhpParser\Node\Scalar\String_;
 /**
  * @property String_ $node
  */
-final class StringNodeDecorator extends AbstractNodeDecorator
+final class ScalarStringNodeDecorator extends AbstractNodeDecorator
 {
     public function __construct(String_ $node, AbstractNodeDecorator $parentNode)
     {

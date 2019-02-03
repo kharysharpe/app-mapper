@@ -70,7 +70,13 @@ class DecoratorVisitor extends NodeVisitorAbstract
         $parent = !empty($this->stack) ? $this->stack[count($this->stack) - 1] : null;
 
         $decoratorClassName = $this->getDecoratorNamespace() . $this->getDecoratorCanonicalName($node);
+        if (class_exists($decoratorClassName)) {
+            return new $decoratorClassName($node, $parent, $this->nodeCollection);
+        }
 
+        $decoratorClassName = $this->getDecoratorNamespace() . $this->getDecoratorCanonicalNameIncludingLeafNamespace(
+                $node
+            );
         if (class_exists($decoratorClassName)) {
             return new $decoratorClassName($node, $parent, $this->nodeCollection);
         }
@@ -89,5 +95,13 @@ class DecoratorVisitor extends NodeVisitorAbstract
     private function getDecoratorCanonicalName(Node $node): string
     {
         return rtrim(ClassHelper::extractCanonicalClassName(get_class($node)), '_') . 'NodeDecorator';
+    }
+
+    private function getDecoratorCanonicalNameIncludingLeafNamespace(Node $node): string
+    {
+        $explodedNamespace = explode('\\', get_class($node));
+        $leafNamespace = $explodedNamespace[count($explodedNamespace) - 2];
+
+        return $leafNamespace . $this->getDecoratorCanonicalName($node);
     }
 }
