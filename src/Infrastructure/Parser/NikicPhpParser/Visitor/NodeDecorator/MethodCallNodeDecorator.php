@@ -37,7 +37,6 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator
     public function resolveTypeCollection(): TypeCollection
     {
         $calleeTypeCollection = $this->getCallee()->getTypeCollection();
-        $methodName = $this->getMethodName();
 
         $typeCollection = new TypeCollection();
         $countTypesWithoutMethod = 0;
@@ -49,9 +48,7 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator
             }
 
             try {
-                $typeCollection = $typeCollection->addTypeCollection(
-                    $this->getReturnTypeCollection($calleeType, $methodName)
-                );
+                $typeCollection = $typeCollection->addTypeCollection($this->getReturnTypeCollection($calleeType));
             } catch (UnresolvableNodeTypeException $e) {
                 StaticLoggerFacade::warning(
                     "Silently ignoring a UnresolvableNodeTypeException.\n"
@@ -76,7 +73,7 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator
 //            throw MethodNotFoundInClassException::constructFromCollection($methodName, $calleeTypeCollection);
             StaticLoggerFacade::warning(
                 "Silently ignoring a MethodNotFoundInClassException.\n"
-                . "Method '$methodName' not found in any of the classes '{$calleeTypeCollection->implodeKeys(', ')}'. "
+                . "Method '{$this->getMethodName()}' not found in any of the classes '{$calleeTypeCollection->implodeKeys(', ')}'. "
                 . 'It should have been found in at least one.',
                 [__METHOD__]
             );
@@ -113,8 +110,8 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator
         return (int) $this->node->getAttribute('startLine');
     }
 
-    private function getReturnTypeCollection(Type $calleeType, string $methodName): TypeCollection
+    private function getReturnTypeCollection(Type $calleeType): TypeCollection
     {
-        return $calleeType->getMethod($methodName)->getTypeCollection();
+        return $calleeType->getMethod($this->getMethodName())->getTypeCollection();
     }
 }
