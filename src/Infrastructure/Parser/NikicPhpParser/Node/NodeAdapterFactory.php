@@ -19,57 +19,50 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\MethodCallNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
-use PhpParser\Node\Expr\MethodCall;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
 
 final class NodeAdapterFactory
 {
+    use NodeDecoratorAccessorTrait;
+
     /**
-     * @param string|Node|null $parserNode
+     * @param string|Node|null $node
      */
-    public static function constructFromNode($parserNode): AdapterNodeInterface
+    public function constructFromNode($node): AdapterNodeInterface
     {
-        if ($parserNode instanceof ClassMethod) { // this needs to be above the `Expr`
-            return new MethodAdapter($parserNode);
-        }
-        if ($parserNode instanceof ClassMethodNodeDecorator) { // this needs to be above the `Expr`
-            return new MethodAdapter($parserNode->getInnerNode());
+        $nodeDecorator = $node instanceof Node
+            ? $this->getNodeDecorator($node)
+            : $node;
+
+        if ($nodeDecorator instanceof ClassMethodNodeDecorator) { // this needs to be above the `Expr`
+            return new MethodAdapter($nodeDecorator);
         }
 
-        if ($parserNode instanceof MethodCall) {
-            return new MethodCallAdapter($parserNode);
+        if ($nodeDecorator instanceof MethodCallNodeDecorator) {
+            return new MethodCallAdapter($nodeDecorator);
         }
 
-        if ($parserNode instanceof MethodCallNodeDecorator) {
-            return new MethodCallAdapter($parserNode->getInnerNode());
+        if ($nodeDecorator instanceof ClassNodeDecorator) {
+            return ClassAdapter::constructFromClassNode($nodeDecorator);
         }
 
-        if ($parserNode instanceof Class_) {
-            return ClassAdapter::constructFromClassNode($parserNode);
-        }
-
-        if ($parserNode instanceof ClassNodeDecorator) {
-            return ClassAdapter::constructFromClassNode($parserNode->getInnerNode());
-        }
-
-        return new UnknownTypeNode($parserNode);
+        return new UnknownTypeNode($nodeDecorator);
     }
 
-    public static function constructFromTypeCollection(TypeCollection $typeCollection): AdapterNodeCollection
+    public function constructFromTypeCollection(TypeCollection $typeCollection): AdapterNodeCollection
     {
         $adapterNodeList = [];
 
         /** @var Type $type */
         foreach ($typeCollection as $type) {
             $adapterNodeList[] = $type->hasNode()
-                ? self::constructFromNode($type->getNodeDecorator())
+                ? $this->constructFromNode($type->getNodeDecorator())
                 : new FullyQualifiedTypeNode((string) $type);
         }
 

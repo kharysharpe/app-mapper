@@ -33,4 +33,23 @@ final class ClassNodeDecorator extends AbstractClassLikeNodeDecorator implements
     {
         return (string) $this->node->name;
     }
+
+    public function getParentName(): NameNodeDecorator
+    {
+        return $this->getNodeDecorator($this->node->extends);
+    }
+
+    /**
+     * @return NameNodeDecorator[]
+     */
+    public function getInterfaces(): array
+    {
+        $interfaceList = [];
+
+        foreach ($this->node->implements as $interface) {
+            $interfaceList[] = $this->getNodeDecorator($interface);
+        }
+
+        return $interfaceList;
+    }
 }

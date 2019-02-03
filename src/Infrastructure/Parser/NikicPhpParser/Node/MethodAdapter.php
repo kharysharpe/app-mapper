@@ -21,37 +21,41 @@ use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodParameterInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
-use PhpParser\Node\Stmt\ClassMethod;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
 
 final class MethodAdapter implements MethodInterface
 {
     use NodeDecoratorAccessorTrait;
 
     /**
-     * @var ClassMethod
+     * @var ClassMethodNodeDecorator
      */
     private $classMethod;
 
-    public function __construct(ClassMethod $classMethod)
+    /**
+     * @var NodeAdapterFactory
+     */
+    private $nodeAdapterFactory;
+
+    public function __construct(ClassMethodNodeDecorator $classMethod)
     {
         $this->classMethod = $classMethod;
+        $this->nodeAdapterFactory = new NodeAdapterFactory();
     }
 
     public function getCanonicalName(): string
     {
-        return $this->classMethod->name->toString();
+        return $this->classMethod->getName();
     }
 
     public function getReturnTypeCollection(): AdapterNodeCollection
     {
-        $returnTypeDecorator = $this->getNodeDecorator($this->classMethod->getReturnType());
-
-        return NodeAdapterFactory::constructFromTypeCollection($returnTypeDecorator->getTypeCollection());
+        return $this->nodeAdapterFactory->constructFromTypeCollection($this->classMethod->getReturnTypeCollection());
     }
 
     public function getParameter(int $index): MethodParameterInterface
     {
-        return new MethodParameterAdapter($this->classMethod->params[$index]);
+        return new MethodParameterAdapter($this->classMethod->getParameter($index));
     }
 
     public function isConstructor(): bool

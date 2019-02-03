@@ -20,12 +20,10 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Interface_;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\InterfaceNodeDecorator;
+use Hgraca\PhpExtension\String\ClassHelper;
 use function array_keys;
 use function array_merge;
 use function get_class;
@@ -34,17 +32,17 @@ use function is_array;
 final class ClassAdapter implements ClassInterface
 {
     /**
-     * @var Class_
+     * @var ClassNodeDecorator
      */
-    private $class;
+    private $classNodeDecorator;
 
     /**
-     * @var Class_[]|null[]
+     * @var ClassNodeDecorator[]|null[]
      */
     private $parentList;
 
     /**
-     * @var Interface_[]|null[]
+     * @var InterfaceNodeDecorator[]|null[]
      */
     private $implementedList;
 
@@ -52,37 +50,28 @@ final class ClassAdapter implements ClassInterface
     {
     }
 
-    public static function constructFromClassNode(Class_ $class): self
+    public static function constructFromClassNode(ClassNodeDecorator $classNodeDecorator): self
     {
         $self = new self();
 
-        $self->class = $class;
+        $self->classNodeDecorator = $classNodeDecorator;
 
         return $self;
     }
 
     public function getFullyQualifiedType(): string
     {
-        return ltrim($this->class->namespacedName->toCodeString(), '\\');
+        return $this->classNodeDecorator->getTypeCollection()->getUniqueType()->getFqn();
     }
 
     public function getCanonicalType(): string
     {
-        return $this->class->name->toString();
+        return ClassHelper::extractCanonicalClassName($this->getFullyQualifiedType());
     }
 
     public function getMethod(string $methodName): MethodInterface
     {
-        foreach ($this->class->stmts as $stmt) {
-            if (
-                $stmt instanceof ClassMethod
-                && $stmt->name->toString() === $methodName
-            ) {
-                return new MethodAdapter($stmt);
-            }
-        }
-
-        throw MethodNotFoundInClassException::constructFromFqcn($methodName, $this->getFullyQualifiedType());
+        return new MethodAdapter($this->classNodeDecorator->getMethod($methodName));
     }
 
     /**
@@ -91,10 +80,8 @@ final class ClassAdapter implements ClassInterface
     public function getMethodList(): array
     {
         $methodList = [];
-        foreach ($this->class->stmts as $stmt) {
-            if ($stmt instanceof ClassMethod) {
-                $methodList[] = new MethodAdapter($stmt);
-            }
+        foreach ($this->classNodeDecorator->getMethods() as $methodNodeDecorator) {
+            $methodList[] = new MethodAdapter($methodNodeDecorator);
         }
 
         return $methodList;
@@ -108,7 +95,7 @@ final class ClassAdapter implements ClassInterface
         return array_keys(
             array_merge(
                 $this->getAllParentsFullyQualifiedNameList(),
-                $this->getAllInterfacesFullyQualifiedNameList($this->class),
+                $this->getAllInterfacesFullyQualifiedNameList($this->classNodeDecorator),
                 $this->getAllParentsInterfacesFullyQualifiedNameList()
             )
         );
@@ -122,20 +109,18 @@ final class ClassAdapter implements ClassInterface
     private function getAllParentsFullyQualifiedNameList(): array
     {
         if ($this->parentList === null) {
-            $this->parentList = $this->findAllParentsFullyQualifiedNameListRecursively($this->class);
+            $this->parentList = $this->findAllParentsFullyQualifiedNameListRecursively($this->classNodeDecorator);
         }
 
         return $this->parentList;
     }
 
-    private function getAllInterfacesFullyQualifiedNameList(Class_ $class): array
+    private function getAllInterfacesFullyQualifiedNameList(ClassNodeDecorator $classNodeDecorator): array
     {
         if ($this->implementedList === null) {
             $implementedList = [];
-            foreach ($class->implements as $interfaceNameNode) {
-                /** @var TypeCollection $interfaceTypeCollection */
-                $interfaceTypeCollection = $interfaceNameNode->getAttribute(TypeCollection::getName());
-                $interfaceType = $interfaceTypeCollection->getUniqueType();
+            foreach ($classNodeDecorator->getInterfaces() as $interfaceNameNodeDecorator) {
+                $interfaceType = $interfaceNameNodeDecorator->getTypeCollection()->getUniqueType();
                 $implementedList[] = [
                     $interfaceType->toString() => $interfaceType->hasNode() ? $interfaceType->getNodeDecorator() : null,
                 ];
@@ -154,26 +139,24 @@ final class ClassAdapter implements ClassInterface
     }
 
     /**
-     * @return string[]
+     * @return AbstractNodeDecorator[]
      */
-    private function findAllParentsFullyQualifiedNameListRecursively(Node $node): array
+    private function findAllParentsFullyQualifiedNameListRecursively(AbstractNodeDecorator $nodeDecorator): array
     {
-        if (!$node instanceof Class_ && !$node instanceof Interface_) {
+        if (!$nodeDecorator instanceof ClassNodeDecorator && !$nodeDecorator instanceof InterfaceNodeDecorator) {
             throw new ParserException(
-                'Only classes and interfaces can have parents, the given node is of type ' . get_class($node)
+                'Only classes and interfaces can have parents, the given node is of type ' . get_class($nodeDecorator)
             );
         }
 
-        $parentNameNodeList = $node->extends;
+        $parentNameNodeList = $nodeDecorator->getParentName();
         if (!is_array($parentNameNodeList)) {
             $parentNameNodeList = [$parentNameNodeList];
         }
 
         $parentList = [];
         foreach ($parentNameNodeList as $parentNameNode) {
-            /** @var TypeCollection $parentTypeCollection */
-            $parentTypeCollection = $parentNameNode->getAttribute(TypeCollection::getName());
-            $parentType = $parentTypeCollection->getUniqueType();
+            $parentType = $parentNameNode->getTypeCollection()->getUniqueType();
             $parentList[] = [
                 $parentType->toString() => $parentType->hasNode() ? $parentType->getNodeDecorator() : null,
             ];
@@ -182,21 +165,28 @@ final class ClassAdapter implements ClassInterface
                 continue;
             }
 
-            $parentAst = $parentType->getNodeDecorator();
-            if ($node instanceof Class_ && !$parentAst instanceof Class_) {
+            $parentNodeDecorator = $parentType->getNodeDecorator();
+            if (
+                $nodeDecorator instanceof ClassNodeDecorator
+                && !$parentNodeDecorator instanceof ClassNodeDecorator
+            ) {
                 throw new ParserException(
-                    'A class can only be extend another class, the given parent is of type ' . get_class($parentAst)
+                    'A class can only be extend another class, the given parent is of type '
+                    . get_class($parentNodeDecorator)
                 );
             }
-            if ($node instanceof Interface_ && !$parentAst instanceof Interface_) {
+            if (
+                $nodeDecorator instanceof InterfaceNodeDecorator
+                && !$parentNodeDecorator instanceof InterfaceNodeDecorator
+            ) {
                 throw new ParserException(
                     'A interface can only be extend another interface, the given parent is of type ' . get_class(
-                        $parentAst
+                        $parentNodeDecorator
                     )
                 );
             }
 
-            $parentList[] = $this->findAllParentsFullyQualifiedNameListRecursively($parentAst);
+            $parentList[] = $this->findAllParentsFullyQualifiedNameListRecursively($parentNodeDecorator);
         }
 
         return !empty($parentList) ? array_merge(...$parentList) : [];

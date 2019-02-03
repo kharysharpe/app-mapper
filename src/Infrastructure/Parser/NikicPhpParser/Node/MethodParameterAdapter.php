@@ -20,28 +20,29 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodParameterInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\TypeNodeInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NotImplementedException;
-use PhpParser\Node\Param;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ParamNodeDecorator;
+use Hgraca\PhpExtension\String\ClassHelper;
 
 final class MethodParameterAdapter implements TypeNodeInterface, MethodParameterInterface
 {
     /**
-     * @var TypeNameAdapter
+     * @var ParamNodeDecorator
      */
-    private $parameterType;
+    private $parameterNodeDecorator;
 
-    public function __construct(Param $parameter)
+    public function __construct(ParamNodeDecorator $parameterNodeDecorator)
     {
-        $this->parameterType = new TypeNameAdapter($parameter->type);
+        $this->parameterNodeDecorator = $parameterNodeDecorator;
     }
 
     public function getFullyQualifiedType(): string
     {
-        return $this->parameterType->getFullyQualifiedType();
+        return $this->parameterNodeDecorator->getType()->getTypeCollection()->getUniqueType()->getFqn();
     }
 
     public function getCanonicalType(): string
     {
-        return $this->parameterType->getCanonicalType();
+        return ClassHelper::extractCanonicalClassName($this->getFullyQualifiedType());
     }
 
     public function getAllFamilyFullyQualifiedNameList(): array

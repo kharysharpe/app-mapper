@@ -95,6 +95,24 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator
         return (string) $this->node->name;
     }
 
+    /**
+     * @return ArgNodeDecorator[]
+     */
+    public function getArguments(): array
+    {
+        $argumentList = [];
+        foreach ($this->node->args as $arg) {
+            $argumentList[] = $this->getNodeDecorator($arg);
+        }
+
+        return $argumentList;
+    }
+
+    public function getLine(): int
+    {
+        return (int) $this->node->getAttribute('startLine');
+    }
+
     private function getReturnTypeCollection(Type $calleeType, string $methodName): TypeCollection
     {
         return $calleeType->getMethod($methodName)->getTypeCollection();

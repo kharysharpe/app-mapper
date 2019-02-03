@@ -18,36 +18,25 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
-use PhpParser\Node\Param;
+use PhpParser\Node\Arg;
 
 /**
- * @property Param $node
+ * @property Arg $node
  */
-final class ParamNodeDecorator extends AbstractNodeDecorator
+final class ArgNodeDecorator extends AbstractNodeDecorator
 {
-    public function __construct(Param $node, AbstractNodeDecorator $parentNode)
+    public function __construct(Arg $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
     }
 
-    public function resolveTypeCollection(): TypeCollection
+    public function getValue(): AbstractNodeDecorator
     {
-        return $this->getType()
-            ->getTypeCollection()
-            ->addTypeCollection(
-                $this->getDefaultValueTypeCollection()
-            );
+        return $this->getNodeDecorator($this->node->value);
     }
 
-    public function getType(): AbstractNodeDecorator
+    protected function resolveTypeCollection(): TypeCollection
     {
-        return $this->getNodeDecorator($this->node->type);
-    }
-
-    private function getDefaultValueTypeCollection(): TypeCollection
-    {
-        return $this->node->default
-            ? $this->getNodeDecorator($this->node->default)->getTypeCollection()
-            : new TypeCollection();
+        return $this->getValue()->getTypeCollection();
     }
 }

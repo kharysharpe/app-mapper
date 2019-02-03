@@ -41,4 +41,19 @@ final class ClassMethodNodeDecorator extends AbstractNodeDecorator implements Na
     {
         return (string) $this->node->name;
     }
+
+    public function getReturnTypeCollection(): TypeCollection
+    {
+        return $this->getTypeCollection();
+    }
+
+    public function getParameter(int $index): ParamNodeDecorator
+    {
+        return $this->getNodeDecorator($this->node->params[$index]);
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->node->isPublic();
+    }
 }

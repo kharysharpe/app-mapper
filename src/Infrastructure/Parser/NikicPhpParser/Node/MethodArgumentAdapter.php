@@ -17,40 +17,24 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node;
 
-use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodArgumentInterface;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ArgNodeDecorator;
 use Hgraca\PhpExtension\Collection\Collection;
-use PhpParser\Node\Arg;
 
 final class MethodArgumentAdapter extends Collection implements MethodArgumentInterface
 {
     use NodeDecoratorAccessorTrait;
 
-    public function __construct(Arg $argument)
+    public function __construct(ArgNodeDecorator $argNodeDecorator)
     {
-        $argumentValueDecorator = $this->getNodeDecorator($argument->value);
+        $nodeAdapterFactory = new NodeAdapterFactory();
+        $argumentValueDecorator = $argNodeDecorator->getValue();
 
-        try {
-            $this->itemList = array_unique(
-                NodeAdapterFactory::constructFromTypeCollection($argumentValueDecorator->getTypeCollection())->toArray()
-            );
-        } catch (UnresolvableNodeTypeException $e) {
-            StaticLoggerFacade::warning(
-                "Silently ignoring a UnresolvableNodeTypeException in this adapter.\n"
-                . "This should be fixed in the type addition visitors.\n"
-                . $e->getMessage(),
-                [__METHOD__]
-            );
-            $this->itemList =
-                NodeAdapterFactory::constructFromTypeCollection(
-                    new TypeCollection(Type::constructUnknownFromNode($argumentValueDecorator))
-                )->toArray();
-        }
+        $this->itemList = $nodeAdapterFactory
+            ->constructFromTypeCollection($argumentValueDecorator->getTypeCollection())
+            ->toArray();
     }
 
     /**

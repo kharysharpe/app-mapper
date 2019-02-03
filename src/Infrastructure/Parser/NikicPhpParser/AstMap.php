@@ -49,8 +49,14 @@ final class AstMap implements AstMapInterface
      */
     private $hasTypeInformation = false;
 
+    /**
+     * @var NodeAdapterFactory
+     */
+    private $nodeAdapterFactory;
+
     private function __construct()
     {
+        $this->nodeAdapterFactory = new NodeAdapterFactory();
     }
 
     public static function constructFromNodeCollectionList(NodeCollection ...$nodeCollectionList): self
@@ -119,7 +125,7 @@ final class AstMap implements AstMapInterface
     {
         $nodeList = [];
         foreach ($parserNodeList as $parserNode) {
-            $nodeList[] = NodeAdapterFactory::constructFromNode($parserNode);
+            $nodeList[] = $this->nodeAdapterFactory->constructFromNode($parserNode);
         }
 
         return new AdapterNodeCollection(...$nodeList);

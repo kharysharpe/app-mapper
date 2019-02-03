@@ -28,4 +28,18 @@ final class InterfaceNodeDecorator extends AbstractClassLikeNodeDecorator
     {
         parent::__construct($node, $parentNode);
     }
+
+    /**
+     * @return NameNodeDecorator[]
+     */
+    public function getParent(): array
+    {
+        $interfaceList = [];
+
+        foreach ($this->node->extends as $interface) {
+            $interfaceList[] = $this->getNodeDecorator($interface);
+        }
+
+        return $interfaceList;
+    }
 }
