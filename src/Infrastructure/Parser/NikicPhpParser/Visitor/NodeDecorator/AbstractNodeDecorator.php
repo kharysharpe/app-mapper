@@ -65,14 +65,6 @@ abstract class AbstractNodeDecorator
         $this->typeCollection = new TypeCollection();
     }
 
-    /**
-     * @deprecated
-     */
-    public function getInnerNode(): Node
-    {
-        return $this->node;
-    }
-
     abstract protected function resolveTypeCollection(): TypeCollection;
 
     public function addTypeToNode(Type ...$typeList): void
