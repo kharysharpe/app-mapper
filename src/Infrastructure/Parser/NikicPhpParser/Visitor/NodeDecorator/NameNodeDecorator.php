@@ -28,7 +28,7 @@ use PhpParser\Node\Name\FullyQualified;
 /**
  * @property Name $node
  */
-final class NameNodeDecorator extends AbstractNodeDecorator
+final class NameNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
     use NodeDecoratorAccessorTrait;
 
@@ -58,6 +58,11 @@ final class NameNodeDecorator extends AbstractNodeDecorator
         } catch (AstNodeNotFoundException $e) {
             return new TypeCollection(new Type($fqcn));
         }
+    }
+
+    public function getName(): string
+    {
+        return (string) $this->node;
     }
 
     private function buildFqcn(Name $name): string
