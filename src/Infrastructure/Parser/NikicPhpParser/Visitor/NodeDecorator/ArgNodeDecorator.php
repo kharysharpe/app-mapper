@@ -23,11 +23,20 @@ use PhpParser\Node\Arg;
 /**
  * @property Arg $node
  */
-final class ArgNodeDecorator extends AbstractNodeDecorator
+final class ArgNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Arg $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
+    }
+
+    public function getName(): string
+    {
+        $value = $this->getValue();
+
+        return $value instanceof NamedNodeDecoratorInterface
+            ? $value->getName()
+            : 'Unknown';
     }
 
     public function getValue(): AbstractNodeDecorator
