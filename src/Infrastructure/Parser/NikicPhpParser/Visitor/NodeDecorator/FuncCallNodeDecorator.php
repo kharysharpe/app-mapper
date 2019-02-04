@@ -27,7 +27,7 @@ use ReflectionFunction;
 /**
  * @property FuncCall $node
  */
-final class FuncCallNodeDecorator extends AbstractNodeDecorator
+final class FuncCallNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
     // FIXME should be possible to add to this in the config file
     private const FUNCTION_LIST = [
@@ -49,6 +49,11 @@ final class FuncCallNodeDecorator extends AbstractNodeDecorator
     public function __construct(FuncCall $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
+    }
+
+    public function getName(): string
+    {
+        return (string) $this->node->name;
     }
 
     public function resolveTypeCollection(): TypeCollection
