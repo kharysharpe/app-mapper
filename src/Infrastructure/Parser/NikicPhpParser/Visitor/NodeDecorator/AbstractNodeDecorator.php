@@ -44,12 +44,12 @@ abstract class AbstractNodeDecorator
     /**
      * @var self|null
      */
-    private $parentNode;
+    protected $parentNode;
 
     /**
      * @var TypeCollection
      */
-    private $typeCollection;
+    protected $typeCollection;
 
     /**
      * @var bool
