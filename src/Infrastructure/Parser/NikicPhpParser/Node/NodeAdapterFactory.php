@@ -21,8 +21,8 @@ use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\MethodCallNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\StmtClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node;
@@ -48,7 +48,7 @@ final class NodeAdapterFactory
             return new MethodCallAdapter($nodeDecorator);
         }
 
-        if ($nodeDecorator instanceof ClassNodeDecorator) {
+        if ($nodeDecorator instanceof StmtClassNodeDecorator) {
             return ClassAdapter::constructFromClassNode($nodeDecorator);
         }
 

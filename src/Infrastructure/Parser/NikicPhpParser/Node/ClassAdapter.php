@@ -21,8 +21,8 @@ use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\InterfaceNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\StmtClassNodeDecorator;
 use Hgraca\PhpExtension\String\ClassHelper;
 use function array_keys;
 use function array_merge;
@@ -32,12 +32,12 @@ use function is_array;
 final class ClassAdapter implements ClassInterface
 {
     /**
-     * @var ClassNodeDecorator
+     * @var StmtClassNodeDecorator
      */
     private $classNodeDecorator;
 
     /**
-     * @var ClassNodeDecorator[]|null[]
+     * @var StmtClassNodeDecorator[]|null[]
      */
     private $parentList;
 
@@ -50,7 +50,7 @@ final class ClassAdapter implements ClassInterface
     {
     }
 
-    public static function constructFromClassNode(ClassNodeDecorator $classNodeDecorator): self
+    public static function constructFromClassNode(StmtClassNodeDecorator $classNodeDecorator): self
     {
         $self = new self();
 
@@ -115,7 +115,7 @@ final class ClassAdapter implements ClassInterface
         return $this->parentList;
     }
 
-    private function getAllInterfacesFullyQualifiedNameList(ClassNodeDecorator $classNodeDecorator): array
+    private function getAllInterfacesFullyQualifiedNameList(StmtClassNodeDecorator $classNodeDecorator): array
     {
         if ($this->implementedList === null) {
             $implementedList = [];
@@ -143,7 +143,7 @@ final class ClassAdapter implements ClassInterface
      */
     private function findAllParentsFullyQualifiedNameListRecursively(AbstractNodeDecorator $nodeDecorator): array
     {
-        if (!$nodeDecorator instanceof ClassNodeDecorator && !$nodeDecorator instanceof InterfaceNodeDecorator) {
+        if (!$nodeDecorator instanceof StmtClassNodeDecorator && !$nodeDecorator instanceof InterfaceNodeDecorator) {
             throw new ParserException(
                 'Only classes and interfaces can have parents, the given node is of type ' . get_class($nodeDecorator)
             );
@@ -167,8 +167,8 @@ final class ClassAdapter implements ClassInterface
 
             $parentNodeDecorator = $parentType->getNodeDecorator();
             if (
-                $nodeDecorator instanceof ClassNodeDecorator
-                && !$parentNodeDecorator instanceof ClassNodeDecorator
+                $nodeDecorator instanceof StmtClassNodeDecorator
+                && !$parentNodeDecorator instanceof StmtClassNodeDecorator
             ) {
                 throw new ParserException(
                     'A class can only be extend another class, the given parent is of type '
