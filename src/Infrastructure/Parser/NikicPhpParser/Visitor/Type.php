@@ -43,7 +43,7 @@ final class Type
 
     public function __construct(
         string $typeAsString,
-        ?AbstractNodeDecorator $nodeDecorator = null,
+        ?AbstractClassLikeNodeDecorator $nodeDecorator = null,
         self $nestedType = null
     ) {
         $this->typeAsString = ltrim($typeAsString, '\\');
