@@ -55,7 +55,10 @@ final class Type
 
     public static function constructUnknownFromNode(AbstractNodeDecorator $nodeDecorator): self
     {
-        return new self(self::UNKNOWN, $nodeDecorator);
+        $self = new self(self::UNKNOWN);
+        $self->nodeTree = $nodeDecorator->resolveNodeTreeAsJson();
+
+        return $self;
     }
 
     public static function constructVoid(): self
