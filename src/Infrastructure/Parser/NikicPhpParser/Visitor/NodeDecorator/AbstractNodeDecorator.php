@@ -136,9 +136,17 @@ abstract class AbstractNodeDecorator
         return json_encode($this->resolveNodeTree(), JSON_PRETTY_PRINT);
     }
 
-    public function getEnclosingClassNode(): ClassNodeDecorator
+    public function getEnclosingClassLikeNode(): AbstractClassLikeNodeDecorator
     {
-        return $this->getFirstParentNodeOfType(Class_::class);
+        try {
+            return $this->getFirstParentNodeOfType(Class_::class);
+        } catch (ParentNodeNotFoundException $e) {
+            try {
+                return $this->getFirstParentNodeOfType(Interface_::class);
+            } catch (ParentNodeNotFoundException $e) {
+                return $this->getFirstParentNodeOfType(Trait_::class);
+            }
+        }
     }
 
     public function getEnclosingMethodNode(): ClassMethodNodeDecorator
@@ -148,7 +156,7 @@ abstract class AbstractNodeDecorator
 
     protected function getSelfTypeCollection(): TypeCollection
     {
-        return $this->getEnclosingClassNode()->getTypeCollection();
+        return $this->getEnclosingClassLikeNode()->getTypeCollection();
     }
 
     protected function getEnclosingNamespaceNode(): NamespaceNodeDecorator

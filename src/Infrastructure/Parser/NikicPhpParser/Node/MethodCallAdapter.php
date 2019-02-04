@@ -87,7 +87,7 @@ final class MethodCallAdapter implements MethodCallInterface
     {
         if ($this->enclosingClass === null) {
             $this->enclosingClass = ClassAdapter::constructFromClassNode(
-                $this->methodCallNodeDecorator->getEnclosingClassNode()
+                $this->methodCallNodeDecorator->getEnclosingClassLikeNode()
             );
         }
 
