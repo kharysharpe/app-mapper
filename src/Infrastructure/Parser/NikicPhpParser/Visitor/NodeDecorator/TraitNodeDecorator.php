@@ -22,10 +22,15 @@ use PhpParser\Node\Stmt\Trait_;
 /**
  * @property Trait_ $node
  */
-final class TraitNodeDecorator extends AbstractClassLikeNodeDecorator
+final class TraitNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Trait_ $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
+    }
+
+    public function getName(): string
+    {
+        return (string) $this->node->name;
     }
 }
