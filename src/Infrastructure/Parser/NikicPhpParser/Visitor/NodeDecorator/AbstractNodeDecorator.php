@@ -188,10 +188,11 @@ abstract class AbstractNodeDecorator
         $nodeTree = [];
         $loopNode = $this;
         do {
-            $nodeTree[] = ClassHelper::extractCanonicalClassName(get_class($loopNode)) . ' => '
-                . ClassHelper::extractCanonicalClassName(
-                    get_class(ReflectionHelper::getProtectedProperty($loopNode, 'node'))
-                ) . ' => '
+            $innerNode = ReflectionHelper::getProtectedProperty($loopNode, 'node');
+            $nodeTree[] = ClassHelper::extractCanonicalClassName(get_class($loopNode))
+                . ' => '
+                . ClassHelper::extractCanonicalClassName($innerNode ? get_class($innerNode) : '')
+                . ' => '
                 . ($loopNode instanceof NamedNodeDecoratorInterface ? $loopNode->getName() : 'no_name');
         } while ($loopNode = $loopNode->getParentNode());
 
