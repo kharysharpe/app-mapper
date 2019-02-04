@@ -24,6 +24,8 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\Unresolvable
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Expr\MethodCall;
+use function array_key_exists;
+use function array_shift;
 
 /**
  * @property MethodCall $node
@@ -42,6 +44,8 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator implements Nam
 
     public function resolveTypeCollection(): TypeCollection
     {
+        $this->assertNotInCircularReference();
+
         $calleeTypeCollection = $this->getCallee()->getTypeCollection();
 
         $typeCollection = new TypeCollection();
@@ -119,5 +123,24 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator implements Nam
     private function getReturnTypeCollection(Type $calleeType): TypeCollection
     {
         return $calleeType->getMethod($this->getMethodName())->getTypeCollection();
+    }
+
+    private function assertNotInCircularReference(): void
+    {
+        $backtrace = debug_backtrace();
+        array_shift($backtrace); // Remove current method from the stack
+        $methodName = $backtrace[0]['function']; // Get the method name we want to check for circular reference
+        array_shift($backtrace); // Remove from the stack, the method call we want to check for references
+        foreach ($backtrace as $key => $methodCall) {
+            $circularBacktrace[] = $methodCall;
+            if (
+                array_key_exists('object', $methodCall)
+                && array_key_exists('function', $methodCall)
+                && $this === $methodCall['object']
+                && $methodName === $methodCall['function']
+            ) {
+                throw new CircularReferenceDetectedException($this, $circularBacktrace);
+            }
+        }
     }
 }

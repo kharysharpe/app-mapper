@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
+use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\ParentNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
@@ -27,7 +28,9 @@ use Hgraca\PhpExtension\String\ClassHelper;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Trait_;
 
 abstract class AbstractNodeDecorator
 {
@@ -109,11 +112,15 @@ abstract class AbstractNodeDecorator
         $typeCollection = new TypeCollection();
 
         foreach ($this->siblingNodeCollection as $siblingNodeDecorator) {
-            if ($this === $siblingNodeDecorator) {
-                throw new CircularReferenceDetectedException($this);
+            try {
+                $typeCollection = $typeCollection->addTypeCollection($siblingNodeDecorator->getTypeCollection());
+            } catch (CircularReferenceDetectedException $e) {
+                StaticLoggerFacade::notice(
+                    "Caught CircularReferenceDetectedException when resolving a sibling type collection.\n"
+                    . "Ignoring, as it means a sibling depends on another sibling to figure out its type.\n"
+                    . 'It is probably an assignment from an expression that uses the assignee'
+                );
             }
-            $typeCollection = $typeCollection
-                ->addTypeCollection($siblingNodeDecorator->getTypeCollection());
         }
 
         return $typeCollection;
