@@ -22,7 +22,7 @@ use PhpParser\Node\Stmt\Interface_;
 /**
  * @property Interface_ $node
  */
-final class InterfaceNodeDecorator extends AbstractClassLikeNodeDecorator
+final class InterfaceNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Interface_ $node, AbstractNodeDecorator $parentNode)
     {
@@ -41,5 +41,10 @@ final class InterfaceNodeDecorator extends AbstractClassLikeNodeDecorator
         }
 
         return $interfaceList;
+    }
+
+    public function getName(): string
+    {
+        return (string) $this->node->name;
     }
 }
