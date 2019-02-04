@@ -41,6 +41,8 @@ final class Type
 
     private $nestedType;
 
+    private $nodeTree;
+
     public function __construct(
         string $typeAsString,
         ?AbstractClassLikeNodeDecorator $nodeDecorator = null,
@@ -126,5 +128,14 @@ final class Type
     public function getNestedType(): self
     {
         return $this->nestedType;
+    }
+
+    public function getNodeTree(): string
+    {
+        if (!$this->nodeTree) {
+            $this->nodeTree = $this->nodeDecorator->resolveNodeTreeAsJson();
+        }
+
+        return $this->nodeTree;
     }
 }
