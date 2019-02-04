@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\MethodNotFoundInClassException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnresolvableNodeTypeException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
@@ -27,11 +28,16 @@ use PhpParser\Node\Expr\MethodCall;
 /**
  * @property MethodCall $node
  */
-final class MethodCallNodeDecorator extends AbstractNodeDecorator
+final class MethodCallNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(MethodCall $node, AbstractNodeDecorator $parentNode)
     {
         parent::__construct($node, $parentNode);
+    }
+
+    public function getName(): string
+    {
+        return (string) $this->node->name;
     }
 
     public function resolveTypeCollection(): TypeCollection
