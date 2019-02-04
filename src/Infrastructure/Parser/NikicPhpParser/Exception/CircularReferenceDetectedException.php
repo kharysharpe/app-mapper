@@ -19,14 +19,18 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception;
 
 use Hgraca\AppMapper\Core\Port\Parser\Exception\ParserException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
+use function json_encode;
+use const JSON_PRETTY_PRINT;
 
 final class CircularReferenceDetectedException extends ParserException
 {
-    public function __construct(AbstractNodeDecorator $nodeDecorator)
+    public function __construct(AbstractNodeDecorator $nodeDecorator, array $circularBacktrace = [])
     {
         parent::__construct(
             "Circular reference detected:\n"
-            . $nodeDecorator->resolveNodeTreeAsJson()
+            . $nodeDecorator->resolveNodeTreeAsJson() . "\n"
+            . json_encode($circularBacktrace, JSON_PRETTY_PRINT) . "\n"
+            . $this->getTraceAsString()
         );
     }
 }
