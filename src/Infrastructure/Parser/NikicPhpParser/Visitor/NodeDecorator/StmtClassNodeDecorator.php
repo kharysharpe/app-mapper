@@ -52,4 +52,9 @@ final class StmtClassNodeDecorator extends AbstractClassLikeNodeDecorator implem
 
         return $interfaceList;
     }
+
+    public function storePropertiesSiblings(TypeNodeCollector $nodeCollector): void
+    {
+        $this->propertyNodesSiblings = $nodeCollector;
+    }
 }
