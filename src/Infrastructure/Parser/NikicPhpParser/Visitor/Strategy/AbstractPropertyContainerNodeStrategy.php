@@ -20,6 +20,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\StmtClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -47,6 +48,7 @@ abstract class AbstractPropertyContainerNodeStrategy extends AbstractStrategy
         $this->validateNode($node);
 
         $this->addCollectedPropertySiblingsToTheirDeclaration($node);
+        $this->storePropertiesSiblingsInNode($node);
         $this->propertyFetchCollector->reset();
     }
 
@@ -78,5 +80,12 @@ abstract class AbstractPropertyContainerNodeStrategy extends AbstractStrategy
                 return $nodeDecorator !== $nodeToRemove;
             }
         );
+    }
+
+    private function storePropertiesSiblingsInNode(Node $node): void
+    {
+        /** @var StmtClassNodeDecorator $classNodeDecorator */
+        $classNodeDecorator = $this->getNodeDecorator($node);
+        $classNodeDecorator->storePropertiesSiblings($this->propertyFetchCollector->clone());
     }
 }
