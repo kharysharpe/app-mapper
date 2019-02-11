@@ -22,7 +22,7 @@ use PhpParser\Node\Stmt\Trait_;
 /**
  * @property Trait_ $node
  */
-final class TraitNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
+final class TraitNodeDecorator extends AbstractInterfaceLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Trait_ $node, AbstractNodeDecorator $parentNode)
     {

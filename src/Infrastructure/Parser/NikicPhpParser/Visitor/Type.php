@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractClassLikeNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractInterfaceLikeNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\InterfaceNodeDecorator;
@@ -45,7 +45,7 @@ final class Type
 
     public function __construct(
         string $typeAsString,
-        ?AbstractClassLikeNodeDecorator $nodeDecorator = null,
+        ?AbstractInterfaceLikeNodeDecorator $nodeDecorator = null,
         self $nestedType = null
     ) {
         $this->typeAsString = ltrim($typeAsString, '\\');

@@ -22,7 +22,7 @@ use PhpParser\Node\Stmt\Interface_;
 /**
  * @property Interface_ $node
  */
-final class InterfaceNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
+final class InterfaceNodeDecorator extends AbstractInterfaceLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Interface_ $node, AbstractNodeDecorator $parentNode)
     {

@@ -136,7 +136,7 @@ abstract class AbstractNodeDecorator
         return json_encode($this->resolveNodeTree(), JSON_PRETTY_PRINT);
     }
 
-    public function getEnclosingClassLikeNode(): AbstractClassLikeNodeDecorator
+    public function getEnclosingClassLikeNode(): AbstractInterfaceLikeNodeDecorator
     {
         try {
             return $this->getFirstParentNodeOfType(Class_::class);

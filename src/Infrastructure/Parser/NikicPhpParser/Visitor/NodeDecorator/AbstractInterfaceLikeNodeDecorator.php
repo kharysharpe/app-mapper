@@ -28,7 +28,7 @@ use PhpParser\Node\Stmt\Trait_;
 /**
  * @property Class_|Trait_ $node
  */
-abstract class AbstractClassLikeNodeDecorator extends AbstractNodeDecorator
+abstract class AbstractInterfaceLikeNodeDecorator extends AbstractNodeDecorator
 {
     public function resolveTypeCollection(): TypeCollection
     {
