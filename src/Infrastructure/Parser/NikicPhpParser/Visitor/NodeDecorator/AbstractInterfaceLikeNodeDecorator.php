@@ -23,10 +23,11 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Trait_;
 
 /**
- * @property Class_|Trait_ $node
+ * @property Interface_|Class_|Trait_ $node
  */
 abstract class AbstractInterfaceLikeNodeDecorator extends AbstractNodeDecorator
 {
@@ -35,6 +36,19 @@ abstract class AbstractInterfaceLikeNodeDecorator extends AbstractNodeDecorator
         $fqcn = implode('\\', $this->node->namespacedName->parts);
 
         return new TypeCollection(new Type($fqcn, $this));
+    }
+
+    /**
+     * @return NameNodeDecorator[]
+     */
+    public function getParentNameList(): array
+    {
+        $parentNameList = [];
+        foreach ($this->node->extends as $parentNode) {
+            $parentNameList[] = $this->getNodeDecorator($parentNode);
+        }
+
+        return $parentNameList;
     }
 
     /**

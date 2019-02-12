@@ -20,6 +20,7 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\NamedNodeDecoratorInterface;
+use function array_key_exists;
 use function array_values;
 
 final class TypeNodeCollector
@@ -50,8 +51,21 @@ final class TypeNodeCollector
         return array_values($this->collector[$nodeDecorator->getName()] ?? []);
     }
 
+    public function hasNodesFor(NamedNodeDecoratorInterface $nodeDecorator): bool
+    {
+        return array_key_exists($nodeDecorator->getName(), $this->collector);
+    }
+
     public function reset(): void
     {
         $this->collector = [];
+    }
+
+    public function clone(): self
+    {
+        $clone = new self();
+        $clone->collector = $this->collector;
+
+        return $clone;
     }
 }

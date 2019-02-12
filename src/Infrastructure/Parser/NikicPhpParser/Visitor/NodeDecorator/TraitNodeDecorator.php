@@ -17,12 +17,13 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Stmt\Trait_;
 
 /**
  * @property Trait_ $node
  */
-final class TraitNodeDecorator extends AbstractInterfaceLikeNodeDecorator implements NamedNodeDecoratorInterface
+final class TraitNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Trait_ $node, AbstractNodeDecorator $parentNode)
     {
@@ -32,5 +33,16 @@ final class TraitNodeDecorator extends AbstractInterfaceLikeNodeDecorator implem
     public function getName(): string
     {
         return (string) $this->node->name;
+    }
+
+    public function getParentName(): ?NameNodeDecorator
+    {
+        return null;
+    }
+
+    protected function getPropertyTypeCollectionFromHierarchy(
+        NamedNodeDecoratorInterface $nodeDecorator
+    ): TypeCollection {
+        return $this->getPropertyTypeCollectionFromTraits($nodeDecorator);
     }
 }

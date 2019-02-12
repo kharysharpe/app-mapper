@@ -32,11 +32,6 @@ final class NameNodeDecorator extends AbstractNodeDecorator implements NamedNode
 {
     use NodeDecoratorAccessorTrait;
 
-    /**
-     * @var NodeCollection
-     */
-    private $nodeCollection;
-
     public function __construct(Name $node, AbstractNodeDecorator $parentNode, NodeCollection $nodeCollection)
     {
         parent::__construct($node, $parentNode);

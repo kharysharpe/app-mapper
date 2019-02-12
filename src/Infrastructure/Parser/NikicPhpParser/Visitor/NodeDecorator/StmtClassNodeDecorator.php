@@ -17,12 +17,13 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Stmt\Class_;
 
 /**
  * @property Class_ $node
  */
-final class StmtClassNodeDecorator extends AbstractInterfaceLikeNodeDecorator implements NamedNodeDecoratorInterface
+final class StmtClassNodeDecorator extends AbstractClassLikeNodeDecorator implements NamedNodeDecoratorInterface
 {
     public function __construct(Class_ $node, AbstractNodeDecorator $parentNode)
     {
@@ -32,11 +33,6 @@ final class StmtClassNodeDecorator extends AbstractInterfaceLikeNodeDecorator im
     public function getName(): string
     {
         return (string) $this->node->name;
-    }
-
-    public function getParentName(): NameNodeDecorator
-    {
-        return $this->getNodeDecorator($this->node->extends);
     }
 
     /**
@@ -53,8 +49,31 @@ final class StmtClassNodeDecorator extends AbstractInterfaceLikeNodeDecorator im
         return $interfaceList;
     }
 
-    public function storePropertiesSiblings(TypeNodeCollector $nodeCollector): void
+    /**
+     * @return static|null
+     */
+    public function getParent(): ?self
     {
-        $this->propertyNodesSiblings = $nodeCollector;
+        $parentName = $this->getParentName();
+
+        return $parentName
+            ? $parentName->getTypeCollection()->getUniqueType()->getNodeDecorator()
+            : null;
+    }
+
+    protected function getPropertyTypeCollectionFromHierarchy(
+        NamedNodeDecoratorInterface $nodeDecorator
+    ): TypeCollection {
+        return $this->getPropertyTypeCollectionFromParent($nodeDecorator)
+            ->addTypeCollection($this->getPropertyTypeCollectionFromTraits($nodeDecorator));
+    }
+
+    private function getPropertyTypeCollectionFromParent(NamedNodeDecoratorInterface $nodeDecorator): TypeCollection
+    {
+        $parent = $this->getParent();
+
+        return $parent
+            ? $parent->getPropertyTypeCollection($nodeDecorator)
+            : new TypeCollection();
     }
 }

@@ -19,17 +19,25 @@ namespace Hgraca\AppMapper\Test\TestCase\Infrastructure\Parser\NikicPhpParser;
 
 use DateTime;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\StmtClassNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Test\Framework\AbstractIntegrationTest;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxBbbService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaEntityParent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\AaaTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbTrait;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\CccEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\CccTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\ClassMethodTestEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\DummyPort\DummyInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventDispatcherInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\DddTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
@@ -44,6 +52,8 @@ use const JSON_PRETTY_PRINT;
 
 final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
 {
+    use NodeDecoratorAccessorTrait;
+
     /**
      * @var NodeCollection
      */
@@ -398,6 +408,72 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
                 'attributes.decorator.typeCollection.itemList.DateTime.typeAsString',
                 $this->getProperty('createdAt', AaaEntity::class)
             )
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function class_properties_inherited_from_parent_have_type(): void
+    {
+        /** @var StmtClassNodeDecorator $classNodeDecorator */
+        $classNodeDecorator = $this->getNodeDecorator(
+            self::$nodeCollection->getAstNode(AaaEntity::class)
+        );
+
+        /** @var PropertyNodeDecorator $propertyNodeDecorator */
+        $propertyNodeDecorator = $this->getNodeDecorator(
+            $this->getProperty('aaaEntityParentProperty', AaaEntityParent::class)
+        );
+        self::assertTrue(
+            $classNodeDecorator->getPropertyTypeCollection($propertyNodeDecorator)->hasType(CccEntity::class)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function class_properties_inherited_from_trait_have_type(): void
+    {
+        /** @var StmtClassNodeDecorator $classNodeDecorator */
+        $classNodeDecorator = $this->getNodeDecorator(
+            self::$nodeCollection->getAstNode(AaaEntity::class)
+        );
+
+        /** @var PropertyNodeDecorator $propertyNodeDecorator */
+        $propertyNodeDecorator = $this->getNodeDecorator(
+            $this->getProperty('aaaTraitProperty', AaaTrait::class)
+        );
+        self::assertTrue(
+            $classNodeDecorator->getPropertyTypeCollection($propertyNodeDecorator)->hasType(CccEntity::class)
+        );
+
+        /** @var PropertyNodeDecorator $propertyNodeDecorator */
+        $propertyNodeDecorator = $this->getNodeDecorator(
+            $this->getProperty('bbbTraitProperty', BbbTrait::class)
+        );
+        self::assertTrue(
+            $classNodeDecorator->getPropertyTypeCollection($propertyNodeDecorator)->hasType(CccEntity::class)
+        );
+
+        /** @var PropertyNodeDecorator $propertyNodeDecorator */
+        $propertyNodeDecorator = $this->getNodeDecorator(
+            $this->getProperty('cccTraitProperty', CccTrait::class)
+        );
+        self::assertTrue(
+            $classNodeDecorator->getPropertyTypeCollection($propertyNodeDecorator)->hasType(CccEntity::class)
+        );
+
+        /** @var PropertyNodeDecorator $propertyNodeDecorator */
+        $propertyNodeDecorator = $this->getNodeDecorator(
+            $this->getProperty('dddTraitProperty', DddTrait::class)
+        );
+        self::assertTrue(
+            $classNodeDecorator->getPropertyTypeCollection($propertyNodeDecorator)->hasType(CccEntity::class)
         );
     }
 

@@ -18,13 +18,16 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
 use Hgraca\AppMapper\Core\Port\Logger\StaticLoggerFacade;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\CircularReferenceDetectedException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\ParentNodeNotFoundException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\PhpExtension\Reflection\ReflectionHelper;
 use Hgraca\PhpExtension\String\ClassHelper;
+use Hgraca\PhpExtension\String\StringHelper;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -50,6 +53,11 @@ abstract class AbstractNodeDecorator
      * @var TypeCollection
      */
     protected $typeCollection;
+
+    /**
+     * @var NodeCollection
+     */
+    protected $nodeCollection;
 
     /**
      * @var bool
@@ -90,7 +98,16 @@ abstract class AbstractNodeDecorator
     public function getTypeCollection(): TypeCollection
     {
         if (!$this->typeCollectionIsResolved) {
-            $this->typeCollection = $this->typeCollection->addTypeCollection($this->resolveTypeCollection());
+            try {
+                $resolvedTypeCollection = $this->resolveTypeCollection();
+            } catch (CircularReferenceDetectedException $e) {
+                StaticLoggerFacade::notice(
+                    "Caught CircularReferenceDetectedException when resolving a type collection.\n"
+                    . 'Ignoring, as it is probably an assignment from an expression that uses the assignee'
+                );
+                $resolvedTypeCollection = new TypeCollection();
+            }
+            $this->typeCollection = $this->typeCollection->addTypeCollection($resolvedTypeCollection);
             if ($this->typeCollection->isEmpty()) {
                 $this->typeCollection = $this->typeCollection->addType(Type::constructUnknownFromNode($this));
             }
@@ -112,15 +129,7 @@ abstract class AbstractNodeDecorator
         $typeCollection = new TypeCollection();
 
         foreach ($this->siblingNodeCollection as $siblingNodeDecorator) {
-            try {
-                $typeCollection = $typeCollection->addTypeCollection($siblingNodeDecorator->getTypeCollection());
-            } catch (CircularReferenceDetectedException $e) {
-                StaticLoggerFacade::notice(
-                    "Caught CircularReferenceDetectedException when resolving a sibling type collection.\n"
-                    . "Ignoring, as it means a sibling depends on another sibling to figure out its type.\n"
-                    . 'It is probably an assignment from an expression that uses the assignee'
-                );
-            }
+            $typeCollection = $typeCollection->addTypeCollection($siblingNodeDecorator->getTypeCollection());
         }
 
         return $typeCollection;
@@ -136,16 +145,12 @@ abstract class AbstractNodeDecorator
         return json_encode($this->resolveNodeTree(), JSON_PRETTY_PRINT);
     }
 
-    public function getEnclosingClassLikeNode(): AbstractInterfaceLikeNodeDecorator
+    public function getEnclosingClassLikeNode(): AbstractClassLikeNodeDecorator
     {
         try {
             return $this->getFirstParentNodeOfType(Class_::class);
         } catch (ParentNodeNotFoundException $e) {
-            try {
-                return $this->getFirstParentNodeOfType(Interface_::class);
-            } catch (ParentNodeNotFoundException $e) {
-                return $this->getFirstParentNodeOfType(Trait_::class);
-            }
+            return $this->getFirstParentNodeOfType(Trait_::class);
         }
     }
 
@@ -156,7 +161,16 @@ abstract class AbstractNodeDecorator
 
     protected function getSelfTypeCollection(): TypeCollection
     {
-        return $this->getEnclosingClassLikeNode()->getTypeCollection();
+        return $this->getEnclosingInterfaceLikeNode()->getTypeCollection();
+    }
+
+    protected function getEnclosingInterfaceLikeNode(): AbstractInterfaceLikeNodeDecorator
+    {
+        try {
+            return $this->getEnclosingClassLikeNode();
+        } catch (ParentNodeNotFoundException $e) {
+            return $this->getFirstParentNodeOfType(Interface_::class);
+        }
     }
 
     protected function getEnclosingNamespaceNode(): NamespaceNodeDecorator
@@ -176,6 +190,50 @@ abstract class AbstractNodeDecorator
         }
 
         return $node;
+    }
+
+    protected function getTypeCollectionFromUses(string $type): TypeCollection
+    {
+        $positionOfBrackets = mb_strpos($type, '[');
+        $arrayList = $positionOfBrackets ? mb_substr($type, $positionOfBrackets) : '';
+        $nestedType = rtrim($type, '[]');
+        $namespaceNodeDecorator = $this->getEnclosingNamespaceNode();
+
+        foreach ($namespaceNodeDecorator->getUses() as $useDecorator) {
+            $useTypeCollection = $useDecorator->getTypeCollection();
+            $useType = $useTypeCollection->getUniqueType()->getFqn();
+
+            if (
+                $nestedType === $useType
+                || $nestedType === $useDecorator->getAlias()
+                || StringHelper::hasEnding($nestedType, $useType)
+            ) {
+                if ($arrayList) {
+                    return new TypeCollection($this->buildTypeFromString($useType . $arrayList));
+                }
+
+                return $useTypeCollection;
+            }
+        }
+
+        return new TypeCollection();
+    }
+
+    protected function buildTypeFromString(string $string): Type
+    {
+        if ($string === 'self' || $string === 'this') {
+            return $this->getSelfTypeCollection()->getUniqueType();
+        }
+
+        if (StringHelper::hasEnding('[]', $string)) {
+            return new Type('array', null, $this->buildTypeFromString(StringHelper::removeFromEnd('[]', $string)));
+        }
+
+        try {
+            return new Type($string, $this->getNodeDecorator($this->nodeCollection->getAstNode($string)));
+        } catch (AstNodeNotFoundException $e) {
+            return new Type($string);
+        }
     }
 
     private function isInternalNodeInstanceOf(string $type): bool

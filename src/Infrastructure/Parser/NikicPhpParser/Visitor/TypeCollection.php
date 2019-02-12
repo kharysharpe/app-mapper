@@ -88,7 +88,7 @@ final class TypeCollection extends AbstractCollection
         return new self(...array_values($itemList));
     }
 
-    private function hasType(string $typeFqn): bool
+    public function hasType(string $typeFqn): bool
     {
         return array_key_exists($typeFqn, $this->itemList);
     }

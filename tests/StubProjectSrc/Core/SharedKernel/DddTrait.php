@@ -15,19 +15,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain;
+namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel;
 
-use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\DddTrait;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\CccEntity;
 
-trait AaaTrait
+trait DddTrait
 {
-    use BbbTrait, CccTrait;
-    use DddTrait;
-
-    private $updatedAt;
-
     /**
      * @var CccEntity
      */
-    private $aaaTraitProperty;
+    private $dddTraitProperty;
 }

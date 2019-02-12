@@ -17,17 +17,10 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain;
 
-use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\DddTrait;
-
-trait AaaTrait
+trait CccTrait
 {
-    use BbbTrait, CccTrait;
-    use DddTrait;
-
-    private $updatedAt;
-
     /**
      * @var CccEntity
      */
-    private $aaaTraitProperty;
+    private $cccTraitProperty;
 }

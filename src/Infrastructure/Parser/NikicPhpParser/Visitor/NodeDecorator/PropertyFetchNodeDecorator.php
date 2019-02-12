@@ -33,10 +33,15 @@ final class PropertyFetchNodeDecorator extends AbstractNodeDecorator implements 
             /** @var AssignNodeDecorator $parentNode */
             $parentNode = $this->getParentNode();
 
+            // TODO we should prevent these cases somehow, instead of catching the exception
+            // Might result in a circular reference exception when the assignee is used in the assignment expression
+            // ie. $this->someProperty = $this->someProperty->add($amount);
             return $parentNode->getExpression()->getTypeCollection();
         }
 
-        return $this->getSiblingTypeCollection();
+        return $this->getSiblingTypeCollection()->addTypeCollection(
+            $this->getEnclosingClassLikeNode()->getPropertyTypeCollection($this)
+        );
     }
 
     public function getName(): string

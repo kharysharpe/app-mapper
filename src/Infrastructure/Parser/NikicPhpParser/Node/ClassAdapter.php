@@ -22,12 +22,12 @@ use Hgraca\AppMapper\Core\Port\Parser\Node\ClassInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\MethodInterface;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\InterfaceNodeDecorator;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\NameNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\StmtClassNodeDecorator;
 use Hgraca\PhpExtension\String\ClassHelper;
 use function array_keys;
 use function array_merge;
 use function get_class;
-use function is_array;
 
 final class ClassAdapter implements ClassInterface
 {
@@ -139,6 +139,8 @@ final class ClassAdapter implements ClassInterface
     }
 
     /**
+     * TODO this method is dirty, it should be split in 2, one for classes and another one for interfaces
+     *
      * @return AbstractNodeDecorator[]
      */
     private function findAllParentsFullyQualifiedNameListRecursively(AbstractNodeDecorator $nodeDecorator): array
@@ -149,12 +151,10 @@ final class ClassAdapter implements ClassInterface
             );
         }
 
-        $parentNameNodeList = $nodeDecorator->getParentName();
-        if (!is_array($parentNameNodeList)) {
-            $parentNameNodeList = [$parentNameNodeList];
-        }
+        $parentNameNodeList = $nodeDecorator->getParentNameList();
 
         $parentList = [];
+        /** @var NameNodeDecorator $parentNameNode */
         foreach ($parentNameNodeList as $parentNameNode) {
             $parentType = $parentNameNode->getTypeCollection()->getUniqueType();
             $parentList[] = [

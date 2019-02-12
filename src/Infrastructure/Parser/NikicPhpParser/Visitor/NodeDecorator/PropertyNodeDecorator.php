@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\AstNodeNotFoundException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Type;
@@ -33,11 +32,6 @@ use PhpParser\Node\Stmt\Property;
 final class PropertyNodeDecorator extends AbstractNodeDecorator implements NamedNodeDecoratorInterface
 {
     use NodeDecoratorAccessorTrait;
-
-    /**
-     * @var NodeCollection
-     */
-    private $nodeCollection;
 
     public function __construct(Property $node, AbstractNodeDecorator $parentNode, NodeCollection $nodeCollection)
     {
@@ -84,33 +78,6 @@ final class PropertyNodeDecorator extends AbstractNodeDecorator implements Named
         return $typeCollection;
     }
 
-    private function getTypeCollectionFromUses(string $type): TypeCollection
-    {
-        $positionOfBrackets = mb_strpos($type, '[');
-        $arrayList = $positionOfBrackets ? mb_substr($type, $positionOfBrackets) : '';
-        $nestedType = rtrim($type, '[]');
-        $namespaceNodeDecorator = $this->getEnclosingNamespaceNode();
-
-        foreach ($namespaceNodeDecorator->getUses() as $useDecorator) {
-            $useTypeCollection = $useDecorator->getTypeCollection();
-            $useType = $useTypeCollection->getUniqueType()->getFqn();
-
-            if (
-                $nestedType === $useType
-                || $nestedType === $useDecorator->getAlias()
-                || StringHelper::hasEnding($nestedType, $useType)
-            ) {
-                if ($arrayList) {
-                    return new TypeCollection($this->buildTypeFromString($useType . $arrayList));
-                }
-
-                return $useTypeCollection;
-            }
-        }
-
-        return new TypeCollection();
-    }
-
     private function assumeIsInSameNamespace(string $type): Type
     {
         /** @var NamespaceNodeDecorator $namespaceNodeDecorator */
@@ -118,22 +85,5 @@ final class PropertyNodeDecorator extends AbstractNodeDecorator implements Named
         $namespacedType = $namespaceNodeDecorator->getName() . "\\$type";
 
         return $this->buildTypeFromString($namespacedType);
-    }
-
-    private function buildTypeFromString(string $string): Type
-    {
-        if ($string === 'self' || $string === 'this') {
-            return $this->getSelfTypeCollection()->getUniqueType();
-        }
-
-        if (StringHelper::hasEnding('[]', $string)) {
-            return new Type('array', null, $this->buildTypeFromString(StringHelper::removeFromEnd('[]', $string)));
-        }
-
-        try {
-            return new Type($string, $this->getNodeDecorator($this->nodeCollection->getAstNode($string)));
-        } catch (AstNodeNotFoundException $e) {
-            return new Type($string);
-        }
     }
 }
