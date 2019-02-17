@@ -100,6 +100,9 @@ abstract class AbstractNodeDecorator
         if (!$this->typeCollectionIsResolved) {
             try {
                 $resolvedTypeCollection = $this->resolveTypeCollection();
+                if ($resolvedTypeCollection->isEmpty()) {
+                    $resolvedTypeCollection = $resolvedTypeCollection->addType(Type::constructUnknownFromNode($this));
+                }
             } catch (CircularReferenceDetectedException $e) {
                 StaticLoggerFacade::notice(
                     "Caught CircularReferenceDetectedException when resolving a type collection.\n"
@@ -108,9 +111,6 @@ abstract class AbstractNodeDecorator
                 $resolvedTypeCollection = new TypeCollection();
             }
             $this->typeCollection = $this->typeCollection->addTypeCollection($resolvedTypeCollection);
-            if ($this->typeCollection->isEmpty()) {
-                $this->typeCollection = $this->typeCollection->addType(Type::constructUnknownFromNode($this));
-            }
             $this->typeCollectionIsResolved = true;
         }
 
