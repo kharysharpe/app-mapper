@@ -34,6 +34,8 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\BbbTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\CccEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\CccTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Domain\ClassMethodTestEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\Y\Domain\YyyAaaEntity;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\Y\Domain\YyyBbbEntity;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\DummyPort\DummyInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventDispatcherInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
@@ -736,19 +738,25 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     public function unknown_property_fetch_should_have_type_unknown(): void
     {
         $methodNode = $this->getMethod('testUnknownProperties', AaaEntity::class);
-        self::assertArrayHasKey(
-            Type::UNKNOWN,
-            ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList',
-                $methodNode
-            )
+
+        $typeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList',
+            $methodNode
         );
         self::assertArrayHasKey(
             Type::UNKNOWN,
-            ReflectionHelper::getNestedProperty(
-                'stmts.0.expr.var.attributes.decorator.typeCollection.itemList',
-                $methodNode
-            )
+            $typeList,
+            json_encode(array_keys($typeList), JSON_PRETTY_PRINT)
+        );
+
+        $typeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertArrayHasKey(
+            Type::UNKNOWN,
+            $typeList,
+            json_encode(array_keys($typeList), JSON_PRETTY_PRINT)
         );
     }
 
