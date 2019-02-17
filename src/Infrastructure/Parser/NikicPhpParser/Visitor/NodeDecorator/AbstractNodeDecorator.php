@@ -236,6 +236,25 @@ abstract class AbstractNodeDecorator
         }
     }
 
+    protected function assertNotInCircularReference(): void
+    {
+        $backtrace = debug_backtrace();
+        array_shift($backtrace); // Remove current method from the stack
+        $methodName = $backtrace[0]['function']; // Get the method name we want to check for circular reference
+        array_shift($backtrace); // Remove from the stack, the method call we want to check for references
+        foreach ($backtrace as $key => $methodCall) {
+            $circularBacktrace[] = $methodCall;
+            if (
+                array_key_exists('object', $methodCall)
+                && array_key_exists('function', $methodCall)
+                && $this === $methodCall['object']
+                && $methodName === $methodCall['function']
+            ) {
+                throw new CircularReferenceDetectedException($this, $circularBacktrace);
+            }
+        }
+    }
+
     private function isInternalNodeInstanceOf(string $type): bool
     {
         return $this->node instanceof $type;

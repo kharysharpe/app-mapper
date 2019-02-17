@@ -29,6 +29,8 @@ final class PropertyFetchNodeDecorator extends AbstractNodeDecorator implements 
 
     public function resolveTypeCollection(): TypeCollection
     {
+        $this->assertNotInCircularReference();
+
         if ($this->isAssignee()) {
             /** @var AssignNodeDecorator $parentNode */
             $parentNode = $this->getParentNode();

@@ -760,6 +760,154 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
     }
 
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function recursive_property_assignment_is_correctly_typed(): void
+    {
+        $methodNode = $this->getMethod('testPropertyAssignmentRecursion', YyyAaaEntity::class);
+
+        // Assignment expression property type should have only type YyyBbbEntity::class
+        $assignmentExpressionPropertyTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentExpressionPropertyTypeList,
+            json_encode(array_keys($assignmentExpressionPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            YyyBbbEntity::class,
+            $assignmentExpressionPropertyTypeList,
+            json_encode(array_keys($assignmentExpressionPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Assignment var property type should have only type DateTime::class
+        $assignmentVarPropertyTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentVarPropertyTypeList,
+            json_encode(array_keys($assignmentVarPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $assignmentVarPropertyTypeList,
+            json_encode(array_keys($assignmentVarPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Assignment expression method call type should have type DateTime::class
+        $assignmentExpressionMethodCallTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentExpressionMethodCallTypeList,
+            json_encode(array_keys($assignmentExpressionMethodCallTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $assignmentExpressionMethodCallTypeList,
+            json_encode(array_keys($assignmentExpressionMethodCallTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Return property type should have only type DateTime::class
+        $returnPropertyTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.1.expr.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $returnPropertyTypeList,
+            json_encode(array_keys($returnPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $returnPropertyTypeList,
+            json_encode(array_keys($returnPropertyTypeList), JSON_PRETTY_PRINT)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function recursive_variable_assignment_is_correctly_typed(): void
+    {
+        $methodNode = $this->getMethod('testVariableAssignmentRecursion', YyyAaaEntity::class);
+
+        // Assignment expression variable type should have only type YyyBbbEntity::class
+        $assignmentExpressionVariableTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            YyyBbbEntity::class,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Assignment var variable type should have only type DateTime::class
+        $assignmentVarVariableTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentVarVariableTypeList,
+            json_encode(array_keys($assignmentVarVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $assignmentVarVariableTypeList,
+            json_encode(array_keys($assignmentVarVariableTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Assignment expression method call type should have type DateTime::class
+        $assignmentExpressionMethodCallTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.expr.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $assignmentExpressionMethodCallTypeList,
+            json_encode(array_keys($assignmentExpressionMethodCallTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $assignmentExpressionMethodCallTypeList,
+            json_encode(array_keys($assignmentExpressionMethodCallTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Return variable type should have only type DateTime::class
+        $returnVariableTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.1.expr.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $returnVariableTypeList,
+            json_encode(array_keys($returnVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            DateTime::class,
+            $returnVariableTypeList,
+            json_encode(array_keys($returnVariableTypeList), JSON_PRETTY_PRINT)
+        );
+    }
+
     private function getProperty(string $propertyName, string $classFqcn): Property
     {
         /** @var Class_ $classNode */

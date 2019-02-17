@@ -36,6 +36,8 @@ final class VariableNodeDecorator extends AbstractNodeDecorator implements Named
 
     public function resolveTypeCollection(): TypeCollection
     {
+        $this->assertNotInCircularReference();
+
         if ($this->isSelf()) {
             return $this->getSelfTypeCollection();
         }
