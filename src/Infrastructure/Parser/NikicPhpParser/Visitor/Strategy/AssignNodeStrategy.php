@@ -55,7 +55,7 @@ final class AssignNodeStrategy extends AbstractStrategy
             $this->variableCollector->reassign($variableDecorator);
         } elseif ($variableDecorator instanceof PropertyFetchNodeDecorator) {
             // Assignment to property
-            $this->propertyFetchCollector->collectNodeFor($variableDecorator);
+            $this->propertyFetchCollector->reassign($variableDecorator);
         }
     }
 
