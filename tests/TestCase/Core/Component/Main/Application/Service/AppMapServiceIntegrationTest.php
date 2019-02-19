@@ -59,14 +59,14 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
 //    {
 //        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', BbbEvent::class);
 //    }
-//
-//    /**
-//     * @test
-//     */
-//    public function event_type_is_inferred_correctly_when_ternary_operator_is_used(): void
-//    {
-//        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', CccEvent::class);
-//    }
+
+    /**
+     * @test
+     */
+    public function event_type_is_inferred_correctly_when_ternary_operator_is_used(): void
+    {
+        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', CccEvent::class);
+    }
 
     /**
      * @test
