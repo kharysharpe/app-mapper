@@ -22,9 +22,6 @@ use Hgraca\AppMapper\Core\Port\Parser\AstMapInterface;
 use Hgraca\AppMapper\Core\Port\Parser\Node\AdapterNodeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Node\NodeAdapterFactory;
 use PhpParser\Node;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\FindingVisitor;
-use PhpParser\NodeVisitor\FirstFindingVisitor;
 use function array_values;
 
 final class AstMap implements AstMapInterface
@@ -54,9 +51,15 @@ final class AstMap implements AstMapInterface
      */
     private $nodeAdapterFactory;
 
+    /**
+     * @var NodeFinder
+     */
+    private $nodeFinder;
+
     private function __construct()
     {
         $this->nodeAdapterFactory = new NodeAdapterFactory();
+        $this->nodeFinder = new NodeFinder();
     }
 
     public static function constructFromNodeCollectionList(NodeCollection ...$nodeCollectionList): self
@@ -115,8 +118,8 @@ final class AstMap implements AstMapInterface
         );
 
         $parserNodeList = $query->shouldReturnSingleResult()
-            ? [$this->findFirst($this->createFilter($query), ...$nodeList)]
-            : $this->find($this->createFilter($query), ...$nodeList);
+            ? [$this->nodeFinder->findFirst($this->createFilter($query), ...$nodeList)]
+            : $this->nodeFinder->find($this->createFilter($query), ...$nodeList);
 
         return $this->mapNodeList($parserNodeList);
     }
@@ -142,26 +145,6 @@ final class AstMap implements AstMapInterface
 
             return true;
         };
-    }
-
-    private function find(callable $filter, Node ...$nodes): array
-    {
-        $traverser = new NodeTraverser();
-        $visitor = new FindingVisitor($filter);
-        $traverser->addVisitor($visitor);
-        $traverser->traverse($nodes);
-
-        return $visitor->getFoundNodes();
-    }
-
-    private function findFirst(callable $filter, Node ...$nodes): ?Node
-    {
-        $traverser = new NodeTraverser();
-        $visitor = new FirstFindingVisitor($filter);
-        $traverser->addVisitor($visitor);
-        $traverser->traverse($nodes);
-
-        return $visitor->getFoundNode();
     }
 
     private function getComponentAstCollection(string $componentName): NodeCollection
