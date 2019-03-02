@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator;
 
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\ParentNodeNotFoundException;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\UnknownParameterException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use PhpParser\Node\Stmt\ClassMethod;
 
@@ -52,8 +54,45 @@ final class ClassMethodNodeDecorator extends AbstractNodeDecorator implements Na
         return $this->getNodeDecorator($this->node->params[$index]);
     }
 
+    public function getParameterIndex(ParamNodeDecorator $searchParamDecorator): int
+    {
+        foreach ($this->node->params as $index => $param) {
+            $currentParamDecorator = $this->getNodeDecorator($param);
+
+            if ($currentParamDecorator === $searchParamDecorator) {
+                return $index;
+            }
+        }
+
+        throw new UnknownParameterException($searchParamDecorator);
+    }
+
     public function isPublic(): bool
     {
         return $this->node->isPublic();
+    }
+
+    public function isWithinClass(): bool
+    {
+        try {
+            if ($this->getEnclosingClassLikeNode() instanceof StmtClassNodeDecorator) {
+                return true;
+            }
+        } catch (ParentNodeNotFoundException $e) {
+        }
+
+        return false;
+    }
+
+    public function isWithinTrait(): bool
+    {
+        try {
+            if ($this->getEnclosingClassLikeNode() instanceof TraitNodeDecorator) {
+                return true;
+            }
+        } catch (ParentNodeNotFoundException $e) {
+        }
+
+        return false;
     }
 }

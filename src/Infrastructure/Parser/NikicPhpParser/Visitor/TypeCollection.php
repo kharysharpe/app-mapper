@@ -21,6 +21,7 @@ use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\AbstractCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\EmptyCollectionException;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Exception\NonUniqueTypeCollectionException;
 use Hgraca\PhpExtension\String\ClassHelper;
+use Hgraca\PhpExtension\String\StringHelper;
 use function array_key_exists;
 use function array_values;
 
@@ -91,5 +92,56 @@ final class TypeCollection extends AbstractCollection
     public function hasType(string $typeFqn): bool
     {
         return array_key_exists($typeFqn, $this->itemList);
+    }
+
+    public function containsInterface(): bool
+    {
+        foreach ($this->itemList as $fqcn => $type) {
+            if (
+                StringHelper::hasEnding('Interface', $fqcn)
+                || $type->isInterface()
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function containsAbstract(): bool
+    {
+        foreach ($this->itemList as $fqcn => $type) {
+            if (
+                StringHelper::hasBeginning('Abstract', $fqcn)
+                || $type->isAbstract()
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function containsMixed(): bool
+    {
+        foreach ($this->itemList as $fqcn => $type) {
+            if (
+                StringHelper::hasBeginning('Abstract', $fqcn)
+                || $type->isAbstract()
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isConcrete(): bool
+    {
+        return !(
+            $this->containsInterface()
+            || $this->containsAbstract()
+            || $this->containsMixed()
+        );
     }
 }

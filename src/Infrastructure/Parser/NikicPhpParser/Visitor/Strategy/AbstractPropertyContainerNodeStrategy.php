@@ -18,9 +18,7 @@ declare(strict_types=1);
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractInterfaceLikeNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\AbstractNodeDecorator;
-use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\PropertyNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -47,8 +45,8 @@ abstract class AbstractPropertyContainerNodeStrategy extends AbstractStrategy
     {
         $this->validateNode($node);
 
-        $this->addCollectedPropertySiblingsToTheirDeclaration($node);
-        $this->storePropertiesSiblingsInNode($node);
+//        $this->addCollectedPropertySiblingsToTheirDeclaration($node);
+//        $this->storePropertiesSiblingsInNode($node);
         $this->propertyFetchCollector->reset();
     }
 
@@ -57,20 +55,20 @@ abstract class AbstractPropertyContainerNodeStrategy extends AbstractStrategy
      *
      * @param Class_|Trait_ $node
      */
-    private function addCollectedPropertySiblingsToTheirDeclaration(Node $node): void
-    {
-        foreach ($node->stmts as $stmt) {
-            $stmtNodeDecorator = $this->getNodeDecorator($stmt);
-            if ($stmtNodeDecorator instanceof PropertyNodeDecorator) {
-                $stmtNodeDecorator->addSiblingNodes(
-                    ...$this->excludeNode(
-                    $this->propertyFetchCollector->getNodesFor($stmtNodeDecorator),
-                    $stmtNodeDecorator
-                )
-                );
-            }
-        }
-    }
+//    private function addCollectedPropertySiblingsToTheirDeclaration(Node $node): void
+//    {
+//        foreach ($node->stmts as $stmt) {
+//            $stmtNodeDecorator = $this->getNodeDecorator($stmt);
+//            if ($stmtNodeDecorator instanceof PropertyNodeDecorator) {
+//                $stmtNodeDecorator->addSiblingNodes(
+//                    ...$this->excludeNode(
+//                    $this->propertyFetchCollector->getNodesFor($stmtNodeDecorator),
+//                    $stmtNodeDecorator
+//                )
+//                );
+//            }
+//        }
+//    }
 
     private function excludeNode(array $nodeList, AbstractNodeDecorator $nodeToRemove): array
     {
@@ -82,10 +80,11 @@ abstract class AbstractPropertyContainerNodeStrategy extends AbstractStrategy
         );
     }
 
-    private function storePropertiesSiblingsInNode(Node $node): void
-    {
-        /** @var AbstractInterfaceLikeNodeDecorator $classLikeNodeDecorator */
-        $classLikeNodeDecorator = $this->getNodeDecorator($node);
-        $classLikeNodeDecorator->storePropertiesSiblings($this->propertyFetchCollector->clone());
-    }
+//
+//    private function storePropertiesSiblingsInNode(Node $node): void
+//    {
+//        /** @var AbstractInterfaceLikeNodeDecorator $classLikeNodeDecorator */
+//        $classLikeNodeDecorator = $this->getNodeDecorator($node);
+//        $classLikeNodeDecorator->storePropertiesSiblings($this->propertyFetchCollector->clone());
+//    }
 }

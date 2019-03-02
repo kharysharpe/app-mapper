@@ -180,16 +180,20 @@ abstract class AbstractNodeDecorator
 
     protected function getFirstParentNodeOfType(string $type): self
     {
-        $node = $this;
+        $nodeDecorator = $this;
         do {
-            $node = $node->getParentNode();
-        } while ($node !== null && !$node->isInternalNodeInstanceOf($type));
+            $nodeDecorator = $nodeDecorator->getParentNode();
+        } while (
+            $nodeDecorator !== null
+            && !$nodeDecorator->isInternalNodeInstanceOf($type)
+            && !$nodeDecorator instanceof $type
+        );
 
-        if (!$node) {
+        if (!$nodeDecorator) {
             throw new ParentNodeNotFoundException($type, $this);
         }
 
-        return $node;
+        return $nodeDecorator;
     }
 
     protected function getTypeCollectionFromUses(string $type): TypeCollection

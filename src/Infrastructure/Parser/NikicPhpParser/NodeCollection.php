@@ -129,6 +129,7 @@ final class NodeCollection
 
     public function resolveAllTypes(): void
     {
+        $GLOBALS['nodeList'] = $this->nodeList;
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new TypeResolverVisitor());
         $traverser->traverse(array_values($this->nodeList));

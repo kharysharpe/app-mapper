@@ -41,6 +41,7 @@ use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventDispatch
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Port\EventDispatcher\EventInterface;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\DddTrait;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\BbbEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 use Hgraca\PhpExtension\Reflection\ReflectionHelper;
@@ -908,6 +909,103 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
         );
     }
 
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function type_is_inferred_correctly_when_injected_but_type_hinted_interface(): void
+    {
+        $methodNode = $this->getMethod('methodC', XxxAaaService::class);
+
+        $assignmentExpressionVariableTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.var.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        // Assignment variable should have all these types
+        self::assertCount(
+            4,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            EventInterface::class,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            BbbEvent::class,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            CccEvent::class,
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            'null',
+            $assignmentExpressionVariableTypeList,
+            json_encode(array_keys($assignmentExpressionVariableTypeList), JSON_PRETTY_PRINT)
+        );
+
+        // Dispatched type should have all these types
+        $dispatchedVariableTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.1.expr.args.0.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            4,
+            $dispatchedVariableTypeList,
+            json_encode(array_keys($dispatchedVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            EventInterface::class,
+            $dispatchedVariableTypeList,
+            json_encode(array_keys($dispatchedVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            BbbEvent::class,
+            $dispatchedVariableTypeList,
+            json_encode(array_keys($dispatchedVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            CccEvent::class,
+            $dispatchedVariableTypeList,
+            json_encode(array_keys($dispatchedVariableTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            'null',
+            $dispatchedVariableTypeList,
+            json_encode(array_keys($dispatchedVariableTypeList), JSON_PRETTY_PRINT)
+        );
+    }
+
+    /**
+     * @test
+     *
+     * @throws \ReflectionException
+     */
+    public function xxx_aaa_service_method_g_dispatches_ccc_event(): void
+    {
+        $methodNode = $this->getMethod('methodG', XxxAaaService::class);
+
+        $dispatchedEventTypeList = ReflectionHelper::getNestedProperty(
+            'stmts.0.expr.args.0.attributes.decorator.typeCollection.itemList',
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $dispatchedEventTypeList,
+            json_encode(array_keys($dispatchedEventTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            CccEvent::class,
+            $dispatchedEventTypeList,
+            json_encode(array_keys($dispatchedEventTypeList), JSON_PRETTY_PRINT)
+        );
+    }
+
     private function getProperty(string $propertyName, string $classFqcn): Property
     {
         /** @var Class_ $classNode */
@@ -958,7 +1056,6 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
     /**
      * @test
      * @dataProvider methodNameProvider
-     * @group failing
      *
      * @throws \ReflectionException
      */
@@ -973,7 +1070,7 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
             $methodNode
         );
         self::assertCount(
-            1,
+            2,
             $dispatcherTypeList,
             json_encode(array_keys($dispatcherTypeList), JSON_PRETTY_PRINT)
         );

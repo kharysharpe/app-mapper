@@ -112,6 +112,11 @@ final class MethodCallNodeDecorator extends AbstractNodeDecorator implements Nam
         return $argumentList;
     }
 
+    public function getArgumentInIndex(int $index): ?ArgNodeDecorator
+    {
+        return $this->getArguments()[$index] ?? null;
+    }
+
     public function getLine(): int
     {
         return (int) $this->node->getAttribute('startLine');

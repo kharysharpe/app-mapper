@@ -17,17 +17,43 @@ declare(strict_types=1);
 
 namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\Strategy;
 
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\NodeDecoratorAccessorTrait;
+use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDecorator\ClassMethodNodeDecorator;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 
 final class ClassMethodNodeStrategy extends AbstractStrategy
 {
+    use NodeDecoratorAccessorTrait;
+
     private $variableCollector;
 
-    public function __construct(TypeNodeCollector $variableCollector)
+    /**
+     * @var TypeNodeCollector
+     */
+    private $propertyCollector;
+
+    public function __construct(TypeNodeCollector $variableCollector, TypeNodeCollector $propertyCollector)
     {
         $this->variableCollector = $variableCollector;
+        $this->propertyCollector = $propertyCollector;
+    }
+
+    /**
+     * @param Node|ClassMethod $classMethod
+     */
+    public function enterNode(Node $classMethod): void
+    {
+        $this->validateNode($classMethod);
+        /** @var ClassMethodNodeDecorator $classMethodDecorator */
+        $classMethodDecorator = $this->getNodeDecorator($classMethod);
+
+        if ($classMethodDecorator->isWithinClass() || $classMethodDecorator->isWithinTrait()) {
+            $this->propertyCollector->initializeWith(
+                $classMethodDecorator->getEnclosingClassLikeNode()->getDeclaredProperties()
+            );
+        }
     }
 
     /**

@@ -39,7 +39,7 @@ final class TypeResolverInjectorVisitor extends NodeVisitorAbstract
 
         $this->strategyCollection = new NodeVisitorStrategyCollection(
             new AssignNodeStrategy($propertyFetchCollector, $variableCollector),
-            new ClassMethodNodeStrategy($variableCollector),
+            new ClassMethodNodeStrategy($variableCollector, $propertyFetchCollector),
             new ClassNodeStrategy($propertyFetchCollector),
             new ForeachNodeStrategy($propertyFetchCollector, $variableCollector),
             new PropertyFetchNodeStrategy($propertyFetchCollector),

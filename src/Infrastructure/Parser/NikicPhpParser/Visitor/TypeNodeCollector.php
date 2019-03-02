@@ -68,4 +68,13 @@ final class TypeNodeCollector
 
         return $clone;
     }
+
+    public function initializeWith(array $nodeDecoratorList): void
+    {
+        $this->reset();
+
+        foreach ($nodeDecoratorList as $nodeDecorator) {
+            $this->collectNodeFor($nodeDecorator);
+        }
+    }
 }

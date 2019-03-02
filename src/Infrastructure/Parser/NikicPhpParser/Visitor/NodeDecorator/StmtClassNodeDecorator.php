@@ -61,6 +61,11 @@ final class StmtClassNodeDecorator extends AbstractClassLikeNodeDecorator
             : null;
     }
 
+    public function isAbstract(): bool
+    {
+        return $this->node->isAbstract();
+    }
+
     protected function getPropertyTypeCollectionFromHierarchy(
         NamedNodeDecoratorInterface $nodeDecorator
     ): TypeCollection {

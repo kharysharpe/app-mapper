@@ -19,9 +19,12 @@ namespace Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\NodeDeco
 
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeCollection;
 use Hgraca\AppMapper\Infrastructure\Parser\NikicPhpParser\Visitor\TypeNodeCollector;
+use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\Stmt\TraitUse;
+use function array_key_exists;
 
 /**
  * @property Class_|Trait_ $node
@@ -37,6 +40,17 @@ abstract class AbstractClassLikeNodeDecorator extends AbstractInterfaceLikeNodeD
      * @var TypeCollection[]
      */
     private $propertyNodesTypeCollections = [];
+
+    /**
+     * @var PropertyNodeDecorator[]
+     */
+    private $propertyList = [];
+
+    public function __construct(Node $node, AbstractNodeDecorator $parentNode = null)
+    {
+        parent::__construct($node, $parentNode);
+        $this->propertyNodesSiblingCollection = new TypeNodeCollector();
+    }
 
     abstract protected function getPropertyTypeCollectionFromHierarchy(
         NamedNodeDecoratorInterface $nodeDecorator
@@ -61,7 +75,7 @@ abstract class AbstractClassLikeNodeDecorator extends AbstractInterfaceLikeNodeD
 
     public function getPropertyTypeCollection(NamedNodeDecoratorInterface $nodeDecorator): TypeCollection
     {
-        if (!$this->hasProperty($nodeDecorator)) {
+        if (!$this->hasDeclaredProperty($nodeDecorator)) {
             return $this->getPropertyTypeCollectionFromHierarchy($nodeDecorator);
         }
 
@@ -71,6 +85,24 @@ abstract class AbstractClassLikeNodeDecorator extends AbstractInterfaceLikeNodeD
         }
 
         return $this->propertyNodesTypeCollections[$propertyName];
+    }
+
+    /**
+     * @return PropertyNodeDecorator[]
+     */
+    public function getDeclaredProperties(): array
+    {
+        if (empty($this->propertyList)) {
+            foreach ($this->node->stmts as $stmt) {
+                if ($stmt instanceof Property) {
+                    /** @var PropertyNodeDecorator $propertyDecorator */
+                    $propertyDecorator = $this->getNodeDecorator($stmt);
+                    $this->propertyList[$propertyDecorator->getName()] = $propertyDecorator;
+                }
+            }
+        }
+
+        return $this->propertyList;
     }
 
     protected function getPropertyTypeCollectionFromTraits(NamedNodeDecoratorInterface $nodeDecorator): TypeCollection
@@ -111,9 +143,16 @@ abstract class AbstractClassLikeNodeDecorator extends AbstractInterfaceLikeNodeD
         return array_key_exists($nodeDecorator->getName(), $this->propertyNodesTypeCollections);
     }
 
-    private function hasProperty(NamedNodeDecoratorInterface $nodeDecorator): bool
+    private function hasDeclaredProperty(NamedNodeDecoratorInterface $nodeDecorator): bool
     {
-        return $this->propertyNodesSiblingCollection->hasNodesFor($nodeDecorator);
+        return array_key_exists($nodeDecorator->getName(), $this->getDeclaredProperties());
+    }
+
+    private function getDeclaredProperty(NamedNodeDecoratorInterface $nodeDecorator): PropertyNodeDecorator
+    {
+        $declaredProperties = $this->getDeclaredProperties();
+
+        return $declaredProperties[$nodeDecorator->getName()];
     }
 
     public function storePropertiesSiblings(TypeNodeCollector $nodeCollector): void
@@ -123,7 +162,7 @@ abstract class AbstractClassLikeNodeDecorator extends AbstractInterfaceLikeNodeD
 
     private function resolvePropertyTypeCollection(NamedNodeDecoratorInterface $nodeDecorator): void
     {
-        $typeCollection = new TypeCollection();
+        $typeCollection = $this->getDeclaredProperty($nodeDecorator)->getTypeCollection();
         foreach ($this->propertyNodesSiblingCollection->getNodesFor($nodeDecorator) as $siblingNode) {
             $typeCollection = $typeCollection->addTypeCollection($siblingNode->getTypeCollection());
         }

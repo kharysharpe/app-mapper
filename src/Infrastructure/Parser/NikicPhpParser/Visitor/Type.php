@@ -141,4 +141,20 @@ final class Type
 
         return $this->nodeTree;
     }
+
+    public function isInterface(): bool
+    {
+        return $this instanceof InterfaceNodeDecorator;
+    }
+
+    public function isAbstract(): bool
+    {
+        return $this->nodeDecorator instanceof StmtClassNodeDecorator
+            && $this->nodeDecorator->isAbstract();
+    }
+
+    public function isUnknown(): bool
+    {
+        return $this->typeAsString === self::UNKNOWN;
+    }
 }

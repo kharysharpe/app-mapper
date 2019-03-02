@@ -23,6 +23,7 @@ use Hgraca\AppMapper\Core\Port\Configuration\ConfigurationFactoryInterface;
 use Hgraca\AppMapper\Test\Framework\AbstractIntegrationTest;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\Component\X\Application\Service\XxxAaaService;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\AaaEvent;
+use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\BbbEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\CccEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\DddEvent;
 use Hgraca\AppMapper\Test\StubProjectSrc\Core\SharedKernel\Event\EeeEvent;
@@ -52,13 +53,13 @@ final class AppMapServiceIntegrationTest extends AbstractIntegrationTest
         }
     }
 
-//    /**
-//     * @test
-//     */
-//    public function event_type_is_inferred_correctly_when_injected_but_type_hinted_interface(): void
-//    {
-//        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', BbbEvent::class);
-//    }
+    /**
+     * @test
+     */
+    public function event_type_is_inferred_correctly_when_injected_but_type_hinted_interface(): void
+    {
+        $this->assertMethodDispatchesEvent(XxxAaaService::class, 'methodC', BbbEvent::class);
+    }
 
     /**
      * @test
