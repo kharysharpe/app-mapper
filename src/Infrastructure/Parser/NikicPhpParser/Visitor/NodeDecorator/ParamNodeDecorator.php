@@ -32,14 +32,14 @@ final class ParamNodeDecorator extends AbstractNodeDecorator
 
     public function resolveTypeCollection(): TypeCollection
     {
-        return $this->getType()
+        return $this->getDeclaredType()
             ->getTypeCollection()
             ->addTypeCollection(
                 $this->getDefaultValueTypeCollection()
             );
     }
 
-    public function getType(): AbstractNodeDecorator
+    public function getDeclaredType(): AbstractNodeDecorator
     {
         return $this->node->type === null
             ? new NullNodeDecorator($this)

@@ -37,7 +37,7 @@ final class MethodParameterAdapter implements TypeNodeInterface, MethodParameter
 
     public function getFullyQualifiedType(): string
     {
-        return $this->parameterNodeDecorator->getType()->getTypeCollection()->getUniqueType()->getFqn();
+        return $this->parameterNodeDecorator->getDeclaredType()->getTypeCollection()->getUniqueType()->getFqn();
     }
 
     public function getCanonicalType(): string
