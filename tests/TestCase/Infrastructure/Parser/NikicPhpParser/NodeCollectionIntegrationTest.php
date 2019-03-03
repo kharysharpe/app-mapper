@@ -954,4 +954,48 @@ final class NodeCollectionIntegrationTest extends AbstractIntegrationTest
 
         self::fail("Could not find parameter with name $ in method $methodName of class node $classFqcn");
     }
+
+    /**
+     * @test
+     * @dataProvider methodNameProvider
+     * @group failing
+     *
+     * @throws \ReflectionException
+     */
+    public function xxx_aaa_service_method_event_dispatcher_property_type_is_recognized(
+        int $stmtNbr,
+        string $methodName
+    ): void {
+        $methodNode = $this->getMethod($methodName, XxxAaaService::class);
+
+        $dispatcherTypeList = ReflectionHelper::getNestedProperty(
+            "stmts.$stmtNbr.expr.var.attributes.decorator.typeCollection.itemList",
+            $methodNode
+        );
+        self::assertCount(
+            1,
+            $dispatcherTypeList,
+            json_encode(array_keys($dispatcherTypeList), JSON_PRETTY_PRINT)
+        );
+        self::assertArrayHasKey(
+            EventDispatcherInterface::class,
+            $dispatcherTypeList,
+            json_encode(array_keys($dispatcherTypeList), JSON_PRETTY_PRINT)
+        );
+    }
+
+    public function methodNameProvider(): array
+    {
+        return [
+            [1, 'methodC'],
+            [1, 'methodD'],
+            [0, 'methodE'],
+            [0, 'methodF'],
+            [0, 'methodG'],
+            [0, 'methodH'],
+            [1, 'methodJ'],
+            [1, 'methodK'],
+            [1, 'methodM'],
+        ];
+    }
 }
