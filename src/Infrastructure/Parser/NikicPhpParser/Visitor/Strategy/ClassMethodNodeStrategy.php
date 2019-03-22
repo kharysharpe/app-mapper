@@ -27,17 +27,20 @@ final class ClassMethodNodeStrategy extends AbstractStrategy
 {
     use NodeDecoratorAccessorTrait;
 
-    private $variableCollector;
+    /**
+     * @var TypeNodeCollector
+     */
+    private $propertyFetchCollector;
 
     /**
      * @var TypeNodeCollector
      */
-    private $propertyCollector;
+    private $variableCollector;
 
-    public function __construct(TypeNodeCollector $variableCollector, TypeNodeCollector $propertyCollector)
+    public function __construct(TypeNodeCollector $propertyFetchCollector, TypeNodeCollector $variableCollector)
     {
+        $this->propertyFetchCollector = $propertyFetchCollector;
         $this->variableCollector = $variableCollector;
-        $this->propertyCollector = $propertyCollector;
     }
 
     /**
@@ -50,7 +53,7 @@ final class ClassMethodNodeStrategy extends AbstractStrategy
         $classMethodDecorator = $this->getNodeDecorator($classMethod);
 
         if ($classMethodDecorator->isWithinClass() || $classMethodDecorator->isWithinTrait()) {
-            $this->propertyCollector->initializeWith(
+            $this->propertyFetchCollector->initializeWith(
                 $classMethodDecorator->getEnclosingClassLikeNode()->getDeclaredProperties()
             );
         }
