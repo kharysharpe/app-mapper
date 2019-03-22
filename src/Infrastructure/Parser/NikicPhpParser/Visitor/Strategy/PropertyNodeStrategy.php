@@ -27,11 +27,11 @@ final class PropertyNodeStrategy extends AbstractStrategy
 {
     use NodeDecoratorAccessorTrait;
 
-    private $propertyCollector;
+    private $propertyFetchCollector;
 
-    public function __construct(TypeNodeCollector $propertyCollector)
+    public function __construct(TypeNodeCollector $propertyFetchCollector)
     {
-        $this->propertyCollector = $propertyCollector;
+        $this->propertyFetchCollector = $propertyFetchCollector;
     }
 
     /**
@@ -44,7 +44,7 @@ final class PropertyNodeStrategy extends AbstractStrategy
         /** @var PropertyNodeDecorator $propertyDecorator */
         $propertyDecorator = $this->getNodeDecorator($property);
 
-        $this->propertyCollector->collectNode($propertyDecorator);
+        $this->propertyFetchCollector->collectNode($propertyDecorator);
     }
 
     public static function getNodeTypeHandled(): string
