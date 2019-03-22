@@ -45,7 +45,7 @@ final class PropertyFetchNodeStrategy extends AbstractStrategy
         $propertyFetchNodeDecorator = $this->getNodeDecorator($propertyFetchNode);
 
         if ($propertyFetchNodeDecorator->isAssignee()) {
-            $this->propertyFetchCollector->collectNodeFor($propertyFetchNodeDecorator);
+            $this->propertyFetchCollector->collectNode($propertyFetchNodeDecorator);
 
             return;
         }

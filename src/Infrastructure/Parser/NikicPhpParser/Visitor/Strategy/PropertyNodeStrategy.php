@@ -44,7 +44,7 @@ final class PropertyNodeStrategy extends AbstractStrategy
         /** @var PropertyNodeDecorator $propertyDecorator */
         $propertyDecorator = $this->getNodeDecorator($property);
 
-        $this->propertyCollector->collectNodeFor($propertyDecorator);
+        $this->propertyCollector->collectNode($propertyDecorator);
     }
 
     public static function getNodeTypeHandled(): string

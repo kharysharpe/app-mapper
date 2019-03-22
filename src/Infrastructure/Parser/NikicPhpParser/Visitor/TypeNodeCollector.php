@@ -32,7 +32,7 @@ final class TypeNodeCollector
      */
     private $collector = [];
 
-    public function collectNodeFor(NamedNodeDecoratorInterface $nodeDecorator): void
+    public function collectNode(NamedNodeDecoratorInterface $nodeDecorator): void
     {
         $this->collector[$nodeDecorator->getName()][spl_object_hash($nodeDecorator)] = $nodeDecorator;
     }
@@ -40,7 +40,7 @@ final class TypeNodeCollector
     public function reassign(NamedNodeDecoratorInterface $nodeDecorator): void
     {
         $this->collector[$nodeDecorator->getName()] = [];
-        $this->collectNodeFor($nodeDecorator);
+        $this->collectNode($nodeDecorator);
     }
 
     /**
@@ -74,7 +74,7 @@ final class TypeNodeCollector
         $this->reset();
 
         foreach ($nodeDecoratorList as $nodeDecorator) {
-            $this->collectNodeFor($nodeDecorator);
+            $this->collectNode($nodeDecorator);
         }
     }
 }

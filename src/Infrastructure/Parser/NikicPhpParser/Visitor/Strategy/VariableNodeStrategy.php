@@ -48,13 +48,13 @@ final class VariableNodeStrategy extends AbstractStrategy
         $variableNodeDecorator = $this->getNodeDecorator($variableNode);
 
         if ($variableNodeDecorator->isParameterDeclaration()) {
-            $this->variableCollector->collectNodeFor($variableNodeDecorator);
+            $this->variableCollector->collectNode($variableNodeDecorator);
 
             return;
         }
 
         if ($variableNodeDecorator->isAssignee()) {
-            $this->variableCollector->collectNodeFor($variableNodeDecorator);
+            $this->variableCollector->collectNode($variableNodeDecorator);
 
             return;
         }

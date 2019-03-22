@@ -81,7 +81,7 @@ final class ForeachNodeStrategy extends AbstractStrategy
             $this->variableCollector->reassign($exprDecorator);
         } elseif ($exprDecorator instanceof PropertyFetchNodeDecorator) {
             // Assignment to property
-            $this->propertyCollector->collectNodeFor($exprDecorator);
+            $this->propertyCollector->collectNode($exprDecorator);
         }
     }
 }
