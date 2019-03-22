@@ -27,11 +27,11 @@ final class PropertyFetchNodeStrategy extends AbstractStrategy
 {
     use NodeDecoratorAccessorTrait;
 
-    private $propertyCollector;
+    private $propertyFetchCollector;
 
-    public function __construct(TypeNodeCollector $propertyCollector)
+    public function __construct(TypeNodeCollector $propertyFetchCollector)
     {
-        $this->propertyCollector = $propertyCollector;
+        $this->propertyFetchCollector = $propertyFetchCollector;
     }
 
     /**
@@ -45,13 +45,13 @@ final class PropertyFetchNodeStrategy extends AbstractStrategy
         $propertyFetchNodeDecorator = $this->getNodeDecorator($propertyFetchNode);
 
         if ($propertyFetchNodeDecorator->isAssignee()) {
-            $this->propertyCollector->collectNodeFor($propertyFetchNodeDecorator);
+            $this->propertyFetchCollector->collectNodeFor($propertyFetchNodeDecorator);
 
             return;
         }
 
         $propertyFetchNodeDecorator->addSiblingNodes(
-            ...$this->propertyCollector->getNodesFor($propertyFetchNodeDecorator)
+            ...$this->propertyFetchCollector->getNodesFor($propertyFetchNodeDecorator)
         );
     }
 
