@@ -41,9 +41,7 @@ final class PropertyFetchNodeDecorator extends AbstractNodeDecorator implements 
             return $parentNode->getExpression()->getTypeCollection();
         }
 
-        return $this->getSiblingTypeCollection()->addTypeCollection(
-            $this->getEnclosingClassLikeNode()->getPropertyTypeCollection($this)
-        );
+        return $this->getSiblingTypeCollection();
     }
 
     public function getName(): string
