@@ -50,7 +50,8 @@ final class ParamNodeDecorator extends AbstractNodeDecorator implements NamedNod
                 $this->getDefaultValueTypeCollection()
             );
 
-        if ($this->isWithinClass() && !$typeCollection->isConcrete()) {
+        if ($this->isWithinClass() && !$typeCollection->isConcrete() && !$this->isParameterOfClosure()) {
+            // FIXME this makes it VERY slow! We need to investigate why and maybe make it optional using a CLI param.
             $this->addTypesFromMethodCallsArgument();
         }
 
@@ -127,12 +128,14 @@ final class ParamNodeDecorator extends AbstractNodeDecorator implements NamedNod
         return $this->getFirstParentNodeOfType(ClassMethodNodeDecorator::class);
     }
 
-    /**
-     * @return bool
-     */
     private function isWithinClass(): bool
     {
         return $this->getEnclosingInterfaceLikeNode() instanceof StmtClassNodeDecorator;
+    }
+
+    private function isParameterOfClosure(): bool
+    {
+        return $this->getParentNode() instanceof ClosureNodeDecorator;
     }
 
     /**

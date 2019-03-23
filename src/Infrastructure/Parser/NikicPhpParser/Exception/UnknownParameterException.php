@@ -24,6 +24,14 @@ final class UnknownParameterException extends ParserException
 {
     public function __construct(ParamNodeDecorator $searchParamDecorator)
     {
-        parent::__construct('Unknown parameter ' . $searchParamDecorator->getName());
+        $parameterName = $searchParamDecorator->getName();
+        $method = $searchParamDecorator->getEnclosingMethodNode();
+        $methodName = $method->getName();
+        $className = $method->getEnclosingClassLikeNode()->getName();
+
+        parent::__construct(
+            "Unknown parameter '$parameterName' in method '$methodName' in class '$className'.\n"
+            . $searchParamDecorator->resolveNodeTreeAsJson()
+        );
     }
 }
