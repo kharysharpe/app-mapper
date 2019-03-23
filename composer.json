@@ -2,7 +2,7 @@
     "name": "hgraca/app-mapper",
     "type": "project",
     "license": "MIT",
-    "description": "A static analysis tool that can draw an application map, which is similar to a application map but more detailed and accurate.",
+    "description": "A static analysis tool that can draw an application map, which is similar to a DDD contex map but more detailed and accurate.",
     "require": {
         "php": "^7.1.3",
         "ext-ctype": "*",
